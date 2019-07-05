@@ -1,0 +1,19 @@
+syntax highlight
+autocompletion
+text object like editing
+auto indent
+auto indent after o/O/enter
+multi-head redo selector
+command hints
+time-based redo
+moment recycle / compact / merge in Buffer
+context number awared commands
+generate dscope fast path
+view group switching
+wasm plungins
+changing view's group
+key macro
+auto resizing ui element
+source outline
+context command menu
+
