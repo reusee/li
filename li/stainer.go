@@ -16,7 +16,9 @@ var _ Stainer = NoopStainer{}
 
 func (_ NoopStainer) Line() dyn {
 	return func(
+		moment *Moment,
 		line *Line,
+		lineNumber LineNumber,
 	) (ret []*Color) {
 		for i := 0; i < len(line.Runes); i++ {
 			ret = append(ret, nil)
