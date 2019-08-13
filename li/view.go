@@ -60,10 +60,10 @@ func NewViewFromBuffer(
 	linkedOne(buffer, &moment)
 
 	view = &View{
-		ID:     id,
-		Buffer: buffer,
-		Moment: moment,
-		//Stainer: new(RandomStainer),
+		ID:      id,
+		Buffer:  buffer,
+		Moment:  moment,
+		Stainer: new(NoopStainer),
 		ViewMomentState: ViewMomentState{
 			ViewportLine: 0,
 			ViewportCol:  0,

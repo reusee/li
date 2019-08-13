@@ -7,12 +7,29 @@ import (
 )
 
 type Stainer interface {
-	Line() any
+	Line() dyn
+}
+
+type NoopStainer struct{}
+
+var _ Stainer = NoopStainer{}
+
+func (_ NoopStainer) Line() dyn {
+	return func(
+		line *Line,
+	) (ret []*Color) {
+		for i := 0; i < len(line.Runes); i++ {
+			ret = append(ret, nil)
+		}
+		return
+	}
 }
 
 type RandomStainer struct{}
 
-func (_ RandomStainer) Line() any {
+var _ Stainer = RandomStainer{}
+
+func (_ RandomStainer) Line() dyn {
 	return func(
 		line *Line,
 	) []*Color {
