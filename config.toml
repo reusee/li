@@ -83,6 +83,7 @@ Layouts = [
   'Rune[z] Rune[b]' = 'ScrollCursorToLower' 
   'Rune[x]' = 'DeleteRune' 
   'Rune[c]' = 'Change' 
+  'Rune[c] Rune[w]' = 'ChangeToWordEnd' 
   'Rune[v]' = 'ToggleSelection' 
   'Rune[b]' = 'ShowViewSwitcher' 
   'Rune[M]' = 'PageDown'

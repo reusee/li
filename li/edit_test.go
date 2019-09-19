@@ -563,3 +563,50 @@ func TestEditNewLineBelowAndAbove(t *testing.T) {
 		)
 	})
 }
+
+func TestChangeToWordEnd(t *testing.T) {
+	withHelloEditor(t, func(
+		scope Scope,
+		view *View,
+	) {
+		scope.Call(ChangeToWordEnd)
+		eq(t,
+			view.Moment.GetLine(0).content, ", world!\n",
+		)
+		scope.Call(ChangeToWordEnd)
+		eq(t,
+			view.Moment.GetLine(0).content, " world!\n",
+		)
+		scope.Call(ChangeToWordEnd)
+		eq(t,
+			view.Moment.GetLine(0).content, "world!\n",
+		)
+		scope.Call(ChangeToWordEnd)
+		eq(t,
+			view.Moment.GetLine(0).content, "!\n",
+		)
+		scope.Call(ChangeToWordEnd)
+		eq(t,
+			view.Moment.GetLine(0).content, "\n",
+		)
+		scope.Call(ChangeToWordEnd)
+		eq(t,
+			view.Moment.GetLine(0).content, "\n",
+		)
+
+		scope.Sub(func() Move {
+			return Move{RelLine: 1}
+		}).Call(MoveCursor)
+		scope.Call(ChangeToWordEnd)
+		eq(t,
+			view.Moment.GetLine(1).content, "，世界！\n",
+		)
+		scope.Sub(func() Move {
+			return Move{RelRune: 2}
+		}).Call(MoveCursor)
+		scope.Call(ChangeToWordEnd)
+		eq(t,
+			view.Moment.GetLine(1).content, "，世！\n",
+		)
+	})
+}

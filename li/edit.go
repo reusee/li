@@ -357,3 +357,19 @@ func ChangeText(
 
 	return
 }
+
+func ChangeToWordEnd(
+	scope Scope,
+	cur CurrentView,
+) {
+	if cur() == nil {
+		return
+	}
+	scope.Sub(func() [2]PositionFunc {
+		return [2]PositionFunc{
+			PosCursor,
+			PosWordEnd,
+		}
+	}).Call(DeleteWithinPositionFuncs)
+	scope.Call(EnableEditMode)
+}

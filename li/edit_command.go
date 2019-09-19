@@ -85,3 +85,9 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 	}
 	return
 }
+
+func (_ Command) ChangeToWordEnd() (spec CommandSpec) {
+	spec.Desc = "change text from current cursor position to end of word"
+	spec.Func = ChangeToWordEnd
+	return
+}
