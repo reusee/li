@@ -338,10 +338,22 @@ func Delete(
 
 func ChangeText(
 	scope Scope,
+	cur CurrentView,
+) (
+	abort Abort,
 ) {
-	scope.Sub(func() AfterFunc {
-		return func(scope Scope) {
-			scope.Call(EnableEditMode)
-		}
-	}).Call(_Delete)
+
+	if view := cur(); view != nil && view.selectedRange() != nil {
+		// if selected
+		scope.Sub(func() AfterFunc {
+			return func(scope Scope) {
+				scope.Call(EnableEditMode)
+			}
+		}).Call(_Delete)
+
+	} else {
+		abort = true
+	}
+
+	return
 }

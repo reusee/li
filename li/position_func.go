@@ -92,3 +92,19 @@ func PosNextRune(
 		}
 	}
 }
+
+func PosNextWordEnd() {
+	//TODO
+}
+
+func PosNextWordBegin() {
+	//TODO
+}
+
+func PosPrevWordEnd() {
+	//TODO
+}
+
+func PosPrevWordBegin() {
+	//TODO
+}

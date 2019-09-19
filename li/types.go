@@ -5,6 +5,7 @@ type (
 	ID         int64
 	AfterFunc  any
 	LineNumber int
+	Abort      bool
 )
 
 type Position struct {

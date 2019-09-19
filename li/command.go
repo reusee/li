@@ -35,9 +35,11 @@ func (_ Provide) Commands() Commands {
 func ExecuteCommandFunc(
 	fn Func,
 	scope Scope,
-	log LogImitation,
+	logImitation LogImitation,
 	set SetStrokeSpecs,
 	reset ResetStrokeSpecs,
+) (
+	abort Abort,
 ) {
 
 call:
@@ -49,9 +51,17 @@ call:
 	var noLogImitation NoLogImitation
 	// if non-nil, call again
 	var moreFunc Func
-	scope.Call(fn, &noResetN, &specs, &noLogImitation, &moreFunc)
+	// abort execution
+	scope.Call(
+		fn,
+		&noResetN,
+		&specs,
+		&noLogImitation,
+		&moreFunc,
+		&abort,
+	)
 	if !noLogImitation {
-		log(fn)
+		logImitation(fn)
 	}
 	if moreFunc != nil {
 		fn = moreFunc
@@ -61,9 +71,10 @@ call:
 	if len(specs) > 0 {
 		// set new specs
 		set(specs, false)
-	} else {
+	} else if !abort {
 		// reset to inital specs
 		reset(noResetN)
 	}
 
+	return
 }

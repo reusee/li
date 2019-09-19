@@ -188,9 +188,15 @@ func HandleKeyEvent(
 			} else if spec.CommandName != "" && commands[spec.CommandName].Func != nil {
 				fn = commands[spec.CommandName].Func
 			}
-			keyScope.Sub(func() Func { return fn }).Call(ExecuteCommandFunc)
+			var abort Abort
+			keyScope.Sub(func() Func { return fn }).Call(
+				ExecuteCommandFunc,
+				&abort,
+			)
 
-			return
+			if !abort {
+				return
+			}
 		}
 
 	}
