@@ -1,6 +1,8 @@
 package li
 
 import (
+	"go/token"
+	"strings"
 	"sync"
 )
 
@@ -12,17 +14,6 @@ type GoLexicalStainer struct {
 type GoLexicalStainerCacheKey struct {
 	MomentID
 	LineNumber
-}
-
-//TODO configurable
-var goSyntaxStyle = map[string]StyleFunc{
-	"type_identifier":  SetFG(HexColor(0x0099CC)).SetUnderline(true),
-	"identifier":       SetFG(HexColor(0x00CC99)),
-	"argument_list":    SetFG(HexColor(0x9900CC)),
-	"parameter_list":   SetFG(HexColor(0x9900CC)),
-	"block":            SetFG(HexColor(0x99CC00)),
-	"return_statement": SetFG(HexColor(0xCC0099)).SetBold(true),
-	"field_identifier": SetFG(HexColor(0xCC9900)),
 }
 
 func (s *GoLexicalStainer) Line() any {
@@ -42,15 +33,32 @@ func (s *GoLexicalStainer) Line() any {
 		line := moment.GetLine(int(lineNum))
 		for _, cell := range line.Cells {
 			attr := moment.GetSyntaxAttr(int(lineNum), cell.RuneOffset)
-			if fn, ok := goSyntaxStyle[attr]; ok && fn != nil {
-				fns = append(fns, fn)
-			} else {
-				fns = append(fns, nil)
-			}
+			fns = append(fns, s.AttrStyleFunc(attr))
 		}
 
 		s.cache.Store(key, fns)
 
 		return
 	}
+}
+
+func (s *GoLexicalStainer) AttrStyleFunc(attr string) StyleFunc {
+	if token.IsKeyword(attr) {
+		return KeywordStyleFunc
+	} else if strings.HasSuffix(attr, "_literal") {
+		return LiteralStyleFunc
+	}
+	switch attr {
+	case "type_identifier":
+		return TypeStyleFunc
+	case "bool", "byte", "complex64", "complex128", "error", "float32", "float64",
+		"int", "int8", "int16", "int32", "int64", "rune", "string",
+		"uint", "uint8", "uint16", "uint32", "uint64", "uintptr",
+		"true", "false", "iota",
+		"nil",
+		"append", "cap", "close", "complex", "copy", "delete", "imag", "len",
+		"make", "new", "panic", "print", "println", "real", "recover":
+		return BuiltInStyleFunc
+	}
+	return nil
 }
