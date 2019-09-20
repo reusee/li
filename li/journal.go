@@ -10,8 +10,9 @@ type (
 		format string,
 		args ...any,
 	)
-	JournalLines  func() []string
-	JournalHeight func(...int) int
+	JournalLines         func() []string
+	JournalHeight        func(...int) int
+	InitialJournalHeight int
 )
 
 func (_ Provide) Journal(
@@ -21,6 +22,7 @@ func (_ Provide) Journal(
 	appendJournal AppendJournal,
 	get JournalLines,
 	accessHeight JournalHeight,
+	initialjournalheight InitialJournalHeight,
 ) {
 
 	var lines []string
@@ -44,6 +46,7 @@ func (_ Provide) Journal(
 	if initHeight == 0 {
 		initHeight = 1
 	}
+	initialjournalheight = InitialJournalHeight(initHeight)
 
 	height := initHeight
 	accessHeight = func(updates ...int) int {
@@ -77,7 +80,26 @@ func JournalUI(
 	}
 	ret = Rect(
 		Text(lines),
+		Fill(true),
 	)
 
+	return
+}
+
+func (_ Command) ToggleJournalHeight() (spec CommandSpec) {
+	spec.Desc = "toggle journal height"
+	spec.Func = func(
+		initHeight InitialJournalHeight,
+		access JournalHeight,
+		screenHeight Height,
+	) {
+		height := int(access())
+		if height == int(initHeight) {
+			height = int(screenHeight) / 2
+		} else {
+			height = int(initHeight)
+		}
+		access(height)
+	}
 	return
 }

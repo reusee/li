@@ -55,6 +55,7 @@ Layouts = [
 
   'F2' = 'ToggleMacroRecording'
 
+  'Rune[`]' = 'ToggleJournalHeight'
   'Rune[#]' = 'LineBegin'
   'Rune[$]' = 'LineEnd'
 
