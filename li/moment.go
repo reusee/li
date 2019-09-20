@@ -1,6 +1,7 @@
 package li
 
 import (
+	"C"
 	"encoding"
 	"io/ioutil"
 	"os"
@@ -29,10 +30,12 @@ type Moment struct {
 
 	FileInfo FileInfo
 
-	initContentOnce      sync.Once
-	content              string
-	initLowerContentOnce sync.Once
-	lowerContent         string
+	initContentOnce        sync.Once
+	content                string
+	initLowerContentOnce   sync.Once
+	lowerContent           string
+	initCStringContentOnce sync.Once
+	cstringContent         *C.char
 }
 
 func NewMoment() *Moment {
@@ -68,6 +71,14 @@ func (m *Moment) GetLowerContent() string {
 		m.lowerContent = strings.ToLower(content)
 	})
 	return m.lowerContent
+}
+
+func (m *Moment) GetCStringContent() *C.char {
+	m.initCStringContentOnce.Do(func() {
+		content := C.CString(m.GetContent())
+		m.cstringContent = content
+	})
+	return m.cstringContent
 }
 
 func (m *Moment) NumLines() int {
