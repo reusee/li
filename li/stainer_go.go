@@ -2,8 +2,6 @@ package li
 
 import (
 	"sync"
-
-	"github.com/reusee/li/treesitter"
 )
 
 type GoLexicalStainer struct {
@@ -41,22 +39,14 @@ func (s *GoLexicalStainer) Line() any {
 			return v.([]StyleFunc)
 		}
 
-		parser := moment.GetParser()
 		line := moment.GetLine(int(lineNum))
-		notHandled := make(map[string]bool)
 		for _, cell := range line.Cells {
-			node := parser.NodeAt(treesitter.Point(int(lineNum), cell.RuneOffset))
-			nodeType := treesitter.NodeType(node)
-			if fn, ok := goSyntaxStyle[nodeType]; ok && fn != nil {
+			attr := moment.GetSyntaxAttr(int(lineNum), cell.RuneOffset)
+			if fn, ok := goSyntaxStyle[attr]; ok && fn != nil {
 				fns = append(fns, fn)
 			} else {
-				notHandled[nodeType] = true
 				fns = append(fns, nil)
 			}
-		}
-
-		if len(notHandled) > 0 {
-			appendJournal("%+v", notHandled)
 		}
 
 		s.cache.Store(key, fns)

@@ -41,8 +41,10 @@ type Moment struct {
 	lowerContent           string
 	initCStringContentOnce sync.Once
 	cstringContent         *C.char
-	initParserOnce         sync.Once
-	parser                 *treesitter.Parser
+
+	initParserOnce sync.Once
+	parser         *treesitter.Parser
+	syntaxAttrs    sync.Map
 
 	finalizeFuncs sync.Map
 }
@@ -111,6 +113,22 @@ func (m *Moment) GetParser() *treesitter.Parser {
 		})
 	})
 	return m.parser
+}
+
+func (m *Moment) GetSyntaxAttr(lineNum int, runeOffset int) string {
+	key := Position{
+		Line: lineNum,
+		Rune: runeOffset,
+	}
+	if v, ok := m.syntaxAttrs.Load(key); ok {
+		return v.(string)
+	}
+	parser := m.GetParser()
+	node := parser.NodeAt(treesitter.Point(lineNum, runeOffset))
+	nodeType := treesitter.NodeType(node)
+	attr := nodeType
+	m.syntaxAttrs.Store(key, attr)
+	return attr
 }
 
 func (m *Moment) NumLines() int {
