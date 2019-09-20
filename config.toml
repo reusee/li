@@ -96,6 +96,8 @@ Layouts = [
   'Rune[,] Rune[g]' = 'NextViewGroupLayout'
   'Rune[,] Rune[v]' = 'NextViewLayout'
 
+  'Rune[,] Rune[N]' = 'CurrentTime'
+
   'Rune[.] Rune[g]' = 'PrevViewGroupLayout'
   'Rune[.] Rune[f]' = 'PrevLineWithRune'
   'Rune[.] Rune[v]' = 'PrevViewLayout'

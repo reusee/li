@@ -5,6 +5,7 @@ func Root(
 	width Width,
 	height Height,
 	getStyle GetStyle,
+	getJournalHeight JournalHeight,
 ) Element {
 
 	box := Box{0, 0, int(height), int(width)}
@@ -17,11 +18,14 @@ func Root(
 		},
 	)
 
+	journalHeight := getJournalHeight()
+	journalBox := Box{box.Bottom - 1, 0, box.Bottom, box.Width()}
+
 	statusWidth := 15
 	if statusWidth > box.Width() {
 		statusWidth = box.Width() / 10
 	}
-	viewBox := Box{0, statusWidth, box.Height(), box.Width()}
+	viewBox := Box{0, statusWidth, box.Height() - journalHeight, box.Width()}
 
 	return ElementFrom(
 
@@ -29,7 +33,7 @@ func Root(
 		ElementWith(
 			ElementFrom(Status),
 			func() Box {
-				return Box{0, 0, box.Height(), statusWidth}
+				return Box{0, 0, box.Height() - journalHeight, statusWidth}
 			},
 		),
 
@@ -54,6 +58,14 @@ func Root(
 			ElementFrom(OverlayUI),
 			func() Box {
 				return viewBox
+			},
+		),
+
+		// journal
+		ElementWith(
+			ElementFrom(JournalUI),
+			func() Box {
+				return journalBox
 			},
 		),
 
