@@ -22,6 +22,7 @@ var (
 )
 
 func main() {
+
 	// scope
 	provide := new(li.Provide)
 	var inits []interface{}
@@ -58,6 +59,9 @@ func main() {
 	}
 
 	var screen li.Screen
+	defer func() {
+		screen.Fini()
+	}()
 	scope.Assign(&screen)
 	screenEvents := make(chan li.ScreenEvent, 128)
 	go func() {

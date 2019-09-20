@@ -1,5 +1,9 @@
 package li
 
+/*
+#include <stdlib.h>
+*/
+import "C"
 import (
 	"errors"
 	"fmt"
@@ -7,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unsafe"
 
 	"github.com/reusee/dscope"
 	"github.com/reusee/e/v2"
@@ -94,4 +99,8 @@ func splitDir(path string) (ret []string) {
 	}
 	ret = append(splitDir(filepath.Clean(dir)), name)
 	return ret
+}
+
+func cfree(p unsafe.Pointer) {
+	C.free(p)
 }

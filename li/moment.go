@@ -4,13 +4,18 @@ import (
 	"C"
 	"encoding"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 	"unicode"
+	"unsafe"
+
+	"github.com/reusee/li/treesitter"
 )
 
 type MomentID int64
@@ -36,10 +41,21 @@ type Moment struct {
 	lowerContent           string
 	initCStringContentOnce sync.Once
 	cstringContent         *C.char
+	initParserOnce         sync.Once
+	parser                 *treesitter.Parser
+
+	finalizeFuncs sync.Map
 }
 
 func NewMoment() *Moment {
-	return &Moment{}
+	m := &Moment{}
+	runtime.SetFinalizer(m, func(m *Moment) {
+		m.finalizeFuncs.Range(func(_, v any) bool {
+			v.(func())()
+			return true
+		})
+	})
+	return m
 }
 
 func (m *Moment) GetLine(i int) *Line {
@@ -76,9 +92,25 @@ func (m *Moment) GetLowerContent() string {
 func (m *Moment) GetCStringContent() *C.char {
 	m.initCStringContentOnce.Do(func() {
 		content := C.CString(m.GetContent())
+		m.finalizeFuncs.Store(rand.Int63(), func() {
+			cfree(unsafe.Pointer(m.cstringContent))
+		})
 		m.cstringContent = content
 	})
 	return m.cstringContent
+}
+
+func (m *Moment) GetParser() *treesitter.Parser {
+	m.initParserOnce.Do(func() {
+		m.parser = treesitter.ParseGo(
+			unsafe.Pointer(m.GetCStringContent()),
+			len(m.GetContent()),
+		)
+		m.finalizeFuncs.Store(rand.Int63(), func() {
+			m.parser.Close()
+		})
+	})
+	return m.parser
 }
 
 func (m *Moment) NumLines() int {

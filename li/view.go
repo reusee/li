@@ -1,6 +1,7 @@
 package li
 
 import (
+	"strings"
 	"sync/atomic"
 )
 
@@ -60,10 +61,15 @@ func NewViewFromBuffer(
 	linkedOne(buffer, &moment)
 
 	view = &View{
-		ID:      id,
-		Buffer:  buffer,
-		Moment:  moment,
-		Stainer: new(NoopStainer),
+		ID:     id,
+		Buffer: buffer,
+		Moment: moment,
+		Stainer: func() Stainer {
+			if strings.HasSuffix(strings.ToLower(buffer.Path), ".go") {
+				return new(GoLexicalStainer)
+			}
+			return new(NoopStainer)
+		}(),
 		ViewMomentState: ViewMomentState{
 			ViewportLine: 0,
 			ViewportCol:  0,

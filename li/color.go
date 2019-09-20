@@ -8,6 +8,13 @@ type (
 	Color = tcell.Color
 )
 
+var (
+	HexColor = tcell.NewHexColor
+	RGBColor = tcell.NewRGBColor
+
+	black = HexColor(0)
+)
+
 func towards128(x int32, n int32) (int32, int32) {
 	if x > 128 {
 		x -= n
