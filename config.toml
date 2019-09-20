@@ -10,7 +10,7 @@ ExpandTabs = true
 TabWidth = 4
 
 [UI]
-StatusWidth = 15
+StatusWidth = 20
 JournalHeight = 2
 
 [ViewGroup]

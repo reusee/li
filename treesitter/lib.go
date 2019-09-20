@@ -47,9 +47,9 @@ func (p *Parser) Close() {
 
 func Walk(node TSNode, fn func(TSNode)) {
 	fn(node)
-	count := C.ts_node_named_child_count(node)
+	count := C.ts_node_child_count(node)
 	for i := C.uint(0); i < count; i++ {
-		child := C.ts_node_named_child(node, i)
+		child := C.ts_node_child(node, i)
 		Walk(child, fn)
 	}
 }
@@ -76,5 +76,5 @@ func Point(row int, col int) TSPoint {
 }
 
 func (p *Parser) NodeAt(point TSPoint) TSNode {
-	return C.ts_node_named_descendant_for_point_range(p.Root, point, point)
+	return C.ts_node_descendant_for_point_range(p.Root, point, point)
 }

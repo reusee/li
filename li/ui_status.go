@@ -78,14 +78,21 @@ func Status(
 		addTextLine(getMacroName(), AlignRight, Padding(0, 2, 0, 0))
 	}
 
-	// line and col
+	// cursor
 	if focusing != nil {
 		line := focusing.CursorLine + 1
 		col := focusing.CursorCol + 1
 		addTextLine("")
-		addTextLine("position", Bold(true), AlignRight, Padding(0, 2, 0, 0))
+		addTextLine("cursor", Bold(true), AlignRight, Padding(0, 2, 0, 0))
 		addTextLine(strconv.Itoa(line), AlignRight, Padding(0, 2, 0, 0))
 		addTextLine(strconv.Itoa(col), AlignRight, Padding(0, 2, 0, 0))
+		if parser := focusing.Moment.GetParser(); parser != nil {
+			pos := focusing.cursorPosition()
+			addTextLine(
+				focusing.Moment.GetSyntaxAttr(pos.Line, pos.Rune),
+				AlignRight, Padding(0, 2, 0, 0),
+			)
+		}
 	}
 
 	// last key
