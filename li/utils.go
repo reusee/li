@@ -1,6 +1,7 @@
 package li
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -18,6 +19,7 @@ var (
 	pt       = fmt.Printf
 	t0       = time.Now()
 	NewScope = dscope.New
+	is       = errors.Is
 )
 
 type (

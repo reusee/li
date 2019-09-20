@@ -148,7 +148,7 @@ func ShowFileChooser(scope Scope, cb func(string)) {
 
 				}
 
-				if err == io.EOF {
+				if is(err, io.EOF) {
 					break
 				} else if err != nil {
 					return
