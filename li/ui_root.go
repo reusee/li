@@ -6,7 +6,15 @@ func Root(
 	height Height,
 	getStyle GetStyle,
 	getJournalHeight JournalHeight,
+	getConfig GetConfig,
 ) Element {
+
+	var config struct {
+		UI struct {
+			StatusWidth int
+		}
+	}
+	ce(getConfig(&config))
 
 	box := Box{0, 0, int(height), int(width)}
 	scope = scope.Sub(
@@ -19,9 +27,12 @@ func Root(
 	)
 
 	journalHeight := getJournalHeight()
-	journalBox := Box{box.Bottom - 1, 0, box.Bottom, box.Width()}
+	journalBox := Box{box.Bottom - journalHeight, 0, box.Bottom, box.Width()}
 
-	statusWidth := 15
+	statusWidth := config.UI.StatusWidth
+	if statusWidth == 0 {
+		statusWidth = 15
+	}
 	if statusWidth > box.Width() {
 		statusWidth = box.Width() / 10
 	}

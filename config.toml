@@ -9,6 +9,10 @@ ScrollLines = 5
 ExpandTabs = true
 TabWidth = 4
 
+[UI]
+StatusWidth = 20
+JournalHeight = 3
+
 [ViewGroup]
 Layouts = [
   'VerticalSplit',

@@ -16,6 +16,7 @@ type (
 
 func (_ Provide) Journal(
 	derive Derive,
+	getConfig GetConfig,
 ) (
 	appendJournal AppendJournal,
 	get JournalLines,
@@ -33,7 +34,18 @@ func (_ Provide) Journal(
 		return lines
 	}
 
-	height := int(1)
+	var config struct {
+		UI struct {
+			JournalHeight int
+		}
+	}
+	ce(getConfig(&config))
+	initHeight := config.UI.JournalHeight
+	if initHeight == 0 {
+		initHeight = 1
+	}
+
+	height := initHeight
 	accessHeight = func(updates ...int) int {
 		if len(updates) > 0 {
 			for _, update := range updates {
