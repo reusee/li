@@ -11,11 +11,20 @@ func TestScreenResize(t *testing.T) {
 		emitEvent EmitEvent,
 		view *View,
 		call func(string),
+		getConfig GetConfig,
 	) {
+		var config struct {
+			UI struct {
+				JournalHeight int
+			}
+		}
+		ce(getConfig(&config))
+
 		emitEvent(tcell.NewEventResize(5, 3))
 		eq(t,
 			view.Box.Width(), 5,
-			view.Box.Height(), 3,
+			view.Box.Height(), 3-config.UI.JournalHeight,
 		)
+
 	})
 }
