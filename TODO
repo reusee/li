@@ -1,6 +1,5 @@
-syntax highlight
 autocompletion
-text object like editing
+more position funcs
 auto indent
 auto indent after o/O/enter
 multi-head redo selector
@@ -13,7 +12,7 @@ view group switching
 wasm plungins
 changing view's group
 key macro
-auto resizing ui element
 source outline
 context command menu
+mouse commands
 

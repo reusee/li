@@ -16,6 +16,7 @@ type GoLexicalStainerCacheKey struct {
 	LineNumber
 }
 
+//TODO configurable
 var goSyntaxStyle = map[string]StyleFunc{
 	"type_identifier":  SetFG(HexColor(0x0099CC)).SetUnderline(true),
 	"identifier":       SetFG(HexColor(0x00CC99)),
