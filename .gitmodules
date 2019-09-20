@@ -1,0 +1,6 @@
+[submodule "treesitter/tree-sitter"]
+	path = treesitter/tree-sitter
+	url = https://github.com/tree-sitter/tree-sitter.git
+[submodule "treesitter/tree-sitter-go"]
+	path = treesitter/tree-sitter-go
+	url = https://github.com/tree-sitter/tree-sitter-go.git
