@@ -1,7 +1,6 @@
 package li
 
 import (
-	"strings"
 	"sync/atomic"
 )
 
@@ -65,8 +64,8 @@ func NewViewFromBuffer(
 		Buffer: buffer,
 		Moment: moment,
 		Stainer: func() Stainer {
-			if strings.HasSuffix(strings.ToLower(buffer.Path), ".go") {
-				return new(GoLexicalStainer)
+			if fn, ok := languageStainers[moment.language]; ok {
+				return fn()
 			}
 			return new(NoopStainer)
 		}(),
