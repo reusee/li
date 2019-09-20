@@ -7,7 +7,13 @@ import (
 )
 
 type GoLexicalStainer struct {
-	parseOnce sync.Once
+	//TODO eviction
+	cache sync.Map
+}
+
+type GoLexicalStainerCacheKey struct {
+	MomentID
+	LineNumber
 }
 
 var goSyntaxColors = map[string]Color{
@@ -24,12 +30,15 @@ func (s *GoLexicalStainer) Line() any {
 	return func(
 		moment *Moment,
 		lineNum LineNumber,
-		getStyle GetStyle,
-		parserCache TSParserCache,
 		appendJournal AppendJournal,
 	) (
 		colors []*Color,
 	) {
+
+		key := GoLexicalStainerCacheKey{moment.ID, lineNum}
+		if v, ok := s.cache.Load(key); ok {
+			return v.([]*Color)
+		}
 
 		parser := moment.GetParser()
 		line := moment.GetLine(int(lineNum))
@@ -48,6 +57,8 @@ func (s *GoLexicalStainer) Line() any {
 		if len(notHandled) > 0 {
 			appendJournal("%+v", notHandled)
 		}
+
+		s.cache.Store(key, colors)
 
 		return
 	}
