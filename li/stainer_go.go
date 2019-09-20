@@ -16,14 +16,14 @@ type GoLexicalStainerCacheKey struct {
 	LineNumber
 }
 
-var goSyntaxColors = map[string]Color{
-	"type_identifier":  HexColor(0x0099CC),
-	"identifier":       HexColor(0x00CC99),
-	"argument_list":    HexColor(0x9900CC),
-	"parameter_list":   HexColor(0x9900CC),
-	"block":            HexColor(0x99CC00),
-	"return_statement": HexColor(0xCC0099),
-	"field_identifier": HexColor(0xCC9900),
+var goSyntaxStyle = map[string]StyleFunc{
+	"type_identifier":  SetFG(HexColor(0x0099CC)).SetUnderline(true),
+	"identifier":       SetFG(HexColor(0x00CC99)),
+	"argument_list":    SetFG(HexColor(0x9900CC)),
+	"parameter_list":   SetFG(HexColor(0x9900CC)),
+	"block":            SetFG(HexColor(0x99CC00)),
+	"return_statement": SetFG(HexColor(0xCC0099)).SetBold(true),
+	"field_identifier": SetFG(HexColor(0xCC9900)),
 }
 
 func (s *GoLexicalStainer) Line() any {
@@ -32,12 +32,12 @@ func (s *GoLexicalStainer) Line() any {
 		lineNum LineNumber,
 		appendJournal AppendJournal,
 	) (
-		colors []*Color,
+		fns []StyleFunc,
 	) {
 
 		key := GoLexicalStainerCacheKey{moment.ID, lineNum}
 		if v, ok := s.cache.Load(key); ok {
-			return v.([]*Color)
+			return v.([]StyleFunc)
 		}
 
 		parser := moment.GetParser()
@@ -46,11 +46,11 @@ func (s *GoLexicalStainer) Line() any {
 		for _, cell := range line.Cells {
 			node := parser.NodeAt(treesitter.Point(int(lineNum), cell.RuneOffset))
 			nodeType := treesitter.NodeType(node)
-			if color, ok := goSyntaxColors[nodeType]; ok && color != black {
-				colors = append(colors, &color)
+			if fn, ok := goSyntaxStyle[nodeType]; ok && fn != nil {
+				fns = append(fns, fn)
 			} else {
 				notHandled[nodeType] = true
-				colors = append(colors, nil)
+				fns = append(fns, nil)
 			}
 		}
 
@@ -58,7 +58,7 @@ func (s *GoLexicalStainer) Line() any {
 			appendJournal("%+v", notHandled)
 		}
 
-		s.cache.Store(key, colors)
+		s.cache.Store(key, fns)
 
 		return
 	}

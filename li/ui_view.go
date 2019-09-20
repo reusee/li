@@ -178,10 +178,15 @@ func (view *View) RenderFunc() any {
 				}
 
 				var cellColors []*Color
+				var cellStyleFuncs []StyleFunc
 				if view.Stainer != nil {
 					scope.Sub(func() (*Moment, *Line, LineNumber) {
 						return moment, line, LineNumber(lineNum)
-					}).Call(view.Stainer.Line(), &cellColors)
+					}).Call(
+						view.Stainer.Line(),
+						&cellColors,
+						&cellStyleFuncs,
+					)
 				}
 
 				// cells
@@ -223,6 +228,10 @@ func (view *View) RenderFunc() any {
 						if cellNum < len(cellColors) {
 							if color := cellColors[cellNum]; color != nil {
 								style = style.Foreground(*color)
+							}
+						} else if cellNum < len(cellStyleFuncs) {
+							if fn := cellStyleFuncs[cellNum]; fn != nil {
+								style = fn(style)
 							}
 						}
 						// set content

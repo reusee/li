@@ -19,7 +19,7 @@ func (_ NoopStainer) Line() dyn {
 		moment *Moment,
 		line *Line,
 		lineNumber LineNumber,
-	) (ret []*Color) {
+	) (ret []*StyleFunc) {
 		for i := 0; i < len(line.Runes); i++ {
 			ret = append(ret, nil)
 		}
@@ -34,15 +34,15 @@ var _ Stainer = RandomStainer{}
 func (_ RandomStainer) Line() dyn {
 	return func(
 		line *Line,
-	) []*Color {
-		var ret []*Color
+	) []*StyleFunc {
+		var ret []*StyleFunc
 		for i := 0; i < len(line.Runes); i++ {
-			color := tcell.NewRGBColor(
+			fn := SetFG(tcell.NewRGBColor(
 				int32(rand.Intn(256)),
 				int32(rand.Intn(256)),
 				int32(rand.Intn(256)),
-			)
-			ret = append(ret, &color)
+			))
+			ret = append(ret, &fn)
 		}
 		return ret
 	}
