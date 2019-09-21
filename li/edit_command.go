@@ -1,5 +1,7 @@
 package li
 
+import "strings"
+
 func (_ Command) InsertNewline() (spec CommandSpec) {
 	spec.Desc = "insert newline at cursor"
 	spec.Func = func(
@@ -63,9 +65,12 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 		scope Scope,
 		cur CurrentView,
 	) {
+		view := cur()
+		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
 		scope.Sub(func() (PositionFunc, string, *View) {
-			return PosLineEnd, "\n", cur()
+			return PosLineEnd, "\n" + strings.Repeat(" ", indent), view
 		}).Call(InsertAtPositionFunc)
+		scope.Call(LineEnd)
 		scope.Call(EnableEditMode)
 	}
 	return
@@ -77,13 +82,51 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		scope Scope,
 		cur CurrentView,
 	) {
+		view := cur()
+		indent := getAdjacentIndent(view, view.CursorLine-1, view.CursorLine)
 		scope.Sub(func() (PositionFunc, string, *View) {
-			return PosLineBegin, "\n", cur()
+			return PosLineBegin, strings.Repeat(" ", indent) + "\n", view
 		}).Call(InsertAtPositionFunc)
 		scope.Sub(func() Move { return Move{RelLine: -1} }).Call(MoveCursor)
+		scope.Call(LineEnd)
 		scope.Call(EnableEditMode)
 	}
 	return
+}
+
+func getAdjacentIndent(view *View, l1 int, l2 int) int {
+	indent := 0
+	lineNum := l1
+	for {
+		line := view.Moment.GetLine(lineNum)
+		if line == nil {
+			break
+		}
+		if line.NonSpaceOffset == nil {
+			lineNum--
+			continue
+		}
+		if *line.NonSpaceOffset > indent {
+			indent = *line.NonSpaceOffset
+		}
+		break
+	}
+	lineNum = l2
+	for {
+		line := view.Moment.GetLine(lineNum)
+		if line == nil {
+			break
+		}
+		if line.NonSpaceOffset == nil {
+			lineNum++
+			continue
+		}
+		if *line.NonSpaceOffset > indent {
+			indent = *line.NonSpaceOffset
+		}
+		break
+	}
+	return indent
 }
 
 func (_ Command) ChangeToWordEnd() (spec CommandSpec) {
