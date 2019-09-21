@@ -115,6 +115,7 @@ func (m *Moment) GetParser() *treesitter.Parser {
 		return nil
 	}
 	m.initParserOnce.Do(func() {
+		//TODO utilize tree-sitter incremental parsing
 		if fn, ok := languageParsers[m.Language]; ok {
 			m.parser = fn(m)
 		}

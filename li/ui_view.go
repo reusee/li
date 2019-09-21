@@ -74,7 +74,6 @@ func (view *View) RenderFunc() any {
 		lineNumStyle := defaultStyle
 
 		// indent-based background
-		//TODO optimize
 		indentStyle := func(style Style, lineNum int, offset int) Style {
 			for lineNum >= 0 {
 				line := view.Moment.GetLine(lineNum)
