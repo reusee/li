@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -25,6 +26,7 @@ var (
 	t0       = time.Now()
 	NewScope = dscope.New
 	is       = errors.Is
+	numCPU   = runtime.NumCPU()
 )
 
 type (

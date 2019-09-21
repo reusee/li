@@ -2,6 +2,7 @@ package li
 
 import (
 	"fmt"
+	"sync"
 )
 
 type ViewUIArgs struct {
@@ -22,6 +23,7 @@ func (view *View) RenderFunc() any {
 		getStyle GetStyle,
 		box Box,
 		screen Screen,
+		procs ViewRenderProcs,
 	) Element {
 
 		currentView := cur()
@@ -96,187 +98,213 @@ func (view *View) RenderFunc() any {
 		// lines
 		moment := view.Moment
 		selectedRange := view.selectedRange()
+		wg := new(sync.WaitGroup)
 		for i := 0; i < contentBox.Height(); i++ {
-			lineNum := view.ViewportLine + i
-			isCurrentLine := lineNum == view.CursorLine
-			var line *Line
-			if lineNum < moment.NumLines() {
-				line = moment.GetLine(lineNum)
-			}
-			y := contentBox.Top + i
-			x := contentBox.Left
+			i := i
+			wg.Add(1)
+			procs <- func() {
+				defer wg.Done()
 
-			// line number
-			if isCurrentLine {
-				// show absolute
-				scope.Sub(func() (Box, Style, SetContent) {
-					box := lineNumBox
-					box.Top += i
-					return box, defaultStyle, set
-				}).Call(Text(
-					fmt.Sprintf("%d", lineNum+1),
-					hlStyle,
-					Fill(true),
-					AlignRight,
-					Padding(0, 1, 0, 0),
-				).RenderFunc())
-			} else if lineNum < moment.NumLines() {
-				// show relative
-				rel := lineNum - view.CursorLine
-				if rel < 0 {
-					rel = -rel
+				lineNum := view.ViewportLine + i
+				isCurrentLine := lineNum == view.CursorLine
+				var line *Line
+				if lineNum < moment.NumLines() {
+					line = moment.GetLine(lineNum)
 				}
-				scope.Sub(func() (Box, Style, SetContent) {
-					box := lineNumBox
-					box.Top += i
-					return box, defaultStyle, set
-				}).Call(Text(
-					fmt.Sprintf("%d", rel),
-					lineNumStyle,
-					Fill(true),
-					AlignLeft,
-					Padding(0, 1, 0, 0),
-				).RenderFunc())
-			} else {
-				scope.Sub(func() (Box, Style, SetContent) {
-					box := lineNumBox
-					box.Top += i
-					return box, defaultStyle, set
-				}).Call(Text(
-					"",
-					lineNumStyle,
-					Fill(true),
-				).RenderFunc())
-			}
+				y := contentBox.Top + i
+				x := contentBox.Left
 
-			baseStyle := defaultStyle
-			if y == contentBox.Bottom-1 {
-				if currentView == view {
-					baseStyle = hlStyle
-				}
-				baseStyle = baseStyle.Underline(true)
-			}
-			if isCurrentLine {
-				baseStyle = darkerOrLighterStyle(baseStyle, 20)
-			}
-			lineStyle := baseStyle
-
-			if line != nil {
-
-				cells := line.Cells
-				skip := view.ViewportCol
-				leftSkip := false
-				for skip > 0 && len(cells) > 0 {
-					skip -= cells[0].DisplayWidth
-					cells = cells[1:]
-					leftSkip = true
+				// line number
+				if isCurrentLine {
+					// show absolute
+					scope.Sub(func() (Box, Style, SetContent) {
+						box := lineNumBox
+						box.Top += i
+						return box, defaultStyle, set
+					}).Call(Text(
+						fmt.Sprintf("%d", lineNum+1),
+						hlStyle,
+						Fill(true),
+						AlignRight,
+						Padding(0, 1, 0, 0),
+					).RenderFunc())
+				} else if lineNum < moment.NumLines() {
+					// show relative
+					rel := lineNum - view.CursorLine
+					if rel < 0 {
+						rel = -rel
+					}
+					scope.Sub(func() (Box, Style, SetContent) {
+						box := lineNumBox
+						box.Top += i
+						return box, defaultStyle, set
+					}).Call(Text(
+						fmt.Sprintf("%d", rel),
+						lineNumStyle,
+						Fill(true),
+						AlignLeft,
+						Padding(0, 1, 0, 0),
+					).RenderFunc())
+				} else {
+					scope.Sub(func() (Box, Style, SetContent) {
+						box := lineNumBox
+						box.Top += i
+						return box, defaultStyle, set
+					}).Call(Text(
+						"",
+						lineNumStyle,
+						Fill(true),
+					).RenderFunc())
 				}
 
-				var cellColors []*Color
-				var cellStyleFuncs []StyleFunc
-				if view.Stainer != nil {
-					scope.Sub(func() (*Moment, *Line, LineNumber) {
-						return moment, line, LineNumber(lineNum)
-					}).Call(
-						view.Stainer.Line(),
-						&cellColors,
-						&cellStyleFuncs,
-					)
+				baseStyle := defaultStyle
+				if y == contentBox.Bottom-1 {
+					if currentView == view {
+						baseStyle = hlStyle
+					}
+					baseStyle = baseStyle.Underline(true)
 				}
+				if isCurrentLine {
+					baseStyle = darkerOrLighterStyle(baseStyle, 20)
+				}
+				lineStyle := baseStyle
 
-				// cells
-				for cellNum, cell := range cells {
+				if line != nil {
 
-					// right truncated
-					if x >= contentBox.Right {
-						set(
-							contentBox.Right-1, y,
-							'>', nil,
-							hlStyle,
-						)
-						break
+					cells := line.Cells
+					skip := view.ViewportCol
+					leftSkip := false
+					for skip > 0 && len(cells) > 0 {
+						skip -= cells[0].DisplayWidth
+						cells = cells[1:]
+						leftSkip = true
 					}
 
-					// indent style
-					if line.NonSpaceOffset == nil ||
-						cell.ByteOffset <= *line.NonSpaceOffset {
-						lineStyle = indentStyle(baseStyle, lineNum, cell.ByteOffset)
-					}
-
-					// style
-					style := lineStyle
-
-					// selected range style
-					if selectedRange != nil && selectedRange.Contains(Position{
-						Line: lineNum,
-						Rune: cellNum,
-					}) {
-						// selected range
-						style = style.Underline(true)
-						style = darkerOrLighterStyle(style, 20)
-					}
-
-					if leftSkip && x == contentBox.Left {
-						// left truncated
-						set(
-							x, y,
-							'<', nil,
-							hlStyle,
-						)
-					} else {
-						// cell style
-						if cellNum < len(cellColors) {
-							if color := cellColors[cellNum]; color != nil {
-								style = style.Foreground(*color)
-							}
-						} else if cellNum < len(cellStyleFuncs) {
-							if fn := cellStyleFuncs[cellNum]; fn != nil {
-								style = fn(style)
-							}
-						}
-						// set content
-						set(
-							x, y,
-							cell.Rune, nil,
-							style,
+					var cellColors []*Color
+					var cellStyleFuncs []StyleFunc
+					if view.Stainer != nil {
+						scope.Sub(func() (*Moment, *Line, LineNumber) {
+							return moment, line, LineNumber(lineNum)
+						}).Call(
+							view.Stainer.Line(),
+							&cellColors,
+							&cellStyleFuncs,
 						)
 					}
 
-					if cell.DisplayWidth > cell.RuneWidth {
-						// expanded tabs
-						for i := 0; i < cell.DisplayWidth-cell.RuneWidth; i++ {
-							if x+1+i >= contentBox.Right {
-								break
-							}
+					// cells
+					for cellNum, cell := range cells {
+
+						// right truncated
+						if x >= contentBox.Right {
 							set(
-								x+1+i, y,
-								' ', nil,
-								lineStyle,
+								contentBox.Right-1, y,
+								'>', nil,
+								hlStyle,
+							)
+							break
+						}
+
+						// indent style
+						if line.NonSpaceOffset == nil ||
+							cell.ByteOffset <= *line.NonSpaceOffset {
+							lineStyle = indentStyle(baseStyle, lineNum, cell.ByteOffset)
+						}
+
+						// style
+						style := lineStyle
+
+						// selected range style
+						if selectedRange != nil && selectedRange.Contains(Position{
+							Line: lineNum,
+							Rune: cellNum,
+						}) {
+							// selected range
+							style = style.Underline(true)
+							style = darkerOrLighterStyle(style, 20)
+						}
+
+						if leftSkip && x == contentBox.Left {
+							// left truncated
+							set(
+								x, y,
+								'<', nil,
+								hlStyle,
+							)
+						} else {
+							// cell style
+							if cellNum < len(cellColors) {
+								if color := cellColors[cellNum]; color != nil {
+									style = style.Foreground(*color)
+								}
+							} else if cellNum < len(cellStyleFuncs) {
+								if fn := cellStyleFuncs[cellNum]; fn != nil {
+									style = fn(style)
+								}
+							}
+							// set content
+							set(
+								x, y,
+								cell.Rune, nil,
+								style,
 							)
 						}
+
+						if cell.DisplayWidth > cell.RuneWidth {
+							// expanded tabs
+							for i := 0; i < cell.DisplayWidth-cell.RuneWidth; i++ {
+								if x+1+i >= contentBox.Right {
+									break
+								}
+								set(
+									x+1+i, y,
+									' ', nil,
+									lineStyle,
+								)
+							}
+						}
+
+						x += cell.DisplayWidth
 					}
-
-					x += cell.DisplayWidth
 				}
-			}
 
-			// fill blank
-			for ; x < contentBox.Right; x++ {
-				offset := x - contentBox.Left
-				if line == nil ||
-					line.NonSpaceOffset == nil ||
-					offset <= *line.NonSpaceOffset {
-					lineStyle = indentStyle(baseStyle, lineNum, offset)
+				// fill blank
+				for ; x < contentBox.Right; x++ {
+					offset := x - contentBox.Left
+					if line == nil ||
+						line.NonSpaceOffset == nil ||
+						offset <= *line.NonSpaceOffset {
+						lineStyle = indentStyle(baseStyle, lineNum, offset)
+					}
+					set(
+						x, y,
+						' ', nil,
+						lineStyle,
+					)
 				}
-				set(
-					x, y,
-					' ', nil,
-					lineStyle,
-				)
 			}
 
 		}
+		wg.Wait()
 
 		return frameBuffer
 	}
+}
+
+type ViewRenderProcs chan func()
+
+func (_ Provide) ViewRenderProcs() (
+	ch ViewRenderProcs,
+) {
+
+	ch = make(chan func(), numCPU*8)
+	for i := 0; i < numCPU; i++ {
+		go func() {
+			for {
+				(<-ch)()
+			}
+		}()
+	}
+
+	return
 }
