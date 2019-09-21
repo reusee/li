@@ -3,15 +3,11 @@ package li
 import "fmt"
 
 type ViewUIArgs struct {
-	MomentID        MomentID
-	Width           int
-	Height          int
-	ViewportLine    int
-	ViewportCol     int
-	CursorLine      int
-	CursorCol       int
-	IsFocus         bool
-	SelectionAnchor *Position
+	MomentID MomentID
+	Width    int
+	Height   int
+	IsFocus  bool
+	ViewMomentState
 }
 
 var _ Element = new(View)
@@ -51,12 +47,8 @@ func (view *View) RenderFunc() any {
 			MomentID:        view.Moment.ID,
 			Width:           view.Box.Width(),
 			Height:          view.Box.Height(),
-			ViewportLine:    view.ViewportLine,
-			ViewportCol:     view.ViewportCol,
-			CursorLine:      view.CursorLine,
-			CursorCol:       view.CursorCol,
 			IsFocus:         view == currentView,
-			SelectionAnchor: view.SelectionAnchor,
+			ViewMomentState: view.ViewMomentState,
 		}
 		if view.FrameBuffer != nil && args == view.FrameBufferArgs {
 			return view.FrameBuffer
