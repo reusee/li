@@ -25,9 +25,37 @@ func (view *View) RenderFunc() any {
 		box Box,
 		screen Screen,
 		procs ViewRenderProcs,
+		j AppendJournal,
 	) Element {
 
-		currentView := cur()
+		// outline
+		displayOffset := 0
+		for i := 0; i < box.Height(); i++ {
+			lineNum := view.ViewportLine + i
+			line := view.Moment.GetLine(lineNum)
+			if line == nil {
+				continue
+			}
+			if line.NonSpaceOffset == nil {
+				continue
+			}
+			displayOffset = *line.NonSpaceOffset
+			break
+		}
+		var outlineLines []int
+		for i := view.ViewportLine; i >= 0; i-- {
+			line := view.Moment.GetLine(i)
+			if line == nil {
+				continue
+			}
+			if line.NonSpaceOffset == nil {
+				continue
+			}
+			if *line.NonSpaceOffset < displayOffset {
+				outlineLines = append(outlineLines, i)
+				displayOffset = *line.NonSpaceOffset
+			}
+		}
 
 		// content box
 		lineNumLength := displayWidth(fmt.Sprintf("%d", view.ViewportLine))
@@ -36,6 +64,9 @@ func (view *View) RenderFunc() any {
 		}
 		contentBox := view.Box
 		contentBox.Left += lineNumLength + 2
+		contentBox.Top += len(outlineLines)
+
+		currentView := cur()
 
 		// cursor position
 		defer func() {
@@ -287,9 +318,127 @@ func (view *View) RenderFunc() any {
 					)
 				}
 			}
-
 		}
 		wg.Wait()
+
+		// outlines
+		outlineBox := contentBox
+		outlineBox.Top = view.Box.Top
+		outlineBox.Bottom = contentBox.Top - 1
+		lineNumBox.Bottom = lineNumBox.Top - 1
+		lineNumBox.Top = outlineBox.Top
+		for i, lineNum := range outlineLines {
+			x := outlineBox.Left
+			y := outlineBox.Top + (len(outlineLines) - i - 1)
+
+			lineStyle := defaultStyle
+			if i == 0 {
+				lineStyle = lineStyle.Underline(true)
+			}
+			line := moment.GetLine(lineNum)
+
+			cells := line.Cells
+			skip := view.ViewportCol
+			leftSkip := false
+			for skip > 0 && len(cells) > 0 {
+				skip -= cells[0].DisplayWidth
+				cells = cells[1:]
+				leftSkip = true
+			}
+
+			var cellColors []*Color
+			var cellStyleFuncs []StyleFunc
+			if view.Stainer != nil {
+				scope.Sub(func() (*Moment, *Line, LineNumber) {
+					return moment, line, LineNumber(lineNum)
+				}).Call(
+					view.Stainer.Line(),
+					&cellColors,
+					&cellStyleFuncs,
+				)
+			}
+
+			// show absolute line number
+			scope.Sub(func() (Box, Style, SetContent) {
+				box := lineNumBox
+				box.Top = y
+				return box, defaultStyle, set
+			}).Call(Text(
+				fmt.Sprintf("%d", lineNum+1),
+				hlStyle,
+				Fill(true),
+				AlignRight,
+				Padding(0, 1, 0, 0),
+			).RenderFunc())
+
+			// cells
+			for cellNum, cell := range cells {
+
+				// right truncated
+				if x >= outlineBox.Right {
+					set(
+						outlineBox.Right-1, y,
+						'>', nil,
+						hlStyle,
+					)
+					break
+				}
+
+				style := lineStyle
+
+				if leftSkip && x == outlineBox.Left {
+					// left truncated
+					set(
+						x, y,
+						'<', nil,
+						hlStyle,
+					)
+				} else {
+					// cell style
+					if cellNum < len(cellColors) {
+						if color := cellColors[cellNum]; color != nil {
+							style = style.Foreground(*color)
+						}
+					} else if cellNum < len(cellStyleFuncs) {
+						if fn := cellStyleFuncs[cellNum]; fn != nil {
+							style = fn(style)
+						}
+					}
+					// set content
+					set(
+						x, y,
+						cell.Rune, nil,
+						style,
+					)
+				}
+
+				if cell.DisplayWidth > cell.RuneWidth {
+					// expanded tabs
+					for i := 0; i < cell.DisplayWidth-cell.RuneWidth; i++ {
+						if x+1+i >= outlineBox.Right {
+							break
+						}
+						set(
+							x+1+i, y,
+							' ', nil,
+							style,
+						)
+					}
+				}
+
+				x += cell.DisplayWidth
+			}
+
+			// fill blank
+			for ; x < outlineBox.Right; x++ {
+				set(
+					x, y,
+					' ', nil,
+					lineStyle,
+				)
+			}
+
+		}
 
 		return frameBuffer
 	}
