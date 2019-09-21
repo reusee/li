@@ -51,7 +51,7 @@ func PosPrevRune(
 			return Position{
 				Line: pos.Line - 1,
 				Rune: cell.RuneOffset,
-				Col:  cell.ColOffset,
+				Col:  cell.ByteOffset,
 			}
 		} else {
 			return pos
@@ -62,7 +62,7 @@ func PosPrevRune(
 		return Position{
 			Line: pos.Line,
 			Rune: cell.RuneOffset,
-			Col:  cell.ColOffset,
+			Col:  cell.ByteOffset,
 		}
 	}
 }
@@ -89,7 +89,7 @@ func PosNextRune(
 		cell := line.Cells[pos.Rune+1]
 		return Position{
 			Line: pos.Line,
-			Col:  cell.ColOffset,
+			Col:  cell.ByteOffset,
 			Rune: cell.RuneOffset,
 		}
 	}

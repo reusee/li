@@ -26,7 +26,7 @@ func TestUIDescription(t *testing.T) {
 				return Box{parent.Top, parent.Left, parent.Bottom, parent.Left + leftPanelWidth}
 			},
 			func(parent BGColor) BGColor {
-				return BGColor(darkerOrLighterColor(Color(parent), 10))
+				return BGColor(MonokaiBlue)
 			},
 		),
 
@@ -36,7 +36,7 @@ func TestUIDescription(t *testing.T) {
 				return Box{parent.Top, parent.Left + leftPanelWidth, parent.Top + 1, parent.Right}
 			},
 			func(parent BGColor) BGColor {
-				return BGColor(darkerOrLighterColor(Color(parent), 20))
+				return BGColor(MonokaiGreen)
 			},
 			Bold(true),
 			Underline(true),
@@ -48,7 +48,7 @@ func TestUIDescription(t *testing.T) {
 				return Box{parent.Top + 1, parent.Left + leftPanelWidth, parent.Bottom, parent.Right}
 			},
 			func(parent BGColor) BGColor {
-				return BGColor(darkerOrLighterColor(Color(parent), 30))
+				return BGColor(MonokaiOrange)
 			},
 			Margin(5),
 			Padding(9, 11),

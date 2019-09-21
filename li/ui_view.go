@@ -149,6 +149,18 @@ func (view *View) RenderFunc() any {
 				).RenderFunc())
 			}
 
+			baseStyle := defaultStyle
+			if y == contentBox.Bottom-1 {
+				if currentView == view {
+					baseStyle = hlStyle
+				}
+				baseStyle = baseStyle.Underline(true)
+			}
+			if isCurrentLine {
+				baseStyle = darkerOrLighterStyle(baseStyle, 20)
+			}
+			lineStyle := baseStyle
+
 			if line != nil {
 
 				cells := line.Cells
@@ -158,17 +170,6 @@ func (view *View) RenderFunc() any {
 					skip -= cells[0].DisplayWidth
 					cells = cells[1:]
 					leftSkip = true
-				}
-
-				lineStyle := defaultStyle
-				if y == contentBox.Bottom-1 {
-					if currentView == view {
-						lineStyle = hlStyle
-					}
-					lineStyle = lineStyle.Underline(true)
-				}
-				if isCurrentLine {
-					lineStyle = darkerOrLighterStyle(lineStyle, 20)
 				}
 
 				var cellColors []*Color
@@ -196,6 +197,12 @@ func (view *View) RenderFunc() any {
 						break
 					}
 
+					// indent style
+					if line.NonSpaceOffset == nil ||
+						cell.ByteOffset <= *line.NonSpaceOffset {
+						lineStyle = indentStyle(baseStyle, lineNum, cell.ByteOffset)
+					}
+
 					// style
 					style := lineStyle
 
@@ -218,7 +225,6 @@ func (view *View) RenderFunc() any {
 						)
 					} else {
 						// cell style
-						style := indentStyle(style, lineNum, x-contentBox.Left)
 						if cellNum < len(cellColors) {
 							if color := cellColors[cellNum]; color != nil {
 								style = style.Foreground(*color)
@@ -245,7 +251,7 @@ func (view *View) RenderFunc() any {
 							set(
 								x+1+i, y,
 								' ', nil,
-								indentStyle(style, lineNum, x-contentBox.Left),
+								lineStyle,
 							)
 						}
 					}
@@ -254,26 +260,18 @@ func (view *View) RenderFunc() any {
 				}
 			}
 
-			style := defaultStyle
-			if y == contentBox.Bottom-1 {
-				// current view
-				if currentView == view {
-					style = hlStyle
-				}
-				style = style.Underline(true)
-			} else {
-				// current cursor line
-				if isCurrentLine {
-					style = darkerOrLighterStyle(style, 20)
-				}
-			}
-
 			// fill blank
 			for ; x < contentBox.Right; x++ {
+				offset := x - contentBox.Left
+				if line == nil ||
+					line.NonSpaceOffset == nil ||
+					offset <= *line.NonSpaceOffset {
+					lineStyle = indentStyle(baseStyle, lineNum, offset)
+				}
 				set(
 					x, y,
 					' ', nil,
-					indentStyle(style, lineNum, x-contentBox.Left),
+					lineStyle,
 				)
 			}
 

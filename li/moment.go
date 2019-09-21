@@ -194,7 +194,7 @@ func (l *Line) init() {
 	l.initOnce.Do(func() {
 		var cells []Cell
 		allSpace := true
-		colOffset := 0
+		byteOffset := 0
 		l.Runes = []rune(l.content)
 		var nonSpaceOffset *int
 		for i, r := range l.Runes {
@@ -210,7 +210,7 @@ func (l *Line) init() {
 				RuneLen:      len(string(r)),
 				RuneWidth:    width,
 				DisplayWidth: displayWidth,
-				ColOffset:    colOffset,
+				ByteOffset:   byteOffset,
 				RuneOffset:   i,
 			}
 			cells = append(cells, cell)
@@ -218,11 +218,11 @@ func (l *Line) init() {
 			if !unicode.IsSpace(r) {
 				allSpace = false
 				if nonSpaceOffset == nil {
-					offset := colOffset
+					offset := byteOffset
 					nonSpaceOffset = &offset
 				}
 			}
-			colOffset += displayWidth
+			byteOffset += displayWidth
 		}
 		l.NonSpaceOffset = nonSpaceOffset
 		l.Cells = cells
@@ -235,7 +235,7 @@ type Cell struct {
 	RuneLen      int // number of bytes in string
 	RuneWidth    int // visual width
 	DisplayWidth int // visual width with padding
-	ColOffset    int // column offset
+	ByteOffset   int // byte offset
 	RuneOffset   int // rune offset
 }
 
