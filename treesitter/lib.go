@@ -20,7 +20,6 @@ type (
 type Parser struct {
 	Parser TSParser
 	Tree   TSTree
-	Root   TSNode
 }
 
 func ParseGo(src unsafe.Pointer, l int) *Parser {
@@ -32,11 +31,9 @@ func ParseGo(src unsafe.Pointer, l int) *Parser {
 		(*C.char)(src),
 		C.uint(l),
 	)
-	root := C.ts_tree_root_node(tree)
 	return &Parser{
 		Parser: parser,
 		Tree:   tree,
-		Root:   root,
 	}
 }
 
@@ -76,5 +73,6 @@ func Point(row int, col int) TSPoint {
 }
 
 func (p *Parser) NodeAt(point TSPoint) TSNode {
-	return C.ts_node_descendant_for_point_range(p.Root, point, point)
+	root := C.ts_tree_root_node(p.Tree)
+	return C.ts_node_descendant_for_point_range(root, point, point)
 }
