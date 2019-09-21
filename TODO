@@ -1,8 +1,6 @@
 autocompletion
 language server support
 more position funcs
-auto indent
-auto indent after o/O/enter
 multi-head redo selector
 command hints
 time-based redo

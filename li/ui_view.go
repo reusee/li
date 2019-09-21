@@ -61,6 +61,7 @@ func (view *View) RenderFunc() any {
 
 		// line number box
 		lineNumBox := view.Box
+		lineNumBox.Top = contentBox.Top
 		lineNumBox.Right = lineNumBox.Left + lineNumLength + 2
 
 		frameBuffer := NewFrameBuffer(box)
