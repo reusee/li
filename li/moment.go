@@ -42,7 +42,7 @@ type Moment struct {
 	initCStringContentOnce sync.Once
 	cstringContent         *C.char
 
-	language       Language
+	Language       Language
 	initParserOnce sync.Once
 	parser         *treesitter.Parser
 	syntaxAttrs    sync.Map
@@ -105,7 +105,7 @@ func (m *Moment) GetCStringContent() *C.char {
 
 func (m *Moment) GetParser() *treesitter.Parser {
 	m.initParserOnce.Do(func() {
-		if fn, ok := languageParsers[m.language]; ok {
+		if fn, ok := languageParsers[m.Language]; ok {
 			m.parser = fn(m)
 		}
 		m.finalizeFuncs.Store(rand.Int63(), func() {
@@ -253,7 +253,7 @@ func NewMomentFromFile(
 	ce(err)
 	moment.FileInfo = info
 
-	moment.language = LanguageFromPath(path)
+	moment.Language = LanguageFromPath(path)
 
 	return
 }
