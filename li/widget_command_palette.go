@@ -50,7 +50,7 @@ func ShowCommandPalette(
 		}
 		initialCandidates = append(initialCandidates, candidate)
 	}
-	sort.Slice(initialCandidates, func(i, j int) bool {
+	sort.SliceStable(initialCandidates, func(i, j int) bool {
 		l1 := len(initialCandidates[i].Left)
 		l2 := len(initialCandidates[j].Left)
 		if l1 != l2 {
@@ -94,7 +94,7 @@ func ShowCommandPalette(
 			goto do
 		}
 		candidates = newCandidates
-		sort.Slice(candidates, func(i, j int) bool {
+		sort.SliceStable(candidates, func(i, j int) bool {
 			return candidates[i].Score > candidates[j].Score
 		})
 	}

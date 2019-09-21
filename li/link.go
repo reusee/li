@@ -79,7 +79,7 @@ func (_ Provide) LinkFuncs() (
 		for right := range m2 {
 			rights = append(rights, right)
 		}
-		sort.Slice(rights, func(i, j int) bool {
+		sort.SliceStable(rights, func(i, j int) bool {
 			return m2[rights[i]] > m2[rights[j]]
 		})
 		reflect.ValueOf(target).Elem().Set(reflect.ValueOf(rights[0]))
@@ -102,7 +102,7 @@ func (_ Provide) LinkFuncs() (
 		for right := range m2 {
 			rights = append(rights, right)
 		}
-		sort.Slice(rights, func(i, j int) bool {
+		sort.SliceStable(rights, func(i, j int) bool {
 			return m2[rights[i]] > m2[rights[j]]
 		})
 		slice := reflect.New(reflect.TypeOf(target).Elem()).Elem()
@@ -160,7 +160,7 @@ func (_ Provide) LinkFuncs() (
 		if len(infos) == 0 {
 			return
 		}
-		sort.Slice(infos, func(i, j int) bool {
+		sort.SliceStable(infos, func(i, j int) bool {
 			return infos[i].N > infos[j].N
 		})
 		del(left, infos[0].Obj)

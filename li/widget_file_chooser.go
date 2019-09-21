@@ -155,7 +155,7 @@ func ShowFileChooser(scope Scope, cb func(string)) {
 				}
 			}
 
-			sort.Slice(scans, func(i, j int) bool {
+			sort.SliceStable(scans, func(i, j int) bool {
 				return scans[i].score > scans[j].score
 			})
 			if len(scans) > 30 {
@@ -168,7 +168,7 @@ func ShowFileChooser(scope Scope, cb func(string)) {
 		}
 		scan("/", patterns, 1, 0)
 
-		sort.Slice(candidates, func(i, j int) bool {
+		sort.SliceStable(candidates, func(i, j int) bool {
 			score1 := candidates[i].Score
 			score2 := candidates[j].Score
 			if score1 != score2 {

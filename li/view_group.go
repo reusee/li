@@ -130,7 +130,7 @@ func (g *ViewGroup) GetViews(scope Scope) []*View {
 				)
 			}
 		}
-		sort.Slice(views, func(i, j int) bool {
+		sort.SliceStable(views, func(i, j int) bool {
 			for k := range keyFuncs {
 				v1 := sortValues[views[i].ID][k]
 				v2 := sortValues[views[j].ID][k]

@@ -58,7 +58,7 @@ func RedoLatest(
 	if len(moments) == 0 {
 		return
 	}
-	sort.Slice(moments, func(i, j int) bool {
+	sort.SliceStable(moments, func(i, j int) bool {
 		return moments[i].ID > moments[j].ID
 	})
 	view.switchMoment(moments[0])
