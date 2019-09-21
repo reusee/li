@@ -26,6 +26,7 @@ func (view *View) RenderFunc() any {
 		screen Screen,
 		procs ViewRenderProcs,
 		j AppendJournal,
+		config ScrollConfig,
 	) Element {
 
 		// outline
@@ -55,6 +56,17 @@ func (view *View) RenderFunc() any {
 				outlineLines = append(outlineLines, i)
 				displayOffset = *line.NonSpaceOffset
 			}
+		}
+		var paddingTop, paddingBottom int
+		if view.Box.Height() > config.PaddingTop+config.PaddingBottom {
+			paddingTop = config.PaddingTop
+			paddingBottom = config.PaddingBottom
+		}
+		if len(outlineLines) > paddingTop {
+			outlineLines = outlineLines[len(outlineLines)-paddingTop:]
+		}
+		if len(outlineLines) > paddingBottom {
+			outlineLines = outlineLines[len(outlineLines)-paddingBottom:]
 		}
 
 		// content box
