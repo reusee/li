@@ -6,9 +6,12 @@ func (_ Command) InsertNewline() (spec CommandSpec) {
 	spec.Desc = "insert newline at cursor"
 	spec.Func = func(
 		scope Scope,
+		cur CurrentView,
 	) {
+		view := cur()
+		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
 		scope.Sub(func() (PositionFunc, string) {
-			return PosCursor, "\n"
+			return PosCursor, "\n" + strings.Repeat(" ", indent)
 		}).Call(InsertAtPositionFunc)
 	}
 	return
