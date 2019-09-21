@@ -53,7 +53,7 @@ func (v *View) selectedRange() *Range {
 		cell := line.Cells[cursor.Rune+1]
 		end = Position{
 			Line: cursor.Line,
-			Col:  cell.ByteOffset,
+			Col:  cell.DisplayOffset,
 			Rune: cell.RuneOffset,
 		}
 	}

@@ -206,8 +206,8 @@ func (view *View) RenderFunc() any {
 
 						// indent style
 						if line.NonSpaceOffset == nil ||
-							cell.ByteOffset <= *line.NonSpaceOffset {
-							lineStyle = indentStyle(baseStyle, lineNum, cell.ByteOffset)
+							cell.DisplayOffset <= *line.NonSpaceOffset {
+							lineStyle = indentStyle(baseStyle, lineNum, cell.DisplayOffset)
 						}
 
 						// style

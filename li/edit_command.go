@@ -1,7 +1,5 @@
 package li
 
-import "strings"
-
 func (_ Command) InsertNewline() (spec CommandSpec) {
 	spec.Desc = "insert newline at cursor"
 	spec.Func = func(
@@ -11,7 +9,7 @@ func (_ Command) InsertNewline() (spec CommandSpec) {
 		view := cur()
 		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
 		scope.Sub(func() (PositionFunc, string) {
-			return PosCursor, "\n" + strings.Repeat(" ", indent)
+			return PosCursor, "\n" + indent
 		}).Call(InsertAtPositionFunc)
 	}
 	return
@@ -71,7 +69,7 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 		view := cur()
 		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
 		scope.Sub(func() (PositionFunc, string, *View) {
-			return PosLineEnd, "\n" + strings.Repeat(" ", indent), view
+			return PosLineEnd, "\n" + indent, view
 		}).Call(InsertAtPositionFunc)
 		scope.Call(LineEnd)
 		scope.Call(EnableEditMode)
@@ -88,7 +86,7 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		view := cur()
 		indent := getAdjacentIndent(view, view.CursorLine-1, view.CursorLine)
 		scope.Sub(func() (PositionFunc, string, *View) {
-			return PosLineBegin, strings.Repeat(" ", indent) + "\n", view
+			return PosLineBegin, indent + "\n", view
 		}).Call(InsertAtPositionFunc)
 		scope.Sub(func() Move { return Move{RelLine: -1} }).Call(MoveCursor)
 		scope.Call(LineEnd)
@@ -97,8 +95,9 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 	return
 }
 
-func getAdjacentIndent(view *View, l1 int, l2 int) int {
+func getAdjacentIndent(view *View, l1 int, l2 int) string {
 	indent := 0
+	var runes []rune
 	lineNum := l1
 	for {
 		line := view.Moment.GetLine(lineNum)
@@ -111,6 +110,12 @@ func getAdjacentIndent(view *View, l1 int, l2 int) int {
 		}
 		if *line.NonSpaceOffset > indent {
 			indent = *line.NonSpaceOffset
+			for _, cell := range line.Cells {
+				if cell.DisplayOffset >= indent {
+					break
+				}
+				runes = append(runes, cell.Rune)
+			}
 		}
 		break
 	}
@@ -126,10 +131,16 @@ func getAdjacentIndent(view *View, l1 int, l2 int) int {
 		}
 		if *line.NonSpaceOffset > indent {
 			indent = *line.NonSpaceOffset
+			for _, cell := range line.Cells {
+				if cell.DisplayOffset >= indent {
+					break
+				}
+				runes = append(runes, cell.Rune)
+			}
 		}
 		break
 	}
-	return indent
+	return string(runes)
 }
 
 func (_ Command) ChangeToWordEnd() (spec CommandSpec) {

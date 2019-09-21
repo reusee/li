@@ -195,7 +195,7 @@ func (l *Line) init() {
 	l.initOnce.Do(func() {
 		var cells []Cell
 		allSpace := true
-		byteOffset := 0
+		displayOffset := 0
 		l.Runes = []rune(l.content)
 		var nonSpaceOffset *int
 		for i, r := range l.Runes {
@@ -207,23 +207,23 @@ func (l *Line) init() {
 				displayWidth = width
 			}
 			cell := Cell{
-				Rune:         r,
-				RuneLen:      len(string(r)),
-				RuneWidth:    width,
-				DisplayWidth: displayWidth,
-				ByteOffset:   byteOffset,
-				RuneOffset:   i,
+				Rune:          r,
+				RuneLen:       len(string(r)),
+				RuneWidth:     width,
+				DisplayWidth:  displayWidth,
+				DisplayOffset: displayOffset,
+				RuneOffset:    i,
 			}
 			cells = append(cells, cell)
 			l.DisplayWidth += cell.DisplayWidth
 			if !unicode.IsSpace(r) {
 				allSpace = false
 				if nonSpaceOffset == nil {
-					offset := byteOffset
+					offset := displayOffset
 					nonSpaceOffset = &offset
 				}
 			}
-			byteOffset += displayWidth
+			displayOffset += displayWidth
 		}
 		l.NonSpaceOffset = nonSpaceOffset
 		l.Cells = cells
@@ -232,12 +232,12 @@ func (l *Line) init() {
 }
 
 type Cell struct {
-	Rune         rune
-	RuneLen      int // number of bytes in string
-	RuneWidth    int // visual width
-	DisplayWidth int // visual width with padding
-	ByteOffset   int // byte offset
-	RuneOffset   int // rune offset
+	Rune          rune
+	RuneLen       int // number of bytes in string
+	RuneWidth     int // visual width
+	DisplayWidth  int // visual width with padding
+	DisplayOffset int // byte offset
+	RuneOffset    int // rune offset
 }
 
 var nextMomentID int64
