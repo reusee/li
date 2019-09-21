@@ -1,5 +1,7 @@
 package li
 
+import "path/filepath"
+
 type (
 	CurrentView func(...*View) *View
 )
@@ -7,6 +9,7 @@ type (
 func (_ Provide) CurrentView(
 	link Link,
 	linkedOne LinkedOne,
+	j AppendJournal,
 ) (
 	fn CurrentView,
 ) {
@@ -15,6 +18,9 @@ func (_ Provide) CurrentView(
 	fn = func(views ...*View) (ret *View) {
 		for _, view := range views {
 			link(flag, view)
+			path, err := filepath.Abs(view.Buffer.Path)
+			ce(err)
+			j("switch to %s", path)
 		}
 		linkedOne(flag, &ret)
 		return
