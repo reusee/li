@@ -1,6 +1,8 @@
 package li
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ViewUIArgs struct {
 	MomentID MomentID
@@ -67,21 +69,26 @@ func (view *View) RenderFunc() any {
 
 		// style
 		hlStyle := getStyle("Highlight")
-		lineNumStyle := darkerOrLighterStyle(
-			defaultStyle,
-			-5,
-		)
+		lineNumStyle := defaultStyle
 
 		// indent-based background
-		nonSpaceOffsets := []int{0}
-		indentStyle := func(style Style, offset int) Style {
-			for i := len(nonSpaceOffsets) - 1; i >= 0; i-- {
-				if offset >= nonSpaceOffsets[i] {
-					return darkerOrLighterStyle(
-						style,
-						int32(1*nonSpaceOffsets[i]),
-					)
+		//TODO optimize
+		indentStyle := func(style Style, lineNum int, offset int) Style {
+			for lineNum >= 0 {
+				line := view.Moment.GetLine(lineNum)
+				if line == nil {
+					break
 				}
+				nonSpaceOffset := line.NonSpaceOffset
+				if nonSpaceOffset != nil {
+					if offset >= *nonSpaceOffset {
+						return darkerOrLighterStyle(
+							style,
+							int32(1*(*nonSpaceOffset)),
+						)
+					}
+				}
+				lineNum--
 			}
 			return style
 		}
@@ -143,11 +150,6 @@ func (view *View) RenderFunc() any {
 			}
 
 			if line != nil {
-
-				if line.NonSpaceOffset != nil &&
-					*line.NonSpaceOffset != nonSpaceOffsets[len(nonSpaceOffsets)-1] {
-					nonSpaceOffsets = append(nonSpaceOffsets, *line.NonSpaceOffset)
-				}
 
 				cells := line.Cells
 				skip := view.ViewportCol
@@ -216,7 +218,7 @@ func (view *View) RenderFunc() any {
 						)
 					} else {
 						// cell style
-						style := indentStyle(style, x-contentBox.Left)
+						style := indentStyle(style, lineNum, x-contentBox.Left)
 						if cellNum < len(cellColors) {
 							if color := cellColors[cellNum]; color != nil {
 								style = style.Foreground(*color)
@@ -243,7 +245,7 @@ func (view *View) RenderFunc() any {
 							set(
 								x+1+i, y,
 								' ', nil,
-								indentStyle(style, x-contentBox.Left),
+								indentStyle(style, lineNum, x-contentBox.Left),
 							)
 						}
 					}
@@ -271,7 +273,7 @@ func (view *View) RenderFunc() any {
 				set(
 					x, y,
 					' ', nil,
-					indentStyle(style, x-contentBox.Left),
+					indentStyle(style, lineNum, x-contentBox.Left),
 				)
 			}
 
