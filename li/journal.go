@@ -3,6 +3,7 @@ package li
 import (
 	"fmt"
 	"strings"
+	"sync"
 )
 
 type (
@@ -26,13 +27,21 @@ func (_ Provide) Journal(
 ) {
 
 	var lines []string
+	var l sync.RWMutex
 
 	appendJournal = func(format string, args ...any) {
+		l.Lock()
+		defer l.Unlock()
+		if len(lines) > 2000 {
+			lines = append([]string{}, lines[len(lines)-1000:]...)
+		}
 		str := fmt.Sprintf(format, args...)
 		lines = append(lines, strings.Split(str, "\n")...)
 	}
 
 	get = func() []string {
+		l.RLock()
+		defer l.RUnlock()
 		return lines
 	}
 

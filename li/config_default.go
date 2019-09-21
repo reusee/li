@@ -17,7 +17,7 @@ TabWidth = 4
 
 [UI]
 StatusWidth = 20
-JournalHeight = 1
+JournalHeight = 2
 
 [ViewGroup]
 Layouts = [
