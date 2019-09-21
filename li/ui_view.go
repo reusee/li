@@ -2,6 +2,7 @@ package li
 
 import (
 	"fmt"
+	"math"
 	"sync"
 )
 
@@ -85,7 +86,10 @@ func (view *View) RenderFunc() any {
 					if offset >= *nonSpaceOffset {
 						return darkerOrLighterStyle(
 							style,
-							int32(1*(*nonSpaceOffset)),
+							int32(math.Min(
+								float64(0+(*nonSpaceOffset)%24),
+								float64(24-(*nonSpaceOffset)%24),
+							)),
 						)
 					}
 				}
