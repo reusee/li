@@ -50,9 +50,14 @@ func ShowFileChooser(scope Scope, cb func(string)) {
 
 		// match
 		var path string
-		if len(runes) > 0 && runes[0] == '/' {
+		if len(runes) >= 1 && runes[0] == '/' {
 			// absolute path
 			path = string(runes)
+		} else if len(runes) >= 2 && runes[0] == '~' && runes[1] == '/' {
+			// home dir
+			homeDir, err := os.UserHomeDir()
+			ce(err)
+			path = homeDir + string(runes[1:])
 		} else {
 			// relative path
 			var curView CurrentView
@@ -169,12 +174,12 @@ func ShowFileChooser(scope Scope, cb func(string)) {
 		scan("/", patterns, 1, 0)
 
 		sort.SliceStable(candidates, func(i, j int) bool {
-			score1 := candidates[i].Score
-			score2 := candidates[j].Score
-			if score1 != score2 {
-				return score1 > score2
+			c1 := candidates[i]
+			c2 := candidates[j]
+			if c1.Score != c2.Score {
+				return c1.Score > c2.Score
 			}
-			return candidates[i].Path < candidates[j].Path
+			return c1.MatchLen < c2.MatchLen
 		})
 
 		return
