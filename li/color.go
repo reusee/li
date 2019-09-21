@@ -11,8 +11,6 @@ type (
 var (
 	HexColor = tcell.NewHexColor
 	RGBColor = tcell.NewRGBColor
-
-	black = HexColor(0)
 )
 
 func towards128(x int32, n int32) (int32, int32) {
@@ -24,15 +22,8 @@ func towards128(x int32, n int32) (int32, int32) {
 	return x, n
 }
 
-func darkerOrLighterColor(color Color, n int32) Color {
-	r, g, b := color.RGB()
-	r, _ = towards128(r, n)
-	g, _ = towards128(g, n)
-	b, _ = towards128(b, n)
-	return tcell.NewRGBColor(r, g, b)
-}
-
-func darkerOrLighterColor2(fg, bg Color, n int32) (Color, Color) {
+func darkerOrLighterStyle(style Style, n int32) Style {
+	fg, bg, _ := style.Decompose()
 	r, g, b := fg.RGB()
 	mono := r == g && g == b
 	r2, g2, b2 := bg.RGB()
@@ -48,11 +39,7 @@ func darkerOrLighterColor2(fg, bg Color, n int32) (Color, Color) {
 	if mono {
 		b += d
 	}
-	return tcell.NewRGBColor(r, g, b), tcell.NewRGBColor(r2, g2, b2)
-}
-
-func darkerOrLighterStyle(style Style, n int32) Style {
-	fg, bg, _ := style.Decompose()
-	fg, bg = darkerOrLighterColor2(fg, bg, n)
+	fg = tcell.NewRGBColor(r, g, b)
+	bg = tcell.NewRGBColor(r2, g2, b2)
 	return style.Foreground(fg).Background(bg)
 }
