@@ -6,4 +6,5 @@ var (
 	TypeStyleFunc    = SetFG(MonokaiBlue)
 	LiteralStyleFunc = SetFG(MonokaiGreen)
 	BuiltInStyleFunc = SetFG(MonokaiOrange)
+	CommentStyleFunc = SetFG(MonokaiOrange)
 )
