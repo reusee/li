@@ -9,8 +9,7 @@ import (
 )
 
 type (
-	GetConfig         func(target any) error
-	ConfigFileContent []byte
+	GetConfig func(target any) error
 )
 
 func getConfigDir() string {
@@ -28,19 +27,23 @@ func getConfigDir() string {
 
 func (_ Provide) Config() (
 	get GetConfig,
-	c ConfigFileContent,
 ) {
+
 	configDir := getConfigDir()
-	content, err := ioutil.ReadFile(filepath.Join(configDir, "config.toml"))
+	userConfig, err := ioutil.ReadFile(filepath.Join(configDir, "config.toml"))
 	if os.IsNotExist(err) {
 		err = nil
 	} else {
 		ce(err, "open config.toml")
 	}
-	c = ConfigFileContent(content)
+
+	defaultConfig := []byte(DefaultConfig)
 
 	get = func(target any) error {
-		if err := toml.Unmarshal(content, target); err != nil {
+		if err := toml.Unmarshal(defaultConfig, target); err != nil {
+			return err
+		}
+		if err := toml.Unmarshal(userConfig, target); err != nil {
 			return err
 		}
 		return nil

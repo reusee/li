@@ -1,6 +1,12 @@
+package li
+
+// create ~/.config/li-editor/config.toml to overwrite defaults
+
+const DefaultConfig = `
+
 [Scroll]
-PaddingTop = 10
-PaddingBottom = 10
+PaddingTop = 20
+PaddingBottom = 20
 
 [Mouse]
 ScrollLines = 5
@@ -55,7 +61,7 @@ Layouts = [
 
   'F2' = 'ToggleMacroRecording'
 
-  'Rune[`]' = 'ToggleJournalHeight'
+  'Rune[` + "`" + `]' = 'ToggleJournalHeight'
   'Rune[#]' = 'LineBegin'
   'Rune[$]' = 'LineEnd'
 
@@ -123,3 +129,5 @@ DisableSequence = "kd"
 
 [Undo]
 DurationMS1 = 3000
+
+`
