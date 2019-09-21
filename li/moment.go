@@ -50,8 +50,15 @@ type Moment struct {
 	finalizeFuncs sync.Map
 }
 
-func NewMoment() *Moment {
-	m := &Moment{}
+func NewMoment(prev *Moment) *Moment {
+	m := &Moment{
+		T0:       time.Now(),
+		ID:       MomentID(atomic.AddInt64(&nextMomentID, 1)),
+		Previous: prev,
+	}
+	if prev != nil {
+		m.Language = prev.Language
+	}
 	runtime.SetFinalizer(m, func(m *Moment) {
 		m.finalizeFuncs.Range(func(_, v any) bool {
 			v.(func())()
@@ -104,6 +111,9 @@ func (m *Moment) GetCStringContent() *C.char {
 }
 
 func (m *Moment) GetParser() *treesitter.Parser {
+	if m.Language == LanguageUnknown {
+		return nil
+	}
 	m.initParserOnce.Do(func() {
 		if fn, ok := languageParsers[m.Language]; ok {
 			m.parser = fn(m)
@@ -267,7 +277,6 @@ func NewMomentFromBytes(
 	linebreak Linebreak,
 ) {
 
-	id := MomentID(atomic.AddInt64(&nextMomentID, 1))
 	linebreak = "\n" // default
 
 	content := string(bs)
@@ -297,9 +306,7 @@ func NewMomentFromBytes(
 		lines = append(lines, line)
 	}
 
-	moment = NewMoment()
-	moment.T0 = time.Now()
-	moment.ID = id
+	moment = NewMoment(nil)
 	moment.lines = lines
 	moment.subContentHashStates = make([]*[]byte, len(lines))
 	moment.subContentHashes = make([]*HashSum, len(lines))

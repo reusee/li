@@ -84,3 +84,24 @@ func TestSubContentHashing(t *testing.T) {
 		)
 	})
 }
+
+func TestDerivedMomentLanguage(t *testing.T) {
+	withEditorBytes(t, []byte(`package main
+	  func main() {}
+	`), func(
+		moment *Moment,
+		view *View,
+		scope Scope,
+	) {
+		moment.Language = LanguageGo
+		parser := moment.GetParser()
+		eq(t,
+			parser != nil, true,
+		)
+		scope.Call(ChangeToWordEnd)
+		parser = view.Moment.GetParser()
+		eq(t,
+			parser != nil, true,
+		)
+	})
+}

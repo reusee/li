@@ -3,8 +3,6 @@ package li
 import (
 	"strings"
 	"sync"
-	"sync/atomic"
-	"time"
 )
 
 type Op uint8
@@ -34,11 +32,7 @@ func ApplyChange(
 	numRunesInserted int,
 ) {
 
-	id := MomentID(atomic.AddInt64(&nextMomentID, 1))
-	newMoment = NewMoment()
-	newMoment.T0 = time.Now()
-	newMoment.ID = id
-	newMoment.Previous = moment
+	newMoment = NewMoment(moment)
 	newMoment.Change = change
 
 	// validate begin position
