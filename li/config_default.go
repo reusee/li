@@ -68,7 +68,7 @@ Layouts = [
   'Rune[w]' = 'FocusPrevViewInGroup'
   'Rune[e]' = 'FocusNextViewInGroup'
   'Rune[U]' = 'PageUp'
-  'Rune[u]' = 'Undo'
+  'Rune[u]' = 'UndoDuration1'
   'Rune[i]' = 'EnableEditMode'
   'Rune[O]' = 'EditNewLineAbove'
   'Rune[o]' = 'EditNewLineBelow'
@@ -115,7 +115,7 @@ Layouts = [
 
   'Alt+Rune[u]' = 'RedoLatest'
 
-  'Ctrl+U' = 'UndoDuration1'
+  'Ctrl+U' = 'Undo'
   'Ctrl+O' = 'ShowCommandPalette'
 
 [EditMode]
