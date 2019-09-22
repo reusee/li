@@ -21,6 +21,7 @@ func (s *GoLexicalStainer) Line() any {
 		moment *Moment,
 		lineNum LineNumber,
 		appendJournal AppendJournal,
+		scope Scope,
 	) (
 		fns []StyleFunc,
 	) {
@@ -32,7 +33,7 @@ func (s *GoLexicalStainer) Line() any {
 
 		line := moment.GetLine(int(lineNum))
 		for _, cell := range line.Cells {
-			attr := moment.GetSyntaxAttr(int(lineNum), cell.RuneOffset)
+			attr := moment.GetSyntaxAttr(scope, int(lineNum), cell.RuneOffset)
 			fns = append(fns, s.AttrStyleFunc(attr))
 		}
 

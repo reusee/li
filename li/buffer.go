@@ -13,6 +13,7 @@ type Buffer struct {
 	Path             string
 	LastSyncFileInfo FileInfo
 	Linebreak        Linebreak
+	Language         Language
 }
 
 var nextBufferID int64
@@ -40,6 +41,7 @@ func NewBufferFromFile(
 		Path:             path,
 		LastSyncFileInfo: moment.FileInfo,
 		Linebreak:        linebreak,
+		Language:         LanguageFromPath(path),
 	}
 	link(buffer, moment)
 
@@ -119,6 +121,7 @@ func NewBuffersFromPath(
 			Path:             paths[i],
 			LastSyncFileInfo: moment.FileInfo,
 			Linebreak:        linebreak,
+			Language:         LanguageFromPath(paths[i]),
 		}
 		buffers = append(buffers, buffer)
 		link(buffer, moment)

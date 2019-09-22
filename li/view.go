@@ -65,7 +65,7 @@ func NewViewFromBuffer(
 		Buffer: buffer,
 		Moment: moment,
 		Stainer: func() Stainer {
-			if fn, ok := languageStainers[moment.Language]; ok {
+			if fn, ok := languageStainers[buffer.Language]; ok {
 				return fn()
 			}
 			return new(NoopStainer)

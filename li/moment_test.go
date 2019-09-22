@@ -92,14 +92,15 @@ func TestDerivedMomentLanguage(t *testing.T) {
 		moment *Moment,
 		view *View,
 		scope Scope,
+		buffer *Buffer,
 	) {
-		moment.Language = LanguageGo
-		parser := moment.GetParser()
+		buffer.Language = LanguageGo
+		parser := moment.GetParser(scope)
 		eq(t,
 			parser != nil, true,
 		)
 		scope.Call(ChangeToWordEnd)
-		parser = view.Moment.GetParser()
+		parser = view.Moment.GetParser(scope)
 		eq(t,
 			parser != nil, true,
 		)

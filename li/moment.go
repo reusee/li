@@ -42,7 +42,6 @@ type Moment struct {
 	initCStringContentOnce sync.Once
 	cstringContent         *C.char
 
-	Language       Language
 	initParserOnce sync.Once
 	parser         *treesitter.Parser
 	syntaxAttrs    sync.Map
@@ -55,9 +54,6 @@ func NewMoment(prev *Moment) *Moment {
 		T0:       time.Now(),
 		ID:       MomentID(atomic.AddInt64(&nextMomentID, 1)),
 		Previous: prev,
-	}
-	if prev != nil {
-		m.Language = prev.Language
 	}
 	runtime.SetFinalizer(m, func(m *Moment) {
 		m.finalizeFuncs.Range(func(_, v any) bool {
@@ -110,13 +106,17 @@ func (m *Moment) GetCStringContent() *C.char {
 	return m.cstringContent
 }
 
-func (m *Moment) GetParser() *treesitter.Parser {
-	if m.Language == LanguageUnknown {
+func (m *Moment) GetParser(scope Scope) *treesitter.Parser {
+	var buffer *Buffer
+	var linked LinkedOne
+	scope.Assign(&linked)
+	linked(m, &buffer)
+	if buffer.Language == LanguageUnknown {
 		return nil
 	}
 	m.initParserOnce.Do(func() {
 		//TODO utilize tree-sitter incremental parsing
-		if fn, ok := languageParsers[m.Language]; ok {
+		if fn, ok := languageParsers[buffer.Language]; ok {
 			m.parser = fn(m)
 		}
 		m.finalizeFuncs.Store(rand.Int63(), func() {
@@ -126,7 +126,7 @@ func (m *Moment) GetParser() *treesitter.Parser {
 	return m.parser
 }
 
-func (m *Moment) GetSyntaxAttr(lineNum int, runeOffset int) string {
+func (m *Moment) GetSyntaxAttr(scope Scope, lineNum int, runeOffset int) string {
 	key := Position{
 		Line: lineNum,
 		Rune: runeOffset,
@@ -134,7 +134,7 @@ func (m *Moment) GetSyntaxAttr(lineNum int, runeOffset int) string {
 	if v, ok := m.syntaxAttrs.Load(key); ok {
 		return v.(string)
 	}
-	parser := m.GetParser()
+	parser := m.GetParser(scope)
 	if parser == nil {
 		return ""
 	}
@@ -263,8 +263,6 @@ func NewMomentFromFile(
 	info, err := getFileInfo(path)
 	ce(err)
 	moment.FileInfo = info
-
-	moment.Language = LanguageFromPath(path)
 
 	return
 }

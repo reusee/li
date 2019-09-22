@@ -86,10 +86,10 @@ func Status(
 		addTextLine("cursor", Bold(true), AlignRight, Padding(0, 2, 0, 0))
 		addTextLine(strconv.Itoa(line), AlignRight, Padding(0, 2, 0, 0))
 		addTextLine(strconv.Itoa(col), AlignRight, Padding(0, 2, 0, 0))
-		if parser := focusing.Moment.GetParser(); parser != nil {
+		if parser := focusing.Moment.GetParser(scope); parser != nil {
 			pos := focusing.cursorPosition()
 			addTextLine(
-				focusing.Moment.GetSyntaxAttr(pos.Line, pos.Rune),
+				focusing.Moment.GetSyntaxAttr(scope, pos.Line, pos.Rune),
 				AlignRight, Padding(0, 2, 0, 0),
 			)
 		}
