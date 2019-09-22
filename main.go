@@ -12,6 +12,7 @@ import (
 
 type (
 	Scope = li.Scope
+	any   = interface{}
 )
 
 var (

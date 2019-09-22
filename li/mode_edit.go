@@ -111,7 +111,7 @@ func (_ EditMode) StrokeSpecs() any {
 									dropLink(view.Buffer, moment)
 									moment = moment.Previous
 								}
-								view.switchMoment(moment)
+								view.switchMoment(scope, moment)
 								scope.Call(DisableEditMode)
 								return
 							}

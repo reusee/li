@@ -22,13 +22,14 @@ func (_ Provide) UndoConfig(
 
 func Undo(
 	cur CurrentView,
+	scope Scope,
 ) {
 	view := cur()
 	if view == nil {
 		return
 	}
 	if view.Moment.Previous != nil {
-		view.switchMoment(view.Moment.Previous)
+		view.switchMoment(scope, view.Moment.Previous)
 	}
 }
 
@@ -41,6 +42,7 @@ func (_ Command) Undo() (spec CommandSpec) {
 func RedoLatest(
 	cur CurrentView,
 	linkedAll LinkedAll,
+	scope Scope,
 ) {
 	view := cur()
 	if view == nil {
@@ -61,7 +63,7 @@ func RedoLatest(
 	sort.SliceStable(moments, func(i, j int) bool {
 		return moments[i].ID > moments[j].ID
 	})
-	view.switchMoment(moments[0])
+	view.switchMoment(scope, moments[0])
 }
 
 func (_ Command) RedoLatest() (spec CommandSpec) {
@@ -73,6 +75,7 @@ func (_ Command) RedoLatest() (spec CommandSpec) {
 func UndoDuration1(
 	cur CurrentView,
 	config UndoConfig,
+	scope Scope,
 ) {
 	view := cur()
 	if view == nil {
@@ -92,7 +95,7 @@ func UndoDuration1(
 		prev = prev.Previous
 	}
 	if next != nil {
-		view.switchMoment(next)
+		view.switchMoment(scope, next)
 	}
 }
 

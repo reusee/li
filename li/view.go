@@ -159,12 +159,39 @@ func (v View) cursorPosition() Position {
 	}
 }
 
-func (v *View) switchMoment(m *Moment) {
+type evMomentSwitch struct{}
+
+var EvMomentSwitch = new(evMomentSwitch)
+
+func (v *View) switchMoment(scope Scope, m *Moment) {
 	// save
 	v.MomentStates[v.Moment] = v.ViewMomentState
 	// restore
+	old := v.Moment
 	v.Moment = m
 	if state, ok := v.MomentStates[m]; ok {
 		v.ViewMomentState = state
 	}
+	// trigger event
+	scope.Call(func(
+		trigger Trigger,
+	) {
+		trigger(scope.Sub(
+			func() (*View, [2]*Moment) {
+				return v, [2]*Moment{old, m}
+			},
+		), EvMomentSwitch)
+	})
+}
+
+func (_ Provide) OnMomentSwitchHint(
+	on On,
+	j AppendJournal,
+) Init2 {
+
+	on(EvMomentSwitch, func(view *View, ms [2]*Moment) {
+		j("view %d switch moment from %d to %d", view.ID, ms[0].ID, ms[1].ID)
+	})
+
+	return nil
 }

@@ -220,7 +220,7 @@ func InsertAtPositionFunc(
 		return view.Moment, change
 	}).Call(ApplyChange, &newMoment, &nRunesInserted)
 
-	view.switchMoment(newMoment)
+	view.switchMoment(scope, newMoment)
 
 	scope.Sub(func() Move {
 		return Move{AbsLine: intP(position.Line), AbsCol: intP(position.Col)}
@@ -249,7 +249,7 @@ func DeleteWithinRange(
 	scope.Sub(func() (*Moment, Change) {
 		return view.Moment, change
 	}).Call(ApplyChange, &newMoment)
-	view.switchMoment(newMoment)
+	view.switchMoment(scope, newMoment)
 	scope.Sub(func() Move {
 		return Move{AbsLine: intP(r.Begin.Line), AbsCol: intP(r.Begin.Col)}
 	}).Call(MoveCursor)
