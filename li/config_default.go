@@ -130,4 +130,7 @@ DisableSequence = "kd"
 [Undo]
 DurationMS1 = 3000
 
+[Debug]
+Verbose = false
+
 `

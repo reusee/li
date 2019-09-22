@@ -187,11 +187,14 @@ func (v *View) switchMoment(scope Scope, m *Moment) {
 func (_ Provide) OnMomentSwitchHint(
 	on On,
 	j AppendJournal,
+	config DebugConfig,
 ) Init2 {
 
-	on(EvMomentSwitch, func(view *View, ms [2]*Moment) {
-		j("view %d switch moment from %d to %d", view.ID, ms[0].ID, ms[1].ID)
-	})
+	if config.Verbose {
+		on(EvMomentSwitch, func(view *View, ms [2]*Moment) {
+			j("view %d switch moment from %d to %d", view.ID, ms[0].ID, ms[1].ID)
+		})
+	}
 
 	return nil
 }
