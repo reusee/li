@@ -28,7 +28,7 @@ func (r _Rect) RenderFunc() any {
 		var paddingLeft, paddingRight, paddingTop, paddingBottom int
 		fill := false
 
-		r.IterSpecs(scope, func(v interface{}) {
+		r.IterSpecs(scope, func(v any) {
 			switch v := v.(type) {
 
 			case Box:
@@ -195,7 +195,7 @@ func (t _Text) RenderFunc() any {
 		var offsetStyleFunc OffsetStyleFunc
 		fill := false
 
-		t.IterSpecs(scope, func(v interface{}) {
+		t.IterSpecs(scope, func(v any) {
 			switch v := v.(type) {
 
 			case Box:

@@ -1,7 +1,7 @@
 package li
 
 type (
-	LogImitation   func(any) interface{}
+	LogImitation   func(any) any
 	GetImitation   func() any
 	NoLogImitation bool
 )
@@ -11,7 +11,7 @@ func (_ Provide) Imitation() (
 	get GetImitation,
 ) {
 	var imitation any
-	log = func(v any) interface{} {
+	log = func(v any) any {
 		imitation = v
 		return v
 	}

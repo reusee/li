@@ -16,7 +16,7 @@ func (e _ElementFrom) RenderFunc() any {
 
 		var children []Element
 
-		e.IterSpecs(scope, func(v interface{}) {
+		e.IterSpecs(scope, func(v any) {
 			switch v := v.(type) {
 
 			case Element:

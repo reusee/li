@@ -19,7 +19,7 @@ func withEditor(fn any) {
 	// scope
 	var scope Scope
 	scope = NewGlobal(func() Derive {
-		return func(inits ...interface{}) {
+		return func(inits ...any) {
 			scope = scope.Sub(inits...)
 		}
 	})
@@ -52,10 +52,10 @@ func withEditor(fn any) {
 	defer exit()
 
 	// async func calls
-	funcCalls := make(chan interface{}, 128)
+	funcCalls := make(chan any, 128)
 	scope = scope.Sub(
 		func() RunInMainLoop {
-			return func(fn interface{}) {
+			return func(fn any) {
 				funcCalls <- fn
 			}
 		},
@@ -128,11 +128,11 @@ func withEditor(fn any) {
 
 }
 
-func withHelloEditor(t *testing.T, fn interface{}) {
+func withHelloEditor(t *testing.T, fn any) {
 	withEditorBytes(t, []byte("Hello, world!\n你好，世界！\nこんにちは、世界！\n"), fn)
 }
 
-func withEditorBytes(t *testing.T, bs []byte, fn interface{}) {
+func withEditorBytes(t *testing.T, bs []byte, fn any) {
 	withEditor(func(
 		s Scope,
 	) {
@@ -169,7 +169,7 @@ func withEditorBytes(t *testing.T, bs []byte, fn interface{}) {
 	})
 }
 
-func eq(t *testing.T, args ...interface{}) {
+func eq(t *testing.T, args ...any) {
 	t.Helper()
 	if len(args)%2 != 0 {
 		t.Fatal("must be even number of args")

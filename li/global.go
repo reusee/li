@@ -4,7 +4,7 @@ import "reflect"
 
 type Provide struct{}
 
-type Derive func(inits ...interface{})
+type Derive func(inits ...any)
 
 type Init func() any
 
@@ -13,7 +13,7 @@ type Init2 any
 var init2Type = reflect.TypeOf((*Init2)(nil)).Elem()
 
 func NewGlobal(fns ...any) Scope {
-	var inits []interface{}
+	var inits []any
 	var protoInit2s []any
 
 	processFunc := func(fnValue reflect.Value) {

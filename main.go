@@ -25,7 +25,7 @@ func main() {
 	// scope
 	var scope Scope
 	scope = li.NewGlobal(func() li.Derive {
-		return func(inits ...interface{}) {
+		return func(inits ...any) {
 			scope = scope.Sub(inits...)
 		}
 	})
@@ -73,16 +73,16 @@ func main() {
 	defer exit()
 
 	// async func calls
-	funcCalls := make(chan interface{}, 128)
-	idleFuncCalls := make(chan interface{}, 128)
+	funcCalls := make(chan any, 128)
+	idleFuncCalls := make(chan any, 128)
 	scope = scope.Sub(
 		func() li.RunInMainLoop {
-			return func(fn interface{}) {
+			return func(fn any) {
 				funcCalls <- fn
 			}
 		},
 		func() li.RunWhenIdle {
-			return func(fn interface{}) {
+			return func(fn any) {
 				idleFuncCalls <- fn
 			}
 		},
