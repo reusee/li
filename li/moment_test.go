@@ -1,9 +1,10 @@
 package li
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"testing"
+
+	"golang.org/x/crypto/blake2b"
 )
 
 func TestMomentFromBytes(t *testing.T) {
@@ -76,11 +77,11 @@ func TestSubContentHashing(t *testing.T) {
 	) {
 		eq(t,
 			fmt.Sprintf("%x", moment.GetSubContentHash(0)),
-			fmt.Sprintf("%x", sha256.Sum256([]byte("Hello, world!\n"))),
+			fmt.Sprintf("%x", blake2b.Sum256([]byte("Hello, world!\n"))),
 			fmt.Sprintf("%x", moment.GetSubContentHash(2)),
-			fmt.Sprintf("%x", sha256.Sum256([]byte("Hello, world!\n你好，世界！\nこんにちは、世界！\n"))),
+			fmt.Sprintf("%x", blake2b.Sum256([]byte("Hello, world!\n你好，世界！\nこんにちは、世界！\n"))),
 			fmt.Sprintf("%x", moment.GetSubContentHash(1)),
-			fmt.Sprintf("%x", sha256.Sum256([]byte("Hello, world!\n你好，世界！\n"))),
+			fmt.Sprintf("%x", blake2b.Sum256([]byte("Hello, world!\n你好，世界！\n"))),
 		)
 	})
 }

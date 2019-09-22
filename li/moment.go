@@ -28,6 +28,7 @@ type Moment struct {
 	Change   Change
 	lines    []*Line
 
+	// for incremental processing
 	// hash state before line <key>
 	subContentHashStates []*[]byte
 	// hash sum of line [0, <key>]

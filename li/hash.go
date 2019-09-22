@@ -1,14 +1,16 @@
 package li
 
 import (
-	"crypto/sha256"
 	"hash"
+
+	"golang.org/x/crypto/blake2b"
 )
 
 type HashSum [32]byte
 
 func NewHash() hash.Hash {
-	return sha256.New()
+	h, _ := blake2b.New256(nil)
+	return h
 }
 
 func init() {
