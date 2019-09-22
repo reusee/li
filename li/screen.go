@@ -12,12 +12,12 @@ type (
 )
 
 func (_ Provide) Screen(
-	onExit OnExit,
+	on On,
 ) Screen { // NOCOVER, testing codes uses tcell.SimulationScreen
 
 	screen, err := tcell.NewScreen()
 	ce(err)
-	onExit(func() { // NOCOVER
+	on(EvExit, func() {
 		screen.Fini()
 	})
 	ce(screen.Init()) // NOCOVER

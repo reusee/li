@@ -3,30 +3,27 @@ package li
 import "sync"
 
 type (
-	OnExit  func(cb func())
 	Exit    func()
 	SigExit chan struct{}
+
+	evExit struct{}
 )
 
-func (_ Provide) Exit() (
-	onExit OnExit,
+var EvExit = new(evExit)
+
+func (_ Provide) Exit(
+	trigger Trigger,
+	scope Scope,
+) (
 	exit Exit,
 	sigExit SigExit,
 ) {
-
-	var cbs []func()
-
-	onExit = func(cb func()) {
-		cbs = append(cbs, cb)
-	}
 
 	var once sync.Once
 	sigExit = make(chan struct{})
 	exit = func() {
 		once.Do(func() {
-			for _, cb := range cbs {
-				cb()
-			}
+			trigger(scope, EvExit)
 			close(sigExit)
 		})
 	}
