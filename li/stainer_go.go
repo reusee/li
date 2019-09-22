@@ -61,6 +61,8 @@ func (s *GoLexicalStainer) AttrStyleFunc(attr string) StyleFunc {
 		"append", "cap", "close", "complex", "copy", "delete", "imag", "len",
 		"make", "new", "panic", "print", "println", "real", "recover":
 		return BuiltInStyleFunc
+	case "escape_sequence":
+		return LiteralStyleFunc
 	}
 	return nil
 }
