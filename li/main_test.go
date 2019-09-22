@@ -3,7 +3,6 @@ package li
 import (
 	"bytes"
 	"encoding/json"
-	"reflect"
 	"testing"
 
 	"github.com/gdamore/tcell"
@@ -11,19 +10,12 @@ import (
 
 func withEditor(fn any) {
 	// scope
-	provide := new(Provide)
-	var inits []interface{}
-	v := reflect.ValueOf(provide)
-	for i := 0; i < v.NumMethod(); i++ {
-		inits = append(inits, v.Method(i).Interface())
-	}
 	var scope Scope
-	inits = append(inits, func() Derive {
+	scope = NewGlobal(func() Derive {
 		return func(inits ...interface{}) {
 			scope = scope.Sub(inits...)
 		}
 	})
-	scope = NewScope(inits...)
 
 	screen := tcell.NewSimulationScreen("")
 	ce(screen.Init())

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"reflect"
 	"time"
 
 	"github.com/gdamore/tcell"
@@ -24,19 +23,12 @@ var (
 func main() {
 
 	// scope
-	provide := new(li.Provide)
-	var inits []interface{}
-	v := reflect.ValueOf(provide)
-	for i := 0; i < v.NumMethod(); i++ {
-		inits = append(inits, v.Method(i).Interface())
-	}
 	var scope Scope
-	inits = append(inits, func() li.Derive {
+	scope = li.NewGlobal(func() li.Derive {
 		return func(inits ...interface{}) {
 			scope = scope.Sub(inits...)
 		}
 	})
-	scope = li.NewScope(inits...)
 
 	// open files
 	views := make(li.Views)
