@@ -70,12 +70,7 @@ func main() {
 	// panic handling
 	var exit li.Exit
 	scope.Assign(&exit)
-	defer func() {
-		if p := recover(); p != nil {
-			exit()
-			panic(p)
-		}
-	}()
+	defer exit()
 
 	// async func calls
 	funcCalls := make(chan interface{}, 128)

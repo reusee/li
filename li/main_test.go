@@ -40,12 +40,7 @@ func withEditor(fn any) {
 	// panic handling
 	var exit Exit
 	scope.Assign(&exit)
-	defer func() {
-		if p := recover(); p != nil {
-			exit()
-			panic(p)
-		}
-	}()
+	defer exit()
 
 	// async func calls
 	funcCalls := make(chan interface{}, 128)
@@ -122,7 +117,6 @@ func withEditor(fn any) {
 		},
 	).Call(fn)
 
-	exit()
 }
 
 func withHelloEditor(t *testing.T, fn interface{}) {
