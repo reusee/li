@@ -8,6 +8,11 @@ type (
 	Abort      bool
 )
 
+type (
+	Width  int
+	Height int
+)
+
 type Position struct {
 	Line int
 	Rune int

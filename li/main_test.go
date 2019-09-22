@@ -8,6 +8,13 @@ import (
 	"github.com/gdamore/tcell"
 )
 
+type SimScreen struct {
+	tcell.Screen
+}
+
+func (_ SimScreen) SetCursorShape(shape CursorShape) {
+}
+
 func withEditor(fn any) {
 	// scope
 	var scope Scope
@@ -19,16 +26,18 @@ func withEditor(fn any) {
 
 	screen := tcell.NewSimulationScreen("")
 	ce(screen.Init())
-	var onExit OnExit
-	scope.Assign(&onExit)
-	onExit(func() {
+	var on On
+	scope.Assign(&on)
+	on(EvExit, func() {
 		screen.Fini()
 	})
 	screen.EnableMouse()
 	screen.SetSize(80, 25)
 	scope = scope.Sub(
 		func() Screen {
-			return screen
+			return SimScreen{
+				Screen: screen,
+			}
 		},
 		func() SetContent {
 			return screen.SetContent

@@ -4,12 +4,23 @@ import (
 	"github.com/gdamore/tcell"
 )
 
-type Screen = tcell.Screen
+type Screen interface {
+	tcell.Screen
+	SetCursorShape(CursorShape)
+}
 
-type (
-	Width  int
-	Height int
-)
+type TcellScreen struct {
+	tcell.Screen
+}
+
+func (t TcellScreen) SetCursorShape(shape CursorShape) {
+	switch shape {
+	case CursorBeam:
+		pt("\033[6 q")
+	case CursorBlock:
+		pt("\033[2 q")
+	}
+}
 
 func (_ Provide) Screen(
 	on On,
@@ -23,7 +34,9 @@ func (_ Provide) Screen(
 	ce(screen.Init()) // NOCOVER
 	screen.EnableMouse()
 
-	return screen
+	return TcellScreen{
+		Screen: screen,
+	}
 }
 
 func (_ Provide) ScreenSize(

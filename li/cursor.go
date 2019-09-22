@@ -6,6 +6,13 @@ import (
 	"github.com/gdamore/tcell"
 )
 
+type CursorShape uint8
+
+const (
+	CursorBlock CursorShape = iota
+	CursorBeam
+)
+
 type Move struct {
 	RelLine int
 	RelRune int

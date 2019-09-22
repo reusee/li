@@ -10,6 +10,7 @@ type EditMode struct{}
 
 func EnableEditMode(
 	cur CurrentModes,
+	screen Screen,
 ) {
 
 	modes := cur()
@@ -29,13 +30,13 @@ func EnableEditMode(
 	newModes[0] = new(EditMode)
 	cur(newModes)
 
-	// block cursor
-	pt("\033[6 q")
+	screen.SetCursorShape(CursorBeam)
 
 }
 
 func DisableEditMode(
 	cur CurrentModes,
+	screen Screen,
 ) {
 
 	modes := cur()
@@ -48,8 +49,7 @@ func DisableEditMode(
 	}
 	cur(filtered)
 
-	// bar cursor
-	pt("\033[2 q")
+	screen.SetCursorShape(CursorBlock)
 
 }
 
