@@ -19,6 +19,7 @@ type View struct {
 	FrameBuffer     *FrameBuffer
 	FrameBufferArgs ViewUIArgs
 
+	//TODO eviction
 	MomentStates map[*Moment]ViewMomentState
 }
 
