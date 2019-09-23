@@ -82,6 +82,7 @@ func JournalUI(
 	ret Element,
 ) {
 
+	//TODO wrap long lines
 	lines := getLines()
 	height := int(getHeight())
 	if len(lines) > height {

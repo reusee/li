@@ -33,6 +33,7 @@ type (
 	Scope = dscope.Scope
 	any   = interface{}
 	dyn   = interface{}
+	M     = map[string]any
 )
 
 var runeWidths sync.Map

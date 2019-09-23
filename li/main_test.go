@@ -42,6 +42,12 @@ func withEditor(fn any) {
 		func() SetContent {
 			return screen.SetContent
 		},
+		func() AppendJournal {
+			return func(format string, args ...any) {
+				pt(format, args...)
+				pt("\n")
+			}
+		},
 	)
 
 	events := make(chan ScreenEvent, 512)
