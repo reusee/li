@@ -40,6 +40,7 @@ func (_ Provide) LSP(
 		buffer *Buffer,
 		langs [2]Language,
 		configDir ConfigDir,
+		linkedOne LinkedOne,
 	) {
 		j("%s changed language from %v to %v", buffer.Path, langs[0], langs[1])
 
@@ -91,6 +92,19 @@ func (_ Provide) LSP(
 				}).Unmarshal(&ret))
 				endpoint.Notify("initialized", M{})
 
+				var moment *Moment
+				linkedOne(buffer, &moment)
+				if moment != nil {
+					endpoint.Notify("textDocument/didOpen", M{
+						"textDocument": M{
+							"uri":        buffer.AbsPath,
+							"languageId": "go",
+							"version":    moment.ID,
+							"text":       moment.GetContent(),
+						},
+					})
+				}
+
 				j("language server for %s started:\n%s", lang, toJSON(ret))
 			}
 
@@ -118,6 +132,14 @@ func (_ Provide) LSP(
 			j("format %s", toJSON(ret))
 			//TODO apply change
 		})
+	})
+
+	// sync change
+	on(EvMomentSwitched, func(
+		buffer *Buffer,
+		moments [2]*Moment,
+	) {
+		//TODO
 	})
 
 	return nil

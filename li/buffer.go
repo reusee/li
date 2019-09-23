@@ -56,11 +56,11 @@ func NewBufferFromFile(
 		LastSyncFileInfo: moment.FileInfo,
 		Linebreak:        linebreak,
 	}
-	buffer.SetLanguage(scope, LanguageFromPath(path))
 	link(buffer, moment)
+	buffer.SetLanguage(scope, LanguageFromPath(path))
 
-	trigger(scope.Sub(func() *Buffer {
-		return buffer
+	trigger(scope.Sub(func() (*Buffer, *Moment) {
+		return buffer, moment
 	}), EvBufferCreated)
 
 	return
@@ -91,8 +91,8 @@ func NewBufferFromBytes(
 	}
 	link(buffer, moment)
 
-	trigger(scope.Sub(func() *Buffer {
-		return buffer
+	trigger(scope.Sub(func() (*Buffer, *Moment) {
+		return buffer, moment
 	}), EvBufferCreated)
 
 	return
@@ -149,9 +149,9 @@ func NewBuffersFromPath(
 			LastSyncFileInfo: moment.FileInfo,
 			Linebreak:        linebreak,
 		}
+		link(buffer, moment)
 		buffer.SetLanguage(scope, LanguageFromPath(paths[i]))
 		buffers = append(buffers, buffer)
-		link(buffer, moment)
 	}
 
 	return
