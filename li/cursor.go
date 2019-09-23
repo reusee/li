@@ -26,6 +26,7 @@ func MoveCursor(
 	scope Scope,
 	useN UseN,
 	run RunInMainLoop,
+	trigger Trigger,
 ) {
 
 	// apply context number to relative moves
@@ -51,6 +52,7 @@ func MoveCursor(
 
 	moment := view.Moment
 	maxLine := moment.NumLines() - 1
+	currentPosition := view.cursorPosition()
 
 	// get col
 	var col int
@@ -69,7 +71,7 @@ func MoveCursor(
 		// convert relative runes to relative columns by iterating cells
 		if n > 0 {
 			// iter forward
-			position := view.cursorPosition()
+			position := currentPosition
 			if position.Line >= 0 && position.Rune >= 0 { // cursorPos may return -1, -1
 				lineInfo := moment.GetLine(position.Line)
 				for position.Line <= maxLine && n > 0 {
@@ -94,7 +96,7 @@ func MoveCursor(
 		} else if n < 0 {
 			// iter backward
 			n = -n
-			position := view.cursorPosition()
+			position := currentPosition
 			if position.Line >= 0 && position.Rune >= 0 { // cursorPos may return -1, -1
 				lineInfo := moment.GetLine(position.Line)
 				for position.Line >= 0 && n > 0 {
@@ -205,7 +207,17 @@ calculate:
 	// update
 	scope.Call(ScrollToCursor)
 
+	trigger(scope.Sub(
+		func() (*View, *Moment, [2]Position) {
+			return view, moment, [2]Position{currentPosition, view.cursorPosition()}
+		},
+	), EvCursorMoved)
+
 }
+
+type evCursorMoved struct{}
+
+var EvCursorMoved = new(evCursorMoved)
 
 func (_ Command) MoveLeft() (spec CommandSpec) {
 	spec.Func = func(scope Scope) {
