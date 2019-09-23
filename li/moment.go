@@ -280,6 +280,7 @@ func NewMomentFromBytes(
 	bs []byte,
 	scope Scope,
 	config BufferConfig,
+	initProcs LineInitProcs,
 ) (
 	moment *Moment,
 	linebreak Linebreak,
@@ -313,6 +314,7 @@ func NewMomentFromBytes(
 		}
 		lines = append(lines, line)
 	}
+	initProcs <- lines
 
 	moment = NewMoment(nil)
 	moment.lines = lines
@@ -401,4 +403,21 @@ func splitLines(s string) (ret []string) {
 		s = s[i+1:]
 	}
 	return
+}
+
+type LineInitProcs chan []*Line
+
+func (_ Provide) LineInitProcs() LineInitProcs {
+	c := make(chan []*Line, 512)
+	for i := 0; i < numCPU; i++ {
+		go func() {
+			for {
+				lines := <-c
+				for i := len(lines) - 1; i >= 0; i-- {
+					lines[i].init()
+				}
+			}
+		}()
+	}
+	return c
 }
