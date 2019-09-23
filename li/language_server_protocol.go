@@ -97,6 +97,29 @@ func (_ Provide) LSP(
 		}
 	})
 
+	// format
+	on(EvMomentSwitched, func(
+		buffer *Buffer,
+	) {
+		endpoint, ok := endpoints[buffer.AbsDir]
+		if !ok {
+			return
+		}
+		endpoint.Req("textDocument/formatting", M{
+			"textDocument": M{
+				"uri": buffer.AbsPath,
+			},
+			"options": M{
+				"foo": "bar",
+			},
+		}).Then(func(c *LSPCall) {
+			var ret any
+			ce(c.Unmarshal(&ret))
+			j("format %s", toJSON(ret))
+			//TODO apply change
+		})
+	})
+
 	return nil
 }
 
@@ -118,6 +141,7 @@ type LSPCall struct {
 	id       int64
 	bs       []byte
 	err      error
+	then     func(*LSPCall)
 }
 
 func NewLSPEndpoint(
@@ -251,6 +275,9 @@ func (l *LSPEndpoint) startHandler() {
 					if call.id == *data.ID {
 						call.bs = bs
 						l.calls = append(l.calls[:i], l.calls[i+1:]...)
+						if call.then != nil {
+							go call.then(call)
+						}
 					}
 				}
 				l.Unlock()
@@ -295,4 +322,18 @@ func (c *LSPCall) Wait(target any) error {
 		return err
 	}
 	return nil
+}
+
+func (c *LSPCall) Then(fn func(*LSPCall)) {
+	c.endpoint.Lock()
+	defer c.endpoint.Unlock()
+	if c.bs != nil {
+		go fn(c)
+	} else {
+		c.then = fn
+	}
+}
+
+func (c *LSPCall) Unmarshal(target any) error {
+	return json.Unmarshal(c.bs, target)
 }
