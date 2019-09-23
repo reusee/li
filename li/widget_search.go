@@ -75,7 +75,7 @@ func ShowSearchDialog(scope Scope) {
 							if n == loc[0] {
 								return i
 							}
-							n += cell.RuneLen
+							n += cell.Len
 						}
 						panic("impossible")
 					}(),
@@ -85,7 +85,7 @@ func ShowSearchDialog(scope Scope) {
 							if n == loc[1] {
 								return i
 							}
-							n += cell.RuneLen
+							n += cell.Len
 						}
 						panic("impossible")
 					}(),

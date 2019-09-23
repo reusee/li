@@ -107,3 +107,16 @@ func TestDerivedMomentLanguage(t *testing.T) {
 		)
 	})
 }
+
+func TestCellUTF16Offset(t *testing.T) {
+	withHelloEditor(t, func(
+		m *Moment,
+	) {
+		line := m.GetLine(0)
+		eq(t,
+			line.Cells[0].UTF16Offset, 0,
+			line.Cells[1].UTF16Offset, 2,
+			line.Cells[2].UTF16Offset, 4,
+		)
+	})
+}

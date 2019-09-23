@@ -297,9 +297,9 @@ func (view *View) RenderFunc() any {
 							)
 						}
 
-						if cell.DisplayWidth > cell.RuneWidth {
+						if cell.DisplayWidth > cell.Width {
 							// expanded tabs
-							for i := 0; i < cell.DisplayWidth-cell.RuneWidth; i++ {
+							for i := 0; i < cell.DisplayWidth-cell.Width; i++ {
 								if x+1+i >= contentBox.Right {
 									break
 								}
@@ -424,9 +424,9 @@ func (view *View) RenderFunc() any {
 					)
 				}
 
-				if cell.DisplayWidth > cell.RuneWidth {
+				if cell.DisplayWidth > cell.Width {
 					// expanded tabs
-					for i := 0; i < cell.DisplayWidth-cell.RuneWidth; i++ {
+					for i := 0; i < cell.DisplayWidth-cell.Width; i++ {
 						if x+1+i >= outlineBox.Right {
 							break
 						}

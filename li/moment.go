@@ -17,6 +17,10 @@ import (
 
 	"github.com/reusee/li/treesitter"
 )
+import (
+	"unicode/utf16"
+	"unicode/utf8"
+)
 
 type MomentID int64
 
@@ -197,6 +201,7 @@ func (l *Line) init() {
 		var cells []Cell
 		allSpace := true
 		displayOffset := 0
+		utf16ByteOffset := 0
 		l.Runes = []rune(l.content)
 		var nonSpaceOffset *int
 		for i, r := range l.Runes {
@@ -209,11 +214,12 @@ func (l *Line) init() {
 			}
 			cell := Cell{
 				Rune:          r,
-				RuneLen:       len(string(r)),
-				RuneWidth:     width,
+				Len:           utf8.RuneLen(r),
+				Width:         width,
 				DisplayWidth:  displayWidth,
 				DisplayOffset: displayOffset,
 				RuneOffset:    i,
+				UTF16Offset:   utf16ByteOffset,
 			}
 			cells = append(cells, cell)
 			l.DisplayWidth += cell.DisplayWidth
@@ -225,6 +231,7 @@ func (l *Line) init() {
 				}
 			}
 			displayOffset += displayWidth
+			utf16ByteOffset += len(utf16.Encode([]rune{r})) * 2
 		}
 		l.NonSpaceOffset = nonSpaceOffset
 		l.Cells = cells
@@ -234,11 +241,12 @@ func (l *Line) init() {
 
 type Cell struct {
 	Rune          rune
-	RuneLen       int // number of bytes in string
-	RuneWidth     int // visual width
+	Len           int // number of bytes in utf8 encoding
+	Width         int // visual width without padding
 	DisplayWidth  int // visual width with padding
-	DisplayOffset int // byte offset
-	RuneOffset    int // rune offset
+	DisplayOffset int // visual column offset with padding in line
+	RuneOffset    int // rune offset in line
+	UTF16Offset   int // byte offset in utf16 encoding in line
 }
 
 var nextMomentID int64

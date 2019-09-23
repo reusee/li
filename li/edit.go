@@ -65,7 +65,7 @@ func ApplyChange(
 		line := moment.GetLine(change.Begin.Line)
 		offset := 0
 		for _, cell := range line.Cells[:change.Begin.Rune] {
-			offset += cell.RuneLen
+			offset += cell.Len
 		}
 		content := line.content[:offset] + change.String + line.content[offset:]
 		numRunesInserted += len([]rune(change.String))
