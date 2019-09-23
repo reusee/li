@@ -37,10 +37,10 @@ func (view *View) RenderFunc() any {
 			if line == nil {
 				continue
 			}
-			if line.NonSpaceOffset == nil {
+			if line.NonSpaceDisplayOffset == nil {
 				continue
 			}
-			displayOffset = *line.NonSpaceOffset
+			displayOffset = *line.NonSpaceDisplayOffset
 			break
 		}
 		var outlineLines []int
@@ -49,12 +49,12 @@ func (view *View) RenderFunc() any {
 			if line == nil {
 				continue
 			}
-			if line.NonSpaceOffset == nil {
+			if line.NonSpaceDisplayOffset == nil {
 				continue
 			}
-			if *line.NonSpaceOffset < displayOffset {
+			if *line.NonSpaceDisplayOffset < displayOffset {
 				outlineLines = append(outlineLines, i)
-				displayOffset = *line.NonSpaceOffset
+				displayOffset = *line.NonSpaceDisplayOffset
 			}
 		}
 		var paddingTop, paddingBottom int
@@ -125,7 +125,7 @@ func (view *View) RenderFunc() any {
 				if line == nil {
 					break
 				}
-				nonSpaceOffset := line.NonSpaceOffset
+				nonSpaceOffset := line.NonSpaceDisplayOffset
 				if nonSpaceOffset != nil {
 					if offset >= *nonSpaceOffset {
 						return darkerOrLighterStyle(
@@ -253,8 +253,8 @@ func (view *View) RenderFunc() any {
 						}
 
 						// indent style
-						if line.NonSpaceOffset == nil ||
-							cell.DisplayOffset <= *line.NonSpaceOffset {
+						if line.NonSpaceDisplayOffset == nil ||
+							cell.DisplayOffset <= *line.NonSpaceDisplayOffset {
 							lineStyle = indentStyle(baseStyle, lineNum, cell.DisplayOffset)
 						}
 
@@ -319,8 +319,8 @@ func (view *View) RenderFunc() any {
 				for ; x < contentBox.Right; x++ {
 					offset := x - contentBox.Left
 					if line == nil ||
-						line.NonSpaceOffset == nil ||
-						offset <= *line.NonSpaceOffset {
+						line.NonSpaceDisplayOffset == nil ||
+						offset <= *line.NonSpaceDisplayOffset {
 						lineStyle = indentStyle(baseStyle, lineNum, offset)
 					}
 					set(

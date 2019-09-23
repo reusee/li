@@ -104,12 +104,12 @@ func getAdjacentIndent(view *View, l1 int, l2 int) string {
 		if line == nil {
 			break
 		}
-		if line.NonSpaceOffset == nil {
+		if line.NonSpaceDisplayOffset == nil {
 			lineNum--
 			continue
 		}
-		if *line.NonSpaceOffset > indent {
-			indent = *line.NonSpaceOffset
+		if *line.NonSpaceDisplayOffset > indent {
+			indent = *line.NonSpaceDisplayOffset
 			for _, cell := range line.Cells {
 				if cell.DisplayOffset >= indent {
 					break
@@ -125,12 +125,12 @@ func getAdjacentIndent(view *View, l1 int, l2 int) string {
 		if line == nil {
 			break
 		}
-		if line.NonSpaceOffset == nil {
+		if line.NonSpaceDisplayOffset == nil {
 			lineNum++
 			continue
 		}
-		if *line.NonSpaceOffset > indent {
-			indent = *line.NonSpaceOffset
+		if *line.NonSpaceDisplayOffset > indent {
+			indent = *line.NonSpaceDisplayOffset
 			for _, cell := range line.Cells {
 				if cell.DisplayOffset >= indent {
 					break

@@ -666,11 +666,11 @@ func PrevDedentLine(
 	for n > 0 {
 		line := view.Moment.GetLine(n)
 		nextLine := view.Moment.GetLine(n + 1)
-		if line.NonSpaceOffset == nil &&
+		if line.NonSpaceDisplayOffset == nil &&
 			nextLine != nil ||
-			line.NonSpaceOffset != nil &&
-				nextLine.NonSpaceOffset != nil &&
-				*line.NonSpaceOffset < *nextLine.NonSpaceOffset {
+			line.NonSpaceDisplayOffset != nil &&
+				nextLine.NonSpaceDisplayOffset != nil &&
+				*line.NonSpaceDisplayOffset < *nextLine.NonSpaceDisplayOffset {
 			break
 		}
 		n--
@@ -679,7 +679,7 @@ func PrevDedentLine(
 		n = 0
 	}
 	col := 0
-	if offset := view.Moment.GetLine(n).NonSpaceOffset; offset != nil {
+	if offset := view.Moment.GetLine(n).NonSpaceDisplayOffset; offset != nil {
 		col = *offset
 	}
 	scope.Sub(func() Move {
@@ -712,11 +712,11 @@ func NextDedentLine(
 		if nextLine == nil {
 			break
 		}
-		if line.NonSpaceOffset == nil &&
+		if line.NonSpaceDisplayOffset == nil &&
 			nextLine != nil ||
-			line.NonSpaceOffset != nil &&
-				nextLine.NonSpaceOffset != nil &&
-				*line.NonSpaceOffset < *nextLine.NonSpaceOffset {
+			line.NonSpaceDisplayOffset != nil &&
+				nextLine.NonSpaceDisplayOffset != nil &&
+				*line.NonSpaceDisplayOffset < *nextLine.NonSpaceDisplayOffset {
 			break
 		}
 		n++
@@ -725,7 +725,7 @@ func NextDedentLine(
 		n = view.Moment.NumLines() - 1
 	}
 	col := 0
-	if offset := view.Moment.GetLine(n).NonSpaceOffset; offset != nil {
+	if offset := view.Moment.GetLine(n).NonSpaceDisplayOffset; offset != nil {
 		col = *offset
 	}
 	scope.Sub(func() Move {

@@ -185,11 +185,11 @@ func (m *Moment) hashSubContent(lineNum int) {
 }
 
 type Line struct {
-	Cells          []Cell
-	Runes          []rune
-	DisplayWidth   int
-	AllSpace       bool
-	NonSpaceOffset *int
+	Cells                 []Cell
+	Runes                 []rune
+	DisplayWidth          int
+	AllSpace              bool
+	NonSpaceDisplayOffset *int
 
 	content  string
 	initOnce *sync.Once
@@ -233,7 +233,7 @@ func (l *Line) init() {
 			displayOffset += displayWidth
 			utf16ByteOffset += len(utf16.Encode([]rune{r})) * 2
 		}
-		l.NonSpaceOffset = nonSpaceOffset
+		l.NonSpaceDisplayOffset = nonSpaceOffset
 		l.Cells = cells
 		l.AllSpace = allSpace
 	})
