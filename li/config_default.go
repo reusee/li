@@ -134,4 +134,7 @@ DurationMS1 = 3000
 [Debug]
 Verbose = false
 
+[LanguageServerProtocol]
+Enable = false
+
 `

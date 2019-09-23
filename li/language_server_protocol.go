@@ -28,10 +28,25 @@ signature help
 type definition
 */
 
+type LanguageServerProtocolConfig struct {
+	Enable bool
+}
+
 func (_ Provide) LSP(
 	on On,
 	j AppendJournal,
+	getConfig GetConfig,
 ) Init2 {
+
+	var c struct {
+		LanguageServerProtocol LanguageServerProtocolConfig
+	}
+	ce(getConfig(&c))
+	config := c.LanguageServerProtocol
+
+	if !config.Enable {
+		return nil
+	}
 
 	endpoints := make(map[string]*LSPEndpoint)
 
