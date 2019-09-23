@@ -112,12 +112,12 @@ func (m *Moment) GetParser(scope Scope) *treesitter.Parser {
 	var linked LinkedOne
 	scope.Assign(&linked)
 	linked(m, &buffer)
-	if buffer.Language == LanguageUnknown {
+	if buffer.language == LanguageUnknown {
 		return nil
 	}
 	m.initParserOnce.Do(func() {
 		//TODO utilize tree-sitter incremental parsing
-		if fn, ok := languageParsers[buffer.Language]; ok {
+		if fn, ok := languageParsers[buffer.language]; ok {
 			m.parser = fn(m)
 		}
 		m.finalizeFuncs.Store(rand.Int63(), func() {

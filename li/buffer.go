@@ -13,7 +13,7 @@ type Buffer struct {
 	Path             string
 	LastSyncFileInfo FileInfo
 	Linebreak        Linebreak
-	Language         Language
+	language         Language
 }
 
 var nextBufferID int64
@@ -41,8 +41,8 @@ func NewBufferFromFile(
 		Path:             path,
 		LastSyncFileInfo: moment.FileInfo,
 		Linebreak:        linebreak,
-		Language:         LanguageFromPath(path),
 	}
+	buffer.SetLanguage(scope, LanguageFromPath(path))
 	link(buffer, moment)
 
 	return
@@ -121,11 +121,29 @@ func NewBuffersFromPath(
 			Path:             paths[i],
 			LastSyncFileInfo: moment.FileInfo,
 			Linebreak:        linebreak,
-			Language:         LanguageFromPath(paths[i]),
 		}
+		buffer.SetLanguage(scope, LanguageFromPath(paths[i]))
 		buffers = append(buffers, buffer)
 		link(buffer, moment)
 	}
 
 	return
+}
+
+type evBufferLanguageChanged struct{}
+
+var EvBufferLanguageChanged = new(evBufferLanguageChanged)
+
+func (b *Buffer) SetLanguage(scope Scope, lang Language) {
+	oldLang := b.language
+	b.language = lang
+	if oldLang != lang {
+		scope.Call(func(
+			trigger Trigger,
+		) {
+			trigger(scope.Sub(func() (*Buffer, [2]Language) {
+				return b, [2]Language{oldLang, lang}
+			}), EvBufferLanguageChanged)
+		})
+	}
 }

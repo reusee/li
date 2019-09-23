@@ -95,7 +95,7 @@ func TestDerivedMomentLanguage(t *testing.T) {
 		scope Scope,
 		buffer *Buffer,
 	) {
-		buffer.Language = LanguageGo
+		buffer.SetLanguage(scope, LanguageGo)
 		parser := moment.GetParser(scope)
 		eq(t,
 			parser != nil, true,
