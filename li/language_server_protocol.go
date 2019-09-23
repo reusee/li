@@ -64,6 +64,9 @@ func (_ Provide) LSP(
 						j("language server for %s error: %v", endpoint.Language, err)
 						delete(endpoints, endpoint.Language)
 					},
+					func(format string, args ...any) {
+						j(format, args...)
+					},
 				)
 				endpoints[lang] = endpoint
 
@@ -72,6 +75,7 @@ func (_ Provide) LSP(
 					"processId": syscall.Getpid(),
 					"rootUri":   "li://buffers/",
 				}).Wait(&ret))
+				endpoint.Notify("initialized", M{})
 
 				j("language server for %s started: %v", lang, ret)
 			}
@@ -89,6 +93,7 @@ type LSPEndpoint struct {
 	Language Language
 	RW       io.ReadWriter
 	OnErr    func(error)
+	OnLog    func(format string, args ...any)
 
 	calls     []*LSPCall
 	nextReqID int64
@@ -105,6 +110,7 @@ func NewLSPEndpoint(
 	rw io.ReadWriter,
 	lang Language,
 	onErr func(error),
+	onLog func(format string, args ...any),
 ) *LSPEndpoint {
 	l := new(sync.Mutex)
 	cond := sync.NewCond(l)
@@ -114,6 +120,7 @@ func NewLSPEndpoint(
 		Language: lang,
 		RW:       rw,
 		OnErr:    onErr,
+		OnLog:    onLog,
 	}
 	go endpoint.startHandler()
 	return endpoint
@@ -156,6 +163,32 @@ func (l *LSPEndpoint) Req(method string, params M) *LSPCall {
 	return call
 }
 
+func (l *LSPEndpoint) Notify(method string, params M) {
+	l.Lock()
+	defer l.Unlock()
+	data := M{
+		"jsonrpc": "2.0",
+		"method":  method,
+		"params":  params,
+	}
+	buf := new(bytes.Buffer)
+	err := json.NewEncoder(buf).Encode(data)
+	ce(err)
+	bs := buf.Bytes()
+	if _, err := io.WriteString(l.RW, fmt.Sprintf("Content-Length: %d\r\n\r\n", len(bs))); err != nil {
+		if l.OnErr != nil {
+			l.OnErr(err)
+		}
+		return
+	}
+	if _, err := l.RW.Write(bs); err != nil {
+		if l.OnErr != nil {
+			l.OnErr(err)
+		}
+		return
+	}
+}
+
 func (l *LSPEndpoint) startHandler() {
 	r := bufio.NewReader(l.RW)
 	var err error
@@ -185,12 +218,19 @@ func (l *LSPEndpoint) startHandler() {
 				break
 			}
 			var data struct {
-				ID *int64
+				ID     *int64
+				Method string
+				Params struct {
+					Type    LSPMessageType
+					Message string
+				}
 			}
 			if err = json.Unmarshal(bs, &data); err != nil {
 				break
 			}
+
 			if data.ID != nil {
+				// response
 				l.Lock()
 				for i := 0; i < len(l.calls); i++ {
 					call := l.calls[i]
@@ -201,7 +241,14 @@ func (l *LSPEndpoint) startHandler() {
 				}
 				l.Unlock()
 				l.Broadcast()
+
+			} else if data.Method == "window/logMessage" && data.Params.Type <= LSPWarning {
+				if l.OnLog != nil {
+					l.OnLog("%s - %s: %s", l.Language, data.Params.Type, data.Params.Message)
+				}
+
 			}
+
 		}
 
 	}
@@ -211,6 +258,15 @@ func (l *LSPEndpoint) startHandler() {
 		}
 	}
 }
+
+type LSPMessageType uint8
+
+const (
+	LSPError LSPMessageType = iota + 1
+	LSPWarning
+	LSPInfo
+	LSPLog
+)
 
 func (c *LSPCall) Wait(target any) error {
 	if c.err != nil {

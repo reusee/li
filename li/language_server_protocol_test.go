@@ -1,6 +1,8 @@
 package li
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestLanguageServerProtocol(t *testing.T) {
 	withEditorBytes(t, []byte(`
