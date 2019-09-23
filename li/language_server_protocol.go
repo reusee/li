@@ -19,7 +19,7 @@ func (_ Provide) LSP(
 	j AppendJournal,
 ) Init2 {
 
-	endpoints := make(map[Language]*LSPEndpoint)
+	endpoints := make(map[string]*LSPEndpoint)
 
 	// start lsp process
 	on(EvBufferLanguageChanged, func(
@@ -29,11 +29,15 @@ func (_ Provide) LSP(
 	) {
 		j("%s changed language from %v to %v", buffer.Path, langs[0], langs[1])
 
-		lang := langs[1]
-		if _, ok := endpoints[lang]; ok {
+		path, err := filepath.Abs(buffer.Path)
+		ce(err)
+		rootDir := filepath.Dir(path)
+
+		if _, ok := endpoints[rootDir]; ok {
 			return
 		}
 
+		lang := langs[1]
 		switch lang {
 
 		case LanguageGo:
@@ -62,18 +66,18 @@ func (_ Provide) LSP(
 					lang,
 					func(err error) {
 						j("language server for %s error: %v", endpoint.Language, err)
-						delete(endpoints, endpoint.Language)
+						delete(endpoints, rootDir)
 					},
 					func(format string, args ...any) {
 						j(format, args...)
 					},
 				)
-				endpoints[lang] = endpoint
+				endpoints[rootDir] = endpoint
 
 				var ret any
 				ce(endpoint.Req("initialize", M{
 					"processId": syscall.Getpid(),
-					"rootUri":   "li://buffers/",
+					"rootUri":   rootDir,
 				}).Wait(&ret))
 				endpoint.Notify("initialized", M{})
 
