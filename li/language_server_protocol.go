@@ -88,7 +88,7 @@ func (_ Provide) LSP(
 				ce(endpoint.Req("initialize", M{
 					"processId": syscall.Getpid(),
 					"rootUri":   buffer.AbsDir,
-				}).Wait(&ret))
+				}).Unmarshal(&ret))
 				endpoint.Notify("initialized", M{})
 
 				j("language server for %s started:\n%s", lang, toJSON(ret))
@@ -309,7 +309,7 @@ const (
 	LSPLog
 )
 
-func (c *LSPCall) Wait(target any) error {
+func (c *LSPCall) Unmarshal(target any) error {
 	if c.err != nil {
 		return c.err
 	}
@@ -332,8 +332,4 @@ func (c *LSPCall) Then(fn func(*LSPCall)) {
 	} else {
 		c.then = fn
 	}
-}
-
-func (c *LSPCall) Unmarshal(target any) error {
-	return json.Unmarshal(c.bs, target)
 }
