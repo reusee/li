@@ -159,9 +159,9 @@ func (v View) cursorPosition() Position {
 	}
 }
 
-type evMomentSwitch struct{}
+type evMomentSwitched struct{}
 
-var EvMomentSwitch = new(evMomentSwitch)
+var EvMomentSwitched = new(evMomentSwitched)
 
 func (v *View) switchMoment(scope Scope, m *Moment) {
 	// save
@@ -180,18 +180,18 @@ func (v *View) switchMoment(scope Scope, m *Moment) {
 			func() (*View, [2]*Moment) {
 				return v, [2]*Moment{old, m}
 			},
-		), EvMomentSwitch)
+		), EvMomentSwitched)
 	})
 }
 
-func (_ Provide) OnMomentSwitchHint(
+func (_ Provide) OnMomentSwitchedDebugHint(
 	on On,
 	j AppendJournal,
 	config DebugConfig,
 ) Init2 {
 
 	if config.Verbose {
-		on(EvMomentSwitch, func(view *View, ms [2]*Moment) {
+		on(EvMomentSwitched, func(view *View, ms [2]*Moment) {
 			j("view %d switch moment from %d to %d", view.ID, ms[0].ID, ms[1].ID)
 		})
 	}
