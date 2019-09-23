@@ -18,10 +18,15 @@ type Buffer struct {
 
 var nextBufferID int64
 
+type evBufferCreated struct{}
+
+var EvBufferCreated = new(evBufferCreated)
+
 func NewBufferFromFile(
 	path string,
 	scope Scope,
 	link Link,
+	trigger Trigger,
 ) (
 	buffer *Buffer,
 	err error,
@@ -45,6 +50,10 @@ func NewBufferFromFile(
 	buffer.SetLanguage(scope, LanguageFromPath(path))
 	link(buffer, moment)
 
+	trigger(scope.Sub(func() *Buffer {
+		return buffer
+	}), EvBufferCreated)
+
 	return
 }
 
@@ -52,6 +61,7 @@ func NewBufferFromBytes(
 	bs []byte,
 	scope Scope,
 	link Link,
+	trigger Trigger,
 ) (
 	buffer *Buffer,
 	err error,
@@ -71,6 +81,10 @@ func NewBufferFromBytes(
 		Linebreak: linebreak,
 	}
 	link(buffer, moment)
+
+	trigger(scope.Sub(func() *Buffer {
+		return buffer
+	}), EvBufferCreated)
 
 	return
 }
