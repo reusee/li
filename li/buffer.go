@@ -1,6 +1,9 @@
 package li
 
-import "sync/atomic"
+import (
+	"path/filepath"
+	"sync/atomic"
+)
 
 type BufferID int64
 
@@ -11,6 +14,8 @@ type (
 type Buffer struct {
 	ID               BufferID
 	Path             string
+	AbsPath          string
+	AbsDir           string
 	LastSyncFileInfo FileInfo
 	Linebreak        Linebreak
 	language         Language
@@ -41,9 +46,13 @@ func NewBufferFromFile(
 	}).Call(NewMomentFromFile, &moment, &linebreak, &err)
 	ce(err)
 
+	absPath, err := filepath.Abs(path)
+	ce(err)
 	buffer = &Buffer{
 		ID:               id,
 		Path:             path,
+		AbsPath:          absPath,
+		AbsDir:           filepath.Dir(absPath),
 		LastSyncFileInfo: moment.FileInfo,
 		Linebreak:        linebreak,
 	}
@@ -130,9 +139,13 @@ func NewBuffersFromPath(
 	for i, moment := range moments {
 		linebreak := linebreaks[i]
 		id := BufferID(atomic.AddInt64(&nextBufferID, 1))
+		absPath, err := filepath.Abs(paths[i])
+		ce(err)
 		buffer := &Buffer{
 			ID:               id,
 			Path:             paths[i],
+			AbsPath:          absPath,
+			AbsDir:           filepath.Dir(absPath),
 			LastSyncFileInfo: moment.FileInfo,
 			Linebreak:        linebreak,
 		}

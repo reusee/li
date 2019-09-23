@@ -83,6 +83,7 @@ func JournalUI(
 ) {
 
 	//TODO wrap long lines
+	//TODO scrolling
 	lines := getLines()
 	height := int(getHeight())
 	if len(lines) > height {
@@ -105,7 +106,7 @@ func (_ Command) ToggleJournalHeight() (spec CommandSpec) {
 	) {
 		height := int(access())
 		if height == int(initHeight) {
-			height = int(screenHeight) / 2
+			height = int(screenHeight)
 		} else {
 			height = int(initHeight)
 		}

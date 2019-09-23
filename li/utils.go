@@ -5,6 +5,7 @@ package li
 */
 import "C"
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -106,4 +107,12 @@ func splitDir(path string) (ret []string) {
 
 func cfree(p unsafe.Pointer) {
 	C.free(p)
+}
+
+func toJSON(o any) string {
+	buf := new(strings.Builder)
+	encoder := json.NewEncoder(buf)
+	encoder.SetIndent("", "    ")
+	ce(encoder.Encode(o))
+	return buf.String()
 }

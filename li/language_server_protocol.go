@@ -14,6 +14,20 @@ import (
 	"syscall"
 )
 
+/*
+TODO gopls
+code action
+completion
+definition
+document format
+document highlight
+document link
+document symbol
+hover
+signature help
+type definition
+*/
+
 func (_ Provide) LSP(
 	on On,
 	j AppendJournal,
@@ -29,11 +43,7 @@ func (_ Provide) LSP(
 	) {
 		j("%s changed language from %v to %v", buffer.Path, langs[0], langs[1])
 
-		path, err := filepath.Abs(buffer.Path)
-		ce(err)
-		rootDir := filepath.Dir(path)
-
-		if _, ok := endpoints[rootDir]; ok {
+		if _, ok := endpoints[buffer.AbsDir]; ok {
 			return
 		}
 
@@ -66,22 +76,22 @@ func (_ Provide) LSP(
 					lang,
 					func(err error) {
 						j("language server for %s error: %v", endpoint.Language, err)
-						delete(endpoints, rootDir)
+						delete(endpoints, buffer.AbsDir)
 					},
 					func(format string, args ...any) {
 						j(format, args...)
 					},
 				)
-				endpoints[rootDir] = endpoint
+				endpoints[buffer.AbsDir] = endpoint
 
 				var ret any
 				ce(endpoint.Req("initialize", M{
 					"processId": syscall.Getpid(),
-					"rootUri":   rootDir,
+					"rootUri":   buffer.AbsDir,
 				}).Wait(&ret))
 				endpoint.Notify("initialized", M{})
 
-				j("language server for %s started: %v", lang, ret)
+				j("language server for %s started:\n%s", lang, toJSON(ret))
 			}
 
 		}
