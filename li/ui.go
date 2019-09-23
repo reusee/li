@@ -94,3 +94,21 @@ func renderAll(scope Scope, elements ...Element) {
 		elements = next
 	}
 }
+
+// ui configs
+
+type UIConfig struct {
+	StatusWidth        int
+	JournalHeight      int
+	MaxOutlineDistance int
+}
+
+func (_ Provide) UIConfig(
+	get GetConfig,
+) UIConfig {
+	var config struct {
+		UI UIConfig
+	}
+	ce(get(&config))
+	return config.UI
+}

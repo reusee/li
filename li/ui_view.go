@@ -26,7 +26,8 @@ func (view *View) RenderFunc() any {
 		screen Screen,
 		procs ViewRenderProcs,
 		j AppendJournal,
-		config ScrollConfig,
+		scrollConfig ScrollConfig,
+		uiConfig UIConfig,
 	) Element {
 
 		// outline
@@ -44,7 +45,7 @@ func (view *View) RenderFunc() any {
 			break
 		}
 		var outlineLines []int
-		for i := view.ViewportLine; i >= 0; i-- {
+		for i := view.ViewportLine; i >= 0 && i >= view.ViewportLine-uiConfig.MaxOutlineDistance; i-- {
 			line := view.Moment.GetLine(i)
 			if line == nil {
 				continue
@@ -58,9 +59,9 @@ func (view *View) RenderFunc() any {
 			}
 		}
 		var paddingTop, paddingBottom int
-		if view.Box.Height() > config.PaddingTop+config.PaddingBottom {
-			paddingTop = config.PaddingTop
-			paddingBottom = config.PaddingBottom
+		if view.Box.Height() > scrollConfig.PaddingTop+scrollConfig.PaddingBottom {
+			paddingTop = scrollConfig.PaddingTop
+			paddingBottom = scrollConfig.PaddingBottom
 		}
 		if len(outlineLines) > paddingTop {
 			outlineLines = outlineLines[len(outlineLines)-paddingTop:]

@@ -18,6 +18,7 @@ TabWidth = 4
 [UI]
 StatusWidth = 20
 JournalHeight = 2
+MaxOutlineDistance = 2000
 
 [ViewGroup]
 Layouts = [

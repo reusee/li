@@ -18,7 +18,7 @@ type (
 
 func (_ Provide) Journal(
 	derive Derive,
-	getConfig GetConfig,
+	uiConfig UIConfig,
 ) (
 	appendJournal AppendJournal,
 	get JournalLines,
@@ -45,13 +45,7 @@ func (_ Provide) Journal(
 		return lines
 	}
 
-	var config struct {
-		UI struct {
-			JournalHeight int
-		}
-	}
-	ce(getConfig(&config))
-	initHeight := config.UI.JournalHeight
+	initHeight := uiConfig.JournalHeight
 	if initHeight == 0 {
 		initHeight = 1
 	}
