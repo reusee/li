@@ -345,10 +345,11 @@ func (view *View) RenderFunc() any {
 			x := outlineBox.Left
 			y := outlineBox.Top + (len(outlineLines) - i - 1)
 
-			lineStyle := defaultStyle
+			baseStyle := defaultStyle
 			if i == 0 {
-				lineStyle = lineStyle.Underline(true)
+				baseStyle = baseStyle.Underline(true)
 			}
+			lineStyle := baseStyle
 			line := moment.GetLine(lineNum)
 
 			cells := line.Cells
@@ -398,6 +399,12 @@ func (view *View) RenderFunc() any {
 					break
 				}
 
+				// indent style
+				if line.NonSpaceDisplayOffset == nil ||
+					cell.DisplayOffset <= *line.NonSpaceDisplayOffset {
+					lineStyle = indentStyle(baseStyle, lineNum, cell.DisplayOffset)
+				}
+
 				style := lineStyle
 
 				if leftSkip && x == outlineBox.Left {
@@ -445,6 +452,12 @@ func (view *View) RenderFunc() any {
 
 			// fill blank
 			for ; x < outlineBox.Right; x++ {
+				offset := x - contentBox.Left
+				if line == nil ||
+					line.NonSpaceDisplayOffset == nil ||
+					offset <= *line.NonSpaceDisplayOffset {
+					lineStyle = indentStyle(baseStyle, lineNum, offset)
+				}
 				set(
 					x, y,
 					' ', nil,
