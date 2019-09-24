@@ -3,6 +3,7 @@ package li
 import (
 	"bytes"
 	"go/format"
+	"os/exec"
 	"time"
 
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -30,7 +31,7 @@ func (_ Provide) FormatterGo(
 				job := <-c
 
 				src := job.moment.GetBytes()
-				formatted, err := format.Source(src)
+				formatted, err := formatGoSource(job.buffer.AbsPath, src)
 				if err != nil {
 					// do nothing if format error
 					continue
@@ -140,3 +141,23 @@ func (_ Provide) FormatterGo(
 
 	return nil
 }
+
+var formatGoSource = func() (
+	fn func(
+		path string,
+		bs []byte,
+	) ([]byte, error),
+) {
+
+	goimportsPath, err := exec.LookPath("goimports")
+	if err != nil {
+		return func(_ string, bs []byte) ([]byte, error) {
+			return format.Source(bs)
+		}
+	}
+
+	return func(path string, _ []byte) ([]byte, error) {
+		return exec.Command(goimportsPath, path).Output()
+	}
+
+}()
