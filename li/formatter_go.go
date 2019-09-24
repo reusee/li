@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"go/format"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -156,8 +157,13 @@ var formatGoSource = func() (
 		}
 	}
 
-	return func(path string, _ []byte) ([]byte, error) {
-		return exec.Command(goimportsPath, path).Output()
+	return func(path string, bs []byte) ([]byte, error) {
+		cmd := exec.Command(
+			goimportsPath,
+			"-srcdir", filepath.Dir(path),
+		)
+		cmd.Stdin = bytes.NewReader(bs)
+		return cmd.Output()
 	}
 
 }()
