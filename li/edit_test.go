@@ -22,7 +22,7 @@ func TestApplyChange(t *testing.T) {
 			Op: OpInsert,
 			Begin: Position{
 				Line: 0,
-				Rune: 0,
+				Cell: 0,
 			},
 			String: "foo",
 		}
@@ -43,7 +43,7 @@ func TestApplyChange(t *testing.T) {
 			Op: OpInsert,
 			Begin: Position{
 				Line: 0,
-				Rune: 0,
+				Cell: 0,
 			},
 			String: "foo\nfoo\nfoo",
 		}
@@ -66,7 +66,7 @@ func TestApplyChange(t *testing.T) {
 			Op: OpInsert,
 			Begin: Position{
 				Line: 2,
-				Rune: 6,
+				Cell: 6,
 			},
 			String: "\nbar",
 		}
@@ -91,7 +91,7 @@ func TestApplyChange(t *testing.T) {
 			Op: OpInsert,
 			Begin: Position{
 				Line: 1,
-				Rune: 1,
+				Cell: 1,
 			},
 			String: "quux",
 		}
@@ -116,7 +116,7 @@ func TestApplyChange(t *testing.T) {
 			Op: OpInsert,
 			Begin: Position{
 				Line: 0,
-				Rune: 3,
+				Cell: 3,
 			},
 			String: "你好\n世界\n",
 		}
@@ -143,7 +143,7 @@ func TestApplyChange(t *testing.T) {
 			Op: OpDelete,
 			Begin: Position{
 				Line: 0,
-				Rune: 0,
+				Cell: 0,
 			},
 			Number: 3,
 		}
@@ -171,7 +171,7 @@ func TestApplyChange(t *testing.T) {
 			Op: OpDelete,
 			Begin: Position{
 				Line: 0,
-				Rune: 0,
+				Cell: 0,
 			},
 			Number: 3,
 		}
@@ -197,7 +197,7 @@ func TestApplyChange(t *testing.T) {
 			Op: OpDelete,
 			Begin: Position{
 				Line: 0,
-				Rune: 0,
+				Cell: 0,
 			},
 			Number: 9999,
 		}
@@ -238,7 +238,7 @@ func BenchmarkLargeBuf(b *testing.B) {
 				Op: OpInsert,
 				Begin: Position{
 					Line: 50000,
-					Rune: 1024,
+					Cell: 1024,
 				},
 				String: "foo",
 			}
@@ -261,7 +261,7 @@ func TestDelete(t *testing.T) {
 			Op: OpDelete,
 			Begin: Position{
 				Line: 0,
-				Rune: 0,
+				Cell: 0,
 			},
 			Number: 1,
 		}
@@ -283,7 +283,7 @@ func TestDelete(t *testing.T) {
 			Op: OpDelete,
 			Begin: Position{
 				Line: 0,
-				Rune: 0,
+				Cell: 0,
 			},
 			Number: 2,
 		}
@@ -374,7 +374,7 @@ func TestEditRuneOffsetOverflow(t *testing.T) {
 			return Change{
 				Begin: Position{
 					Line: 0,
-					Rune: 99999,
+					Cell: 99999,
 				},
 				Op:     OpInsert,
 				String: "foo",
@@ -396,7 +396,7 @@ func TestDeleteRuneOffsetOverflow(t *testing.T) {
 			return Change{
 				Begin: Position{
 					Line: 0,
-					Rune: 99999,
+					Cell: 99999,
 				},
 				Op:     OpDelete,
 				Number: 9,

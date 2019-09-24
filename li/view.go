@@ -128,16 +128,14 @@ func (v View) cursorPosition() Position {
 	if v.CursorLine >= v.GetMoment().NumLines() {
 		return Position{
 			Line: -1,
-			Rune: -1,
-			Col:  -1,
+			Cell: -1,
 		}
 	}
 	line := v.GetMoment().GetLine(v.CursorLine)
 	if line == nil {
 		return Position{
 			Line: -1,
-			Rune: -1,
-			Col:  -1,
+			Cell: -1,
 		}
 	}
 	col := 0
@@ -145,8 +143,7 @@ func (v View) cursorPosition() Position {
 		if col >= v.CursorCol {
 			return Position{
 				Line: v.CursorLine,
-				Rune: i,
-				Col:  col,
+				Cell: i,
 			}
 		}
 		if i < len(line.Cells) {
@@ -157,8 +154,7 @@ func (v View) cursorPosition() Position {
 	}
 	return Position{
 		Line: -1,
-		Rune: -1,
-		Col:  -1,
+		Cell: -1,
 	}
 }
 

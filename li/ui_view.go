@@ -266,7 +266,7 @@ func (view *View) RenderFunc() any {
 						// selected range style
 						if selectedRange != nil && selectedRange.Contains(Position{
 							Line: lineNum,
-							Rune: cellNum,
+							Cell: cellNum,
 						}) {
 							// selected range
 							style = style.Underline(true)

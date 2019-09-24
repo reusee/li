@@ -72,23 +72,23 @@ func MoveCursor(
 		if n > 0 {
 			// iter forward
 			position := currentPosition
-			if position.Line >= 0 && position.Rune >= 0 { // cursorPos may return -1, -1
+			if position.Line >= 0 && position.Cell >= 0 { // cursorPos may return -1, -1
 				lineInfo := moment.GetLine(position.Line)
 				for position.Line <= maxLine && n > 0 {
 					// forward one rune
 					n--
-					if position.Rune >= len(lineInfo.Cells)-1 {
+					if position.Cell >= len(lineInfo.Cells)-1 {
 						// at line end, proceed next line
 						col += 1
 						position.Line += 1
-						position.Rune = 0
+						position.Cell = 0
 						lineInfo = moment.GetLine(position.Line)
 						if lineInfo == nil {
 							break
 						}
 					} else {
-						col += lineInfo.Cells[position.Rune].DisplayWidth
-						position.Rune += 1
+						col += lineInfo.Cells[position.Cell].DisplayWidth
+						position.Cell += 1
 					}
 				}
 			}
@@ -97,11 +97,11 @@ func MoveCursor(
 			// iter backward
 			n = -n
 			position := currentPosition
-			if position.Line >= 0 && position.Rune >= 0 { // cursorPos may return -1, -1
+			if position.Line >= 0 && position.Cell >= 0 { // cursorPos may return -1, -1
 				lineInfo := moment.GetLine(position.Line)
 				for position.Line >= 0 && n > 0 {
 					n--
-					if position.Rune == 0 {
+					if position.Cell == 0 {
 						// at line begin, proceed last line
 						col -= 1
 						position.Line -= 1
@@ -109,10 +109,10 @@ func MoveCursor(
 						if lineInfo == nil {
 							break
 						}
-						position.Rune = len(lineInfo.Cells) - 1
+						position.Cell = len(lineInfo.Cells) - 1
 					} else {
-						position.Rune -= 1
-						col -= lineInfo.Cells[position.Rune].DisplayWidth
+						position.Cell -= 1
+						col -= lineInfo.Cells[position.Cell].DisplayWidth
 					}
 				}
 			}

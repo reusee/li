@@ -19,8 +19,7 @@ func PosLineBegin(
 	v := cur()
 	return Position{
 		Line: v.CursorLine,
-		Rune: 0,
-		Col:  0,
+		Cell: 0,
 	}
 }
 
@@ -30,10 +29,7 @@ func PosLineEnd(
 	v := cur()
 	line := v.GetMoment().GetLine(v.CursorLine)
 	pos.Line = v.CursorLine
-	pos.Rune = len(line.Cells) - 1
-	for i := 0; i < len(line.Cells)-1; i++ {
-		pos.Col += line.Cells[i].DisplayWidth
-	}
+	pos.Cell = len(line.Cells) - 1
 	return
 }
 
@@ -43,7 +39,7 @@ func PosPrevRune(
 	v := cur()
 	pos := v.cursorPosition()
 	moment := v.GetMoment()
-	if pos.Col == 0 {
+	if pos.Cell == 0 {
 		// at line begin
 		if pos.Line > 0 {
 			// prev line
@@ -51,19 +47,17 @@ func PosPrevRune(
 			cell := line.Cells[len(line.Cells)-1]
 			return Position{
 				Line: pos.Line - 1,
-				Rune: cell.RuneOffset,
-				Col:  cell.DisplayOffset,
+				Cell: cell.RuneOffset,
 			}
 		} else {
 			return pos
 		}
 	} else {
 		line := moment.GetLine(pos.Line)
-		cell := line.Cells[pos.Rune-1]
+		cell := line.Cells[pos.Cell-1]
 		return Position{
 			Line: pos.Line,
-			Rune: cell.RuneOffset,
-			Col:  cell.DisplayOffset,
+			Cell: cell.RuneOffset,
 		}
 	}
 }
@@ -75,24 +69,22 @@ func PosNextRune(
 	pos := v.cursorPosition()
 	moment := v.GetMoment()
 	line := moment.GetLine(pos.Line)
-	if pos.Rune == len(line.Cells)-1 {
+	if pos.Cell == len(line.Cells)-1 {
 		// at line end
 		if pos.Line < moment.NumLines()-1 {
 			// next line
 			return Position{
 				Line: pos.Line + 1,
-				Col:  0,
-				Rune: 0,
+				Cell: 0,
 			}
 		} else {
 			return pos
 		}
 	} else {
-		cell := line.Cells[pos.Rune+1]
+		cell := line.Cells[pos.Cell+1]
 		return Position{
 			Line: pos.Line,
-			Col:  cell.DisplayOffset,
-			Rune: cell.RuneOffset,
+			Cell: cell.RuneOffset,
 		}
 	}
 }
@@ -115,8 +107,8 @@ func PosWordEnd(
 	pos = v.cursorPosition()
 	line := v.GetMoment().GetLine(v.CursorLine)
 	lastCategory := -1
-	for i := pos.Rune; i < len(line.Cells); i++ {
-		pos.Rune = i
+	for i := pos.Cell; i < len(line.Cells); i++ {
+		pos.Cell = i
 		category := runeCategory(line.Cells[i].Rune)
 		if lastCategory != -1 && lastCategory != category {
 			break

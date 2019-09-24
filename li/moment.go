@@ -148,7 +148,7 @@ func (m *Moment) GetParser(scope Scope) *treesitter.Parser {
 func (m *Moment) GetSyntaxAttr(scope Scope, lineNum int, runeOffset int) string {
 	key := Position{
 		Line: lineNum,
-		Rune: runeOffset,
+		Cell: runeOffset,
 	}
 	if v, ok := m.syntaxAttrs.Load(key); ok {
 		return v.(string)

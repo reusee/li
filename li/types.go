@@ -15,15 +15,14 @@ type (
 
 type Position struct {
 	Line int
-	Rune int
-	Col  int
+	Cell int
 }
 
 func (p Position) Before(p2 Position) bool {
 	if p.Line != p2.Line {
 		return p.Line < p2.Line
 	}
-	return p.Rune < p2.Rune
+	return p.Cell < p2.Cell
 }
 
 type Range struct {
@@ -35,10 +34,10 @@ func (r Range) Contains(p Position) bool {
 	if p.Line < r.Begin.Line {
 		return false
 	}
-	if p.Line == r.Begin.Line && p.Rune < r.Begin.Rune {
+	if p.Line == r.Begin.Line && p.Cell < r.Begin.Cell {
 		return false
 	}
-	if p.Line == r.End.Line && p.Rune >= r.End.Rune {
+	if p.Line == r.End.Line && p.Cell >= r.End.Cell {
 		return false
 	}
 	if p.Line > r.End.Line {

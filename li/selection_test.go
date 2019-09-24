@@ -17,9 +17,9 @@ func TestSelection(t *testing.T) {
 		r := view.selectedRange()
 		eq(t,
 			r.Begin.Line, 0,
-			r.Begin.Rune, 0,
+			r.Begin.Cell, 0,
 			r.End.Line, 1,
-			r.End.Rune, 1,
+			r.End.Cell, 1,
 		)
 		scope.Call(ToggleSelection)
 		r = view.selectedRange()
@@ -36,9 +36,9 @@ func TestSelection(t *testing.T) {
 		r = view.selectedRange()
 		eq(t,
 			r.Begin.Line, 0,
-			r.Begin.Rune, 0,
+			r.Begin.Cell, 0,
 			r.End.Line, 1,
-			r.End.Rune, 0,
+			r.End.Cell, 0,
 		)
 
 	})

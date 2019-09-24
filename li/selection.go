@@ -38,24 +38,22 @@ func (v *View) selectedRange() *Range {
 	moment := v.GetMoment()
 	line := moment.GetLine(cursor.Line)
 	var end Position
-	if cursor.Rune == len(line.Cells)-1 {
+	if cursor.Cell == len(line.Cells)-1 {
 		// at line end
 		if cursor.Line < moment.NumLines()-1 {
 			// next line
 			end = Position{
 				Line: cursor.Line + 1,
-				Col:  0,
-				Rune: 0,
+				Cell: 0,
 			}
 		} else {
 			end = cursor
 		}
 	} else {
-		cell := line.Cells[cursor.Rune+1]
+		cell := line.Cells[cursor.Cell+1]
 		end = Position{
 			Line: cursor.Line,
-			Col:  cell.DisplayOffset,
-			Rune: cell.RuneOffset,
+			Cell: cell.RuneOffset,
 		}
 	}
 	return &Range{

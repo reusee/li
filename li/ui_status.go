@@ -90,7 +90,7 @@ func Status(
 		if parser := moment.GetParser(scope); parser != nil {
 			pos := focusing.cursorPosition()
 			addTextLine(
-				moment.GetSyntaxAttr(scope, pos.Line, pos.Rune),
+				moment.GetSyntaxAttr(scope, pos.Line, pos.Cell),
 				AlignRight, Padding(0, 2, 0, 0),
 			)
 		}
