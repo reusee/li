@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 )
 
 type (
@@ -36,7 +37,11 @@ func (_ Provide) Journal(
 			lines = append([]string{}, lines[len(lines)-1000:]...)
 		}
 		str := fmt.Sprintf(format, args...)
-		lines = append(lines, strings.Split(str, "\n")...)
+		split := strings.Split(str, "\n")
+		t := time.Now().Format("15:04:05.000000 ")
+		for _, line := range split {
+			lines = append(lines, t+line)
+		}
 	}
 
 	get = func() []string {

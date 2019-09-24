@@ -28,6 +28,7 @@ func (view *View) RenderFunc() any {
 		j AppendJournal,
 		scrollConfig ScrollConfig,
 		uiConfig UIConfig,
+		trigger Trigger,
 	) Element {
 
 		moment := view.GetMoment()
@@ -467,9 +468,19 @@ func (view *View) RenderFunc() any {
 
 		}
 
+		trigger(scope.Sub(
+			func() (*Moment, *View) {
+				return moment, view
+			},
+		), EvViewRendered)
+
 		return frameBuffer
 	}
 }
+
+type evViewRendered struct{}
+
+var EvViewRendered = new(evViewRendered)
 
 type ViewRenderProcs chan func()
 
