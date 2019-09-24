@@ -137,4 +137,7 @@ Verbose = false
 [LanguageServerProtocol]
 Enable = false
 
+[Formatter]
+DelaySeconds = 5
+
 `

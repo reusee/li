@@ -18,11 +18,19 @@ func (_ SimScreen) SetCursorShape(shape CursorShape) {
 func withEditor(fn any) {
 	// scope
 	var scope Scope
-	scope = NewGlobal(func() Derive {
-		return func(inits ...any) {
-			scope = scope.Sub(inits...)
-		}
-	})
+	funcCalls := make(chan any, 128)
+	scope = NewGlobal(
+		func() Derive {
+			return func(inits ...any) {
+				scope = scope.Sub(inits...)
+			}
+		},
+		func() RunInMainLoop {
+			return func(fn any) {
+				funcCalls <- fn
+			}
+		},
+	)
 
 	screen := tcell.NewSimulationScreen("")
 	ce(screen.Init())
@@ -56,16 +64,6 @@ func withEditor(fn any) {
 	var exit Exit
 	scope.Assign(&exit)
 	defer exit()
-
-	// async func calls
-	funcCalls := make(chan any, 128)
-	scope = scope.Sub(
-		func() RunInMainLoop {
-			return func(fn any) {
-				funcCalls <- fn
-			}
-		},
-	)
 
 	loop := func() {
 	loop:
