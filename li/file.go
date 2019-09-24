@@ -106,7 +106,7 @@ func SyncViewToFile(
 		return
 	}
 	scope.Sub(func() (*Buffer, *Moment) {
-		return view.Buffer, view.Moment
+		return view.Buffer, view.GetMoment()
 	}).Call(SyncBufferMomentToFile, &err)
 	if err != nil {
 		scope.Sub(func() []string {

@@ -59,8 +59,9 @@ func ShowSearchDialog(scope Scope) {
 			// find
 			maxLine := 0
 			initIndexSet := false
-			for i := 0; i < view.Moment.NumLines(); i++ {
-				line := view.Moment.GetLine(i)
+			moment := view.GetMoment()
+			for i := 0; i < moment.NumLines(); i++ {
+				line := moment.GetLine(i)
 				loc := pattern.FindStringIndex(line.content)
 				if len(loc) == 0 {
 					continue

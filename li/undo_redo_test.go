@@ -12,15 +12,15 @@ func TestUndoRedo(t *testing.T) {
 	) {
 		scope.Call(DeleteRune)
 		eq(t,
-			view.Moment.GetLine(0).content, "ello, world!\n",
+			view.GetMoment().GetLine(0).content, "ello, world!\n",
 		)
 		scope.Call(Undo)
 		eq(t,
-			view.Moment.GetLine(0).content, "Hello, world!\n",
+			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 		scope.Call(RedoLatest)
 		eq(t,
-			view.Moment.GetLine(0).content, "ello, world!\n",
+			view.GetMoment().GetLine(0).content, "ello, world!\n",
 		)
 	})
 }
@@ -42,11 +42,11 @@ func TestUndoRedo3(t *testing.T) {
 	) {
 		scope.Call(Undo)
 		eq(t,
-			view.Moment.GetLine(0).content, "Hello, world!\n",
+			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 		scope.Call(RedoLatest)
 		eq(t,
-			view.Moment.GetLine(0).content, "Hello, world!\n",
+			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 	})
 }
@@ -58,25 +58,25 @@ func TestUndoRedo4(t *testing.T) {
 	) {
 		scope.Call(DeleteRune)
 		eq(t,
-			view.Moment.GetLine(0).content, "ello, world!\n",
+			view.GetMoment().GetLine(0).content, "ello, world!\n",
 		)
 		scope.Call(Undo)
 		eq(t,
-			view.Moment.GetLine(0).content, "Hello, world!\n",
+			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 		scope.Sub(func() (PositionFunc, string) {
 			return PosCursor, "foo"
 		}).Call(InsertAtPositionFunc)
 		eq(t,
-			view.Moment.GetLine(0).content, "fooHello, world!\n",
+			view.GetMoment().GetLine(0).content, "fooHello, world!\n",
 		)
 		scope.Call(Undo)
 		eq(t,
-			view.Moment.GetLine(0).content, "Hello, world!\n",
+			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 		scope.Call(RedoLatest)
 		eq(t,
-			view.Moment.GetLine(0).content, "fooHello, world!\n",
+			view.GetMoment().GetLine(0).content, "fooHello, world!\n",
 		)
 	})
 }
@@ -91,7 +91,7 @@ func TestTimedUndo(t *testing.T) {
 		config.DurationMS1 = 10
 		scope = scope.Sub(func() UndoConfig { return config })
 
-		m := view.Moment
+		m := view.GetMoment()
 		t0 := time.Now()
 		for {
 			if time.Since(t0) > time.Millisecond*50 {
@@ -102,7 +102,7 @@ func TestTimedUndo(t *testing.T) {
 
 		scope.Call(UndoDuration1)
 		eq(t,
-			view.Moment.T0.Sub(m.T0) > time.Millisecond*10, true,
+			view.GetMoment().T0.Sub(m.T0) > time.Millisecond*10, true,
 		)
 	})
 }

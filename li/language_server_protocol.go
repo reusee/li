@@ -14,20 +14,6 @@ import (
 	"syscall"
 )
 
-/*
-TODO gopls
-code action
-completion
-definition
-document format
-document highlight
-document link
-document symbol
-hover
-signature help
-type definition
-*/
-
 type LanguageServerProtocolConfig struct {
 	Enable bool
 }

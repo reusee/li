@@ -43,7 +43,7 @@ func TestFileSync(t *testing.T) {
 		eq(t,
 			view != nil, true,
 			view.Buffer == buffer, true,
-			view.Moment == moment, true,
+			view.GetMoment() == moment, true,
 		)
 
 		// sync

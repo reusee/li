@@ -168,7 +168,7 @@ func withEditorBytes(t *testing.T, bs []byte, fn any) {
 
 		s.Sub(
 			func() (*View, *Buffer, *Moment) {
-				return view, buf, view.Moment
+				return view, buf, view.GetMoment()
 			},
 		).Call(fn)
 

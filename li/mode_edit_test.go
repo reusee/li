@@ -42,7 +42,7 @@ func TestEditModeRedoAfterSwitching(t *testing.T) {
 		scope.Call(RedoLatest)
 		eq(t,
 			// no extra 'j'
-			view.Moment.GetLine(0).content, "foo",
+			view.GetMoment().GetLine(0).content, "foo",
 		)
 	})
 }

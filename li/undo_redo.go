@@ -28,8 +28,9 @@ func Undo(
 	if view == nil {
 		return
 	}
-	if view.Moment.Previous != nil {
-		view.switchMoment(scope, view.Moment.Previous)
+	moment := view.GetMoment()
+	if moment.Previous != nil {
+		view.switchMoment(scope, moment.Previous)
 	}
 }
 
@@ -51,7 +52,7 @@ func RedoLatest(
 	var allMoments []*Moment
 	linkedAll(view.Buffer, &allMoments)
 	var moments []*Moment
-	currentMoment := view.Moment
+	currentMoment := view.GetMoment()
 	for _, moment := range allMoments {
 		if moment.Previous == currentMoment {
 			moments = append(moments, moment)
@@ -82,8 +83,9 @@ func UndoDuration1(
 		return
 	}
 	var next *Moment
-	t0 := view.Moment.T0
-	prev := view.Moment.Previous
+	moment := view.GetMoment()
+	t0 := moment.T0
+	prev := moment.Previous
 	for {
 		if prev == nil {
 			break

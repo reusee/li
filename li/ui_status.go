@@ -86,10 +86,11 @@ func Status(
 		addTextLine("cursor", Bold(true), AlignRight, Padding(0, 2, 0, 0))
 		addTextLine(strconv.Itoa(line), AlignRight, Padding(0, 2, 0, 0))
 		addTextLine(strconv.Itoa(col), AlignRight, Padding(0, 2, 0, 0))
-		if parser := focusing.Moment.GetParser(scope); parser != nil {
+		moment := focusing.GetMoment()
+		if parser := moment.GetParser(scope); parser != nil {
 			pos := focusing.cursorPosition()
 			addTextLine(
-				focusing.Moment.GetSyntaxAttr(scope, pos.Line, pos.Rune),
+				moment.GetSyntaxAttr(scope, pos.Line, pos.Rune),
 				AlignRight, Padding(0, 2, 0, 0),
 			)
 		}
@@ -150,7 +151,7 @@ func Status(
 						if view == focusing {
 							s = hlStyle
 						}
-						if view.Buffer.LastSyncFileInfo == view.Moment.FileInfo {
+						if view.Buffer.LastSyncFileInfo == view.GetMoment().FileInfo {
 							s = s.Underline(false)
 						} else {
 							s = s.Underline(true)

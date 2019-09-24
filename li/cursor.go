@@ -50,7 +50,7 @@ func MoveCursor(
 		line += move.RelLine
 	}
 
-	moment := view.Moment
+	moment := view.GetMoment()
 	maxLine := moment.NumLines() - 1
 	currentPosition := view.cursorPosition()
 
@@ -259,7 +259,8 @@ func PageDown(
 	lines := view.Box.Height() - config.PaddingBottom
 	line := view.ViewportLine
 	line += lines
-	if max := view.Moment.NumLines() - 1; line > max {
+	moment := view.GetMoment()
+	if max := moment.NumLines() - 1; line > max {
 		line = max
 	}
 	if view.ViewportLine != line {
@@ -312,9 +313,10 @@ func NextEmptyLine(
 		return
 	}
 	n := view.CursorLine + 1
-	maxLine := view.Moment.NumLines()
+	moment := view.GetMoment()
+	maxLine := moment.NumLines()
 	for n < maxLine {
-		line := view.Moment.GetLine(n)
+		line := moment.GetLine(n)
 		if line.AllSpace {
 			break
 		}
@@ -341,7 +343,7 @@ func PrevEmptyLine(
 	}
 	n := view.CursorLine - 1
 	for n > 0 {
-		line := view.Moment.GetLine(n)
+		line := view.GetMoment().GetLine(n)
 		if line.AllSpace {
 			break
 		}
@@ -430,7 +432,7 @@ func NextRune() []StrokeSpec {
 					if cur == nil { // NOCOVER
 						return
 					}
-					moment := cur.Moment
+					moment := cur.GetMoment()
 					line := moment.GetLine(cur.CursorLine)
 					if line == nil { // NOCOVER
 						return
@@ -502,7 +504,7 @@ func PrevRune() []StrokeSpec {
 					if cur == nil { // NOCOVER
 						return
 					}
-					moment := cur.Moment
+					moment := cur.GetMoment()
 					line := moment.GetLine(cur.CursorLine)
 					if line == nil { // NOCOVER
 						return
@@ -566,7 +568,7 @@ func NextLineWithRune() []StrokeSpec {
 					if view == nil {
 						return
 					}
-					moment := view.Moment
+					moment := view.GetMoment()
 					for line := view.CursorLine + 1; line < moment.NumLines(); line++ {
 						col := 0
 						for _, cell := range moment.GetLine(line).Cells {
@@ -623,7 +625,7 @@ func PrevLineWithRune() []StrokeSpec {
 					if view == nil {
 						return
 					}
-					moment := view.Moment
+					moment := view.GetMoment()
 					for line := view.CursorLine - 1; line >= 0; line-- {
 						col := 0
 						for _, cell := range moment.GetLine(line).Cells {
@@ -663,9 +665,10 @@ func PrevDedentLine(
 		return
 	}
 	n := view.CursorLine - 1
+	moment := view.GetMoment()
 	for n > 0 {
-		line := view.Moment.GetLine(n)
-		nextLine := view.Moment.GetLine(n + 1)
+		line := moment.GetLine(n)
+		nextLine := moment.GetLine(n + 1)
 		if line.NonSpaceDisplayOffset == nil &&
 			nextLine != nil ||
 			line.NonSpaceDisplayOffset != nil &&
@@ -679,7 +682,7 @@ func PrevDedentLine(
 		n = 0
 	}
 	col := 0
-	if offset := view.Moment.GetLine(n).NonSpaceDisplayOffset; offset != nil {
+	if offset := moment.GetLine(n).NonSpaceDisplayOffset; offset != nil {
 		col = *offset
 	}
 	scope.Sub(func() Move {
@@ -706,9 +709,10 @@ func NextDedentLine(
 		return
 	}
 	n := view.CursorLine + 1
-	for n < view.Moment.NumLines() {
-		line := view.Moment.GetLine(n)
-		nextLine := view.Moment.GetLine(n + 1)
+	moment := view.GetMoment()
+	for n < moment.NumLines() {
+		line := moment.GetLine(n)
+		nextLine := moment.GetLine(n + 1)
 		if nextLine == nil {
 			break
 		}
@@ -721,11 +725,11 @@ func NextDedentLine(
 		}
 		n++
 	}
-	if n >= view.Moment.NumLines() {
-		n = view.Moment.NumLines() - 1
+	if n >= moment.NumLines() {
+		n = moment.NumLines() - 1
 	}
 	col := 0
-	if offset := view.Moment.GetLine(n).NonSpaceDisplayOffset; offset != nil {
+	if offset := moment.GetLine(n).NonSpaceDisplayOffset; offset != nil {
 		col = *offset
 	}
 	scope.Sub(func() Move {

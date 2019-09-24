@@ -28,7 +28,7 @@ func PosLineEnd(
 	cur CurrentView,
 ) (pos Position) {
 	v := cur()
-	line := v.Moment.GetLine(v.CursorLine)
+	line := v.GetMoment().GetLine(v.CursorLine)
 	pos.Line = v.CursorLine
 	pos.Rune = len(line.Cells) - 1
 	for i := 0; i < len(line.Cells)-1; i++ {
@@ -42,11 +42,12 @@ func PosPrevRune(
 ) Position {
 	v := cur()
 	pos := v.cursorPosition()
+	moment := v.GetMoment()
 	if pos.Col == 0 {
 		// at line begin
 		if pos.Line > 0 {
 			// prev line
-			line := v.Moment.GetLine(pos.Line - 1)
+			line := moment.GetLine(pos.Line - 1)
 			cell := line.Cells[len(line.Cells)-1]
 			return Position{
 				Line: pos.Line - 1,
@@ -57,7 +58,7 @@ func PosPrevRune(
 			return pos
 		}
 	} else {
-		line := v.Moment.GetLine(pos.Line)
+		line := moment.GetLine(pos.Line)
 		cell := line.Cells[pos.Rune-1]
 		return Position{
 			Line: pos.Line,
@@ -72,10 +73,11 @@ func PosNextRune(
 ) Position {
 	v := cur()
 	pos := v.cursorPosition()
-	line := v.Moment.GetLine(pos.Line)
+	moment := v.GetMoment()
+	line := moment.GetLine(pos.Line)
 	if pos.Rune == len(line.Cells)-1 {
 		// at line end
-		if pos.Line < v.Moment.NumLines()-1 {
+		if pos.Line < moment.NumLines()-1 {
 			// next line
 			return Position{
 				Line: pos.Line + 1,
@@ -111,7 +113,7 @@ func PosWordEnd(
 ) {
 	v := cur()
 	pos = v.cursorPosition()
-	line := v.Moment.GetLine(v.CursorLine)
+	line := v.GetMoment().GetLine(v.CursorLine)
 	lastCategory := -1
 	for i := pos.Rune; i < len(line.Cells); i++ {
 		pos.Rune = i

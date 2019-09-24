@@ -256,7 +256,7 @@ func TestDelete(t *testing.T) {
 		view *View,
 	) {
 
-		moment := view.Moment
+		moment := view.GetMoment()
 		change := Change{
 			Op: OpDelete,
 			Begin: Position{
@@ -348,7 +348,7 @@ func TestEditLineOverflow(t *testing.T) {
 		view *View,
 		scope Scope,
 	) {
-		moment := view.Moment
+		moment := view.GetMoment()
 		scope.Sub(func() Change {
 			return Change{
 				Begin: Position{
@@ -359,7 +359,7 @@ func TestEditLineOverflow(t *testing.T) {
 			}
 		}).Call(ApplyChange)
 		eq(t,
-			view.Moment == moment, true,
+			view.GetMoment() == moment, true,
 		)
 	})
 }
@@ -369,7 +369,7 @@ func TestEditRuneOffsetOverflow(t *testing.T) {
 		view *View,
 		scope Scope,
 	) {
-		moment := view.Moment
+		moment := view.GetMoment()
 		scope.Sub(func() Change {
 			return Change{
 				Begin: Position{
@@ -381,7 +381,7 @@ func TestEditRuneOffsetOverflow(t *testing.T) {
 			}
 		}).Call(ApplyChange)
 		eq(t,
-			view.Moment == moment, true,
+			view.GetMoment() == moment, true,
 		)
 	})
 }
@@ -391,7 +391,7 @@ func TestDeleteRuneOffsetOverflow(t *testing.T) {
 		view *View,
 		scope Scope,
 	) {
-		moment := view.Moment
+		moment := view.GetMoment()
 		scope.Sub(func() Change {
 			return Change{
 				Begin: Position{
@@ -403,7 +403,7 @@ func TestDeleteRuneOffsetOverflow(t *testing.T) {
 			}
 		}).Call(ApplyChange)
 		eq(t,
-			view.Moment == moment, true,
+			view.GetMoment() == moment, true,
 		)
 	})
 }
@@ -415,7 +415,7 @@ func TestDeletePrevRune(t *testing.T) {
 	) {
 		scope.Call(DeletePrevRune)
 		eq(t,
-			view.Moment.NumLines(), 1,
+			view.GetMoment().NumLines(), 1,
 		)
 
 		scope.Sub(func() Move {
@@ -423,8 +423,8 @@ func TestDeletePrevRune(t *testing.T) {
 		}).Call(MoveCursor)
 		scope.Call(DeletePrevRune)
 		eq(t,
-			view.Moment.NumLines(), 1,
-			view.Moment.GetLine(0).content, "fo\n",
+			view.GetMoment().NumLines(), 1,
+			view.GetMoment().GetLine(0).content, "fo\n",
 		)
 
 		scope.Sub(func() Move {
@@ -432,9 +432,9 @@ func TestDeletePrevRune(t *testing.T) {
 		}).Call(MoveCursor)
 		scope.Call(NamedCommands["InsertNewline"].Func)
 		eq(t,
-			view.Moment.NumLines(), 2,
-			view.Moment.GetLine(0).content, "fo\n",
-			view.Moment.GetLine(1).content, "\n",
+			view.GetMoment().NumLines(), 2,
+			view.GetMoment().GetLine(0).content, "fo\n",
+			view.GetMoment().GetLine(1).content, "\n",
 		)
 	})
 }
@@ -446,7 +446,7 @@ func TestInsertTab(t *testing.T) {
 	) {
 		scope.Call(NamedCommands["InsertTab"].Func)
 		eq(t,
-			view.Moment.GetLine(0).content, "\tHello, world!\n",
+			view.GetMoment().GetLine(0).content, "\tHello, world!\n",
 		)
 	})
 }
@@ -477,8 +477,8 @@ func TestDeleteMultiline(t *testing.T) {
 		}).Call(MoveCursor)
 		scope.Call(Delete)
 		eq(t,
-			view.Moment.NumLines(), 2,
-			view.Moment.GetLine(0).content, "世界！\n",
+			view.GetMoment().NumLines(), 2,
+			view.GetMoment().GetLine(0).content, "世界！\n",
 		)
 	})
 }
@@ -497,8 +497,8 @@ func TestDeleteMultiline2(t *testing.T) {
 		}).Call(MoveCursor)
 		scope.Call(Delete)
 		eq(t,
-			view.Moment.NumLines(), 1,
-			view.Moment.GetLine(0).content, "ちは、世界！\n",
+			view.GetMoment().NumLines(), 1,
+			view.GetMoment().GetLine(0).content, "ちは、世界！\n",
 		)
 	})
 }
@@ -518,8 +518,8 @@ func TestChangeText(t *testing.T) {
 		}).Call(MoveCursor)
 		scope.Call(ChangeText)
 		eq(t,
-			view.Moment.NumLines(), 1,
-			view.Moment.GetLine(0).content, "ちは、世界！\n",
+			view.GetMoment().NumLines(), 1,
+			view.GetMoment().GetLine(0).content, "ちは、世界！\n",
 		)
 		modes := curModes()
 		_, ok := modes[0].(*EditMode)
@@ -552,14 +552,14 @@ func TestEditNewLineBelowAndAbove(t *testing.T) {
 	) {
 		scope.Call(NamedCommands["EditNewLineBelow"].Func)
 		eq(t,
-			view.Moment.NumLines(), 4,
-			view.Moment.GetLine(1).content, "\n",
+			view.GetMoment().NumLines(), 4,
+			view.GetMoment().GetLine(1).content, "\n",
 		)
 		scope.Call(NamedCommands["EditNewLineAbove"].Func)
 		eq(t,
-			view.Moment.NumLines(), 5,
-			view.Moment.GetLine(1).content, "\n",
-			view.Moment.GetLine(2).content, "\n",
+			view.GetMoment().NumLines(), 5,
+			view.GetMoment().GetLine(1).content, "\n",
+			view.GetMoment().GetLine(2).content, "\n",
 		)
 	})
 }
@@ -571,27 +571,27 @@ func TestChangeToWordEnd(t *testing.T) {
 	) {
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.Moment.GetLine(0).content, ", world!\n",
+			view.GetMoment().GetLine(0).content, ", world!\n",
 		)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.Moment.GetLine(0).content, " world!\n",
+			view.GetMoment().GetLine(0).content, " world!\n",
 		)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.Moment.GetLine(0).content, "world!\n",
+			view.GetMoment().GetLine(0).content, "world!\n",
 		)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.Moment.GetLine(0).content, "!\n",
+			view.GetMoment().GetLine(0).content, "!\n",
 		)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.Moment.GetLine(0).content, "\n",
+			view.GetMoment().GetLine(0).content, "\n",
 		)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.Moment.GetLine(0).content, "\n",
+			view.GetMoment().GetLine(0).content, "\n",
 		)
 
 		scope.Sub(func() Move {
@@ -599,14 +599,14 @@ func TestChangeToWordEnd(t *testing.T) {
 		}).Call(MoveCursor)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.Moment.GetLine(1).content, "，世界！\n",
+			view.GetMoment().GetLine(1).content, "，世界！\n",
 		)
 		scope.Sub(func() Move {
 			return Move{RelRune: 2}
 		}).Call(MoveCursor)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.Moment.GetLine(1).content, "，世！\n",
+			view.GetMoment().GetLine(1).content, "，世！\n",
 		)
 	})
 }

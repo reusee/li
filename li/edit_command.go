@@ -100,7 +100,7 @@ func getAdjacentIndent(view *View, l1 int, l2 int) string {
 	var runes []rune
 	lineNum := l1
 	for {
-		line := view.Moment.GetLine(lineNum)
+		line := view.GetMoment().GetLine(lineNum)
 		if line == nil {
 			break
 		}
@@ -121,7 +121,7 @@ func getAdjacentIndent(view *View, l1 int, l2 int) string {
 	}
 	lineNum = l2
 	for {
-		line := view.Moment.GetLine(lineNum)
+		line := view.GetMoment().GetLine(lineNum)
 		if line == nil {
 			break
 		}

@@ -217,7 +217,7 @@ func InsertAtPositionFunc(
 	var newMoment *Moment
 	var nRunesInserted int
 	scope.Sub(func() (*Moment, Change) {
-		return view.Moment, change
+		return view.GetMoment(), change
 	}).Call(ApplyChange, &newMoment, &nRunesInserted)
 
 	view.switchMoment(scope, newMoment)
@@ -247,7 +247,7 @@ func DeleteWithinRange(
 	}
 	var newMoment *Moment
 	scope.Sub(func() (*Moment, Change) {
-		return view.Moment, change
+		return view.GetMoment(), change
 	}).Call(ApplyChange, &newMoment)
 	view.switchMoment(scope, newMoment)
 	scope.Sub(func() Move {

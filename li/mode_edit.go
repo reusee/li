@@ -106,7 +106,7 @@ func (_ EditMode) StrokeSpecs() any {
 							}
 							if trigger {
 								view := cur()
-								moment := view.Moment
+								moment := view.GetMoment()
 								for i := len(disableSeqRunes) - 2; i >= 0; i-- {
 									dropLink(view.Buffer, moment)
 									moment = moment.Previous

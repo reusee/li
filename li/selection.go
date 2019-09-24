@@ -35,11 +35,12 @@ func (v *View) selectedRange() *Range {
 			End:   anchor,
 		}
 	}
-	line := v.Moment.GetLine(cursor.Line)
+	moment := v.GetMoment()
+	line := moment.GetLine(cursor.Line)
 	var end Position
 	if cursor.Rune == len(line.Cells)-1 {
 		// at line end
-		if cursor.Line < v.Moment.NumLines()-1 {
+		if cursor.Line < moment.NumLines()-1 {
 			// next line
 			end = Position{
 				Line: cursor.Line + 1,

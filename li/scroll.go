@@ -70,7 +70,7 @@ func ScrollEnd(
 	if view == nil {
 		return
 	}
-	line := view.Moment.NumLines() - 1
+	line := view.GetMoment().NumLines() - 1
 	scope.Sub(func() Move { return Move{AbsLine: &line} }).Call(MoveCursor)
 	scope.Call(ScrollToCursor)
 }

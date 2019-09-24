@@ -30,11 +30,13 @@ func (view *View) RenderFunc() any {
 		uiConfig UIConfig,
 	) Element {
 
+		moment := view.GetMoment()
+
 		// outline
 		displayOffset := 0
 		for i := 0; i < box.Height(); i++ {
 			lineNum := view.ViewportLine + i
-			line := view.Moment.GetLine(lineNum)
+			line := moment.GetLine(lineNum)
 			if line == nil {
 				continue
 			}
@@ -46,7 +48,7 @@ func (view *View) RenderFunc() any {
 		}
 		var outlineLines []int
 		for i := view.ViewportLine; i >= 0 && i >= view.ViewportLine-uiConfig.MaxOutlineDistance; i-- {
-			line := view.Moment.GetLine(i)
+			line := moment.GetLine(i)
 			if line == nil {
 				continue
 			}
@@ -93,7 +95,7 @@ func (view *View) RenderFunc() any {
 
 		// frame buffer cache
 		args := ViewUIArgs{
-			MomentID:        view.Moment.ID,
+			MomentID:        moment.ID,
 			Width:           view.Box.Width(),
 			Height:          view.Box.Height(),
 			IsFocus:         view == currentView,
@@ -122,7 +124,7 @@ func (view *View) RenderFunc() any {
 		// indent-based background
 		indentStyle := func(style Style, lineNum int, offset int) Style {
 			for lineNum >= 0 {
-				line := view.Moment.GetLine(lineNum)
+				line := moment.GetLine(lineNum)
 				if line == nil {
 					break
 				}
@@ -144,7 +146,6 @@ func (view *View) RenderFunc() any {
 		}
 
 		// lines
-		moment := view.Moment
 		selectedRange := view.selectedRange()
 		wg := new(sync.WaitGroup)
 		for i := 0; i < contentBox.Height(); i++ {

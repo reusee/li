@@ -1,15 +1,18 @@
 package li
 
 import (
+	"sync"
 	"sync/atomic"
 )
 
 type ViewID int64
 
 type View struct {
+	sync.RWMutex
+
 	ID      ViewID
 	Buffer  *Buffer
-	Moment  *Moment
+	moment  *Moment
 	Stainer Stainer
 
 	Box Box
@@ -63,7 +66,7 @@ func NewViewFromBuffer(
 	view = &View{
 		ID:     id,
 		Buffer: buffer,
-		Moment: moment,
+		moment: moment,
 		Stainer: func() Stainer {
 			if fn, ok := languageStainers[buffer.language]; ok {
 				return fn()
@@ -122,14 +125,14 @@ func (_ Command) CloseView() (spec CommandSpec) {
 }
 
 func (v View) cursorPosition() Position {
-	if v.CursorLine >= v.Moment.NumLines() {
+	if v.CursorLine >= v.GetMoment().NumLines() {
 		return Position{
 			Line: -1,
 			Rune: -1,
 			Col:  -1,
 		}
 	}
-	line := v.Moment.GetLine(v.CursorLine)
+	line := v.GetMoment().GetLine(v.CursorLine)
 	if line == nil {
 		return Position{
 			Line: -1,
@@ -164,14 +167,16 @@ type evMomentSwitched struct{}
 var EvMomentSwitched = new(evMomentSwitched)
 
 func (v *View) switchMoment(scope Scope, m *Moment) {
+	v.Lock()
 	// save
-	v.MomentStates[v.Moment] = v.ViewMomentState
+	v.MomentStates[v.moment] = v.ViewMomentState
 	// restore
-	old := v.Moment
-	v.Moment = m
+	old := v.moment
+	v.moment = m
 	if state, ok := v.MomentStates[m]; ok {
 		v.ViewMomentState = state
 	}
+	v.Unlock()
 	// trigger event
 	scope.Call(func(
 		trigger Trigger,
@@ -182,6 +187,13 @@ func (v *View) switchMoment(scope Scope, m *Moment) {
 			},
 		), EvMomentSwitched)
 	})
+}
+
+func (v *View) GetMoment() (m *Moment) {
+	v.RLock()
+	defer v.RUnlock()
+	m = v.moment
+	return
 }
 
 func (_ Provide) OnMomentSwitchedDebugHint(

@@ -18,6 +18,7 @@ import (
 	"github.com/reusee/li/treesitter"
 )
 import (
+	"bytes"
 	"unicode/utf16"
 	"unicode/utf8"
 )
@@ -46,6 +47,8 @@ type Moment struct {
 	lowerContent           string
 	initCStringContentOnce sync.Once
 	cstringContent         *C.char
+	initBytesOnce          sync.Once
+	bytes                  []byte
 
 	initParserOnce sync.Once
 	parser         *treesitter.Parser
@@ -109,6 +112,17 @@ func (m *Moment) GetCStringContent() *C.char {
 		m.cstringContent = content
 	})
 	return m.cstringContent
+}
+
+func (m *Moment) GetBytes() []byte {
+	m.initBytesOnce.Do(func() {
+		var b bytes.Buffer
+		for _, line := range m.lines {
+			b.WriteString(line.content)
+		}
+		m.bytes = b.Bytes()
+	})
+	return m.bytes
 }
 
 func (m *Moment) GetParser(scope Scope) *treesitter.Parser {

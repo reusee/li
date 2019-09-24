@@ -10,7 +10,7 @@ func TestView(t *testing.T) {
 		eq(t,
 			view.ID > 0, true,
 			view.Buffer != nil, true,
-			view.Moment != nil, true,
+			view.GetMoment() != nil, true,
 			view.Box.Width(), 80,
 			view.Box.Height(), 25,
 			view.ViewportLine, 0,

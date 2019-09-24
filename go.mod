@@ -9,6 +9,7 @@ require (
 	github.com/reusee/dscope v0.0.0-20190907053525-42cbb6fc78f8
 	github.com/reusee/e/v2 v2.3.3
 	github.com/reusee/toml v0.4.0
+	github.com/sergi/go-diff v1.0.0
 	golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7
 	golang.org/x/sys v0.0.0-20190919044723-0c1ff786ef13 // indirect
 	golang.org/x/text v0.3.2

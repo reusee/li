@@ -13,7 +13,7 @@ func TestMomentFromBytes(t *testing.T) {
 		scope Scope,
 	) {
 		eq(t,
-			view.Moment.NumLines(), 1,
+			view.GetMoment().NumLines(), 1,
 		)
 		scope.Sub(func() Move {
 			return Move{AbsLine: intP(999)}
@@ -64,7 +64,7 @@ func TestLowerContent(t *testing.T) {
 	withHelloEditor(t, func(
 		view *View,
 	) {
-		str := view.Moment.GetLowerContent()
+		str := view.GetMoment().GetLowerContent()
 		eq(t,
 			str, "hello, world!\n你好，世界！\nこんにちは、世界！\n",
 		)
@@ -101,7 +101,7 @@ func TestDerivedMomentLanguage(t *testing.T) {
 			parser != nil, true,
 		)
 		scope.Call(ChangeToWordEnd)
-		parser = view.Moment.GetParser(scope)
+		parser = view.GetMoment().GetParser(scope)
 		eq(t,
 			parser != nil, true,
 		)
