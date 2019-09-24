@@ -120,3 +120,45 @@ func TestCellUTF16Offset(t *testing.T) {
 		)
 	})
 }
+
+func TestMomentByteOffsetToPosition(t *testing.T) {
+	withHelloEditor(t, func(
+		m *Moment,
+	) {
+		pos := m.ByteOffsetToPosition(0)
+		eq(t,
+			pos.Line, 0,
+			pos.Cell, 0,
+		)
+		pos = m.ByteOffsetToPosition(1)
+		eq(t,
+			pos.Line, 0,
+			pos.Cell, 1,
+		)
+		pos = m.ByteOffsetToPosition(13)
+		eq(t,
+			pos.Line, 0,
+			pos.Cell, 13,
+		)
+		pos = m.ByteOffsetToPosition(14)
+		eq(t,
+			pos.Line, 1,
+			pos.Cell, 0,
+		)
+		pos = m.ByteOffsetToPosition(15)
+		eq(t,
+			pos.Line, 1,
+			pos.Cell, 0,
+		)
+		pos = m.ByteOffsetToPosition(17)
+		eq(t,
+			pos.Line, 1,
+			pos.Cell, 1,
+		)
+		pos = m.ByteOffsetToPosition(33)
+		eq(t,
+			pos.Line, 2,
+			pos.Cell, 0,
+		)
+	})
+}

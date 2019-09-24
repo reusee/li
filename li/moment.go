@@ -198,6 +198,25 @@ func (m *Moment) hashSubContent(lineNum int) {
 	m.subContentHashStates[lineNum] = &packedState
 }
 
+func (m *Moment) ByteOffsetToPosition(offset int) (pos Position) {
+	for i, line := range m.lines {
+		if offset < len(line.content) {
+			line.init()
+			for _, cell := range line.Cells {
+				if offset == 0 {
+					pos.Cell = cell.RuneOffset
+					return
+				}
+				offset -= cell.Len
+			}
+		} else {
+			offset -= len(line.content)
+			pos.Line = i + 1
+		}
+	}
+	return
+}
+
 type Line struct {
 	Cells                 []Cell
 	Runes                 []rune
