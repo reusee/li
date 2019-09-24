@@ -203,7 +203,7 @@ func (m *Moment) ByteOffsetToPosition(offset int) (pos Position) {
 		if offset < len(line.content) {
 			line.init()
 			for _, cell := range line.Cells {
-				if offset == 0 {
+				if offset < cell.Len {
 					pos.Cell = cell.RuneOffset
 					return
 				}
