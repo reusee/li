@@ -1,6 +1,9 @@
 package li
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type ContextMode struct{}
 
@@ -71,4 +74,22 @@ func (_ ContextMode) StrokeSpecs() any {
 			makeNumHandler(9),
 		}
 	}
+}
+
+func (_ Provide) ContextStatus(
+	on On,
+) Init2 {
+
+	on(EvRenderStatus, func(
+		getN GetN,
+		add AddStatusLine,
+	) {
+		if n := getN(); n > 0 {
+			add("")
+			add("context", Bold(true), AlignRight, Padding(0, 2, 0, 0))
+			add(strconv.Itoa(n), AlignRight, Padding(0, 2, 0, 0))
+		}
+	})
+
+	return nil
 }

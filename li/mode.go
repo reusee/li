@@ -1,5 +1,10 @@
 package li
 
+import (
+	"reflect"
+	"strings"
+)
+
 type Mode any
 
 type (
@@ -35,4 +40,30 @@ func (_ Provide) ModesAccessor(
 	}
 
 	return
+}
+
+func (_ Provide) ModeStatus(
+	on On,
+) Init2 {
+
+	on(EvRenderStatus, func(
+		getModes CurrentModes,
+		add AddStatusLine,
+		styles []Style,
+	) {
+		modes := getModes()
+		add("")
+		add("modes", Bold(true), AlignRight, Padding(0, 2, 0, 0))
+		for _, mode := range modes {
+			name := reflect.TypeOf(mode).Elem().Name()
+			name = strings.TrimSuffix(name, "Mode")
+			s := styles[0]
+			if name == "Edit" {
+				s = styles[1]
+			}
+			add(s, name, AlignRight, Padding(0, 2, 0, 0))
+		}
+	})
+
+	return nil
 }

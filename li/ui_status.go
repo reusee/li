@@ -3,26 +3,23 @@ package li
 import (
 	"fmt"
 	"path"
-	"reflect"
-	"strconv"
-	"strings"
 )
+
+type evRenderStatus struct{}
+
+var EvRenderStatus = new(evRenderStatus)
+
+type AddStatusLine func(...dyn)
 
 func Status(
 	scope Scope,
 	box Box,
 	cur CurrentView,
-	getN GetN,
-	getKeyEv GetLastKeyEvent,
-	recording MacroRecording,
-	getMacroName GetMacroName,
-	getModes CurrentModes,
 	getStyle GetStyle,
 	style Style,
 	curGroup CurrentViewGroup,
-	groupLayoutIndex ViewGroupLayoutIndex,
-	viewGroupConfig ViewGroupConfig,
 	groups ViewGroups,
+	trigger Trigger,
 ) (
 	ret Element,
 ) {
@@ -48,60 +45,14 @@ func Status(
 		lineBox.Bottom++
 	}
 
-	//addTextLine("Li Editor", AlignCenter, Bold(true))
-
-	// modes
-	modes := getModes()
-	addTextLine("")
-	addTextLine("modes", Bold(true), AlignRight, Padding(0, 2, 0, 0))
-	for _, mode := range modes {
-		name := reflect.TypeOf(mode).Elem().Name()
-		name = strings.TrimSuffix(name, "Mode")
-		s := style
-		if name == "Edit" {
-			s = hlStyle
-		}
-		addTextLine(s, name, AlignRight, Padding(0, 2, 0, 0))
-	}
-
-	// context number
-	if n := getN(); n > 0 {
-		addTextLine("")
-		addTextLine("context", Bold(true), AlignRight, Padding(0, 2, 0, 0))
-		addTextLine(strconv.Itoa(n), AlignRight, Padding(0, 2, 0, 0))
-	}
-
-	// macro
-	if recording {
-		addTextLine("")
-		addTextLine("macro", Bold(true), AlignRight, Padding(0, 2, 0, 0))
-		addTextLine(getMacroName(), AlignRight, Padding(0, 2, 0, 0))
-	}
-
-	// cursor
-	if focusing != nil {
-		line := focusing.CursorLine + 1
-		col := focusing.CursorCol + 1
-		addTextLine("")
-		addTextLine("cursor", Bold(true), AlignRight, Padding(0, 2, 0, 0))
-		addTextLine(strconv.Itoa(line), AlignRight, Padding(0, 2, 0, 0))
-		addTextLine(strconv.Itoa(col), AlignRight, Padding(0, 2, 0, 0))
-		moment := focusing.GetMoment()
-		if parser := moment.GetParser(scope); parser != nil {
-			pos := focusing.cursorPosition()
-			addTextLine(
-				moment.GetSyntaxAttr(scope, pos.Line, pos.Cell),
-				AlignRight, Padding(0, 2, 0, 0),
-			)
-		}
-	}
-
-	// last key
-	if ev := getKeyEv(); ev != nil {
-		addTextLine("")
-		addTextLine("key", Bold(true), AlignRight, Padding(0, 2, 0, 0))
-		addTextLine(ev.Name(), AlignRight, Padding(0, 2, 0, 0))
-	}
+	trigger(scope.Sub(
+		func() AddStatusLine {
+			return addTextLine
+		},
+		func() []Style {
+			return []Style{style, hlStyle}
+		},
+	), EvRenderStatus)
 
 	group := curGroup()
 	groupIndex := func() int {
@@ -112,12 +63,6 @@ func Status(
 		}
 		return 0
 	}()
-
-	// layout
-	addTextLine("")
-	addTextLine("layout", Bold(true), AlignRight, Padding(0, 2, 0, 0))
-	addTextLine(viewGroupConfig.Layouts[groupLayoutIndex()], AlignRight, Padding(0, 2, 0, 0))
-	addTextLine(group.Layouts[group.LayoutIndex], AlignRight, Padding(0, 2, 0, 0))
 
 	// views
 	views := group.GetViews(scope)

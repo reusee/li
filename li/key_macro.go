@@ -98,3 +98,22 @@ func (_ Command) ToggleMacroRecording() (spec CommandSpec) {
 	spec.Desc = "toggle key macro recording"
 	return
 }
+
+func (_ Provide) KeyMacroStatus(
+	on On,
+) Init2 {
+
+	on(EvRenderStatus, func(
+		add AddStatusLine,
+		recording MacroRecording,
+		getMacroName GetMacroName,
+	) {
+		if recording {
+			add("")
+			add("macro", Bold(true), AlignRight, Padding(0, 2, 0, 0))
+			add(getMacroName(), AlignRight, Padding(0, 2, 0, 0))
+		}
+	})
+
+	return nil
+}
