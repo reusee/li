@@ -1,5 +1,7 @@
 package li
 
+import "time"
+
 func (_ Provide) Completion(
 	on On,
 	run RunInMainLoop,
@@ -10,16 +12,10 @@ func (_ Provide) Completion(
 		moment *Moment,
 		curModes CurrentModes,
 		procs CompletionProcs,
+		config CompletionConfig,
 	) {
 
-		editing := false
-		for _, mode := range curModes() {
-			if _, ok := mode.(*EditMode); ok {
-				editing = true
-				break
-			}
-		}
-		if !editing {
+		if !IsEditing(curModes()) {
 			return
 		}
 
@@ -27,13 +23,33 @@ func (_ Provide) Completion(
 
 		procs <- func() {
 
-			//TODO calculate candidates
+			// async calculate candidates
+			//TODO
 
-			//TODO show
-			run(func(
-				j AppendJournal,
-			) {
-				j("%d rendered, %+v", view.ID, state)
+			// show
+			time.AfterFunc(time.Millisecond*time.Duration(config.DelayMilliseconds), func() {
+				run(func(
+					j AppendJournal,
+					curModes CurrentModes,
+					curView CurrentView,
+				) {
+
+					if !IsEditing(curModes()) {
+						// skip if not editing
+						return
+					}
+					cur := curView()
+					if cur != view {
+						// skip if view switched
+						return
+					}
+					if cur.ViewMomentState != state {
+						// skip if state changed
+						return
+					}
+
+					j("%d rendered, %+v", view.ID, state)
+				})
 			})
 
 		}
@@ -59,4 +75,18 @@ func (_ Provide) CompletionProcs() (
 	}
 
 	return
+}
+
+type CompletionConfig struct {
+	DelayMilliseconds int
+}
+
+func (_ Provide) CompletionConfig(
+	get GetConfig,
+) CompletionConfig {
+	var config struct {
+		Completion CompletionConfig
+	}
+	ce(get(&config))
+	return config.Completion
 }

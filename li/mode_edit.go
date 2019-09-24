@@ -170,3 +170,14 @@ func (_ Command) DisableEditMode() (spec CommandSpec) {
 	spec.Func = DisableEditMode
 	return
 }
+
+func IsEditing(modes []Mode) bool {
+	editing := false
+	for _, mode := range modes {
+		if _, ok := mode.(*EditMode); ok {
+			editing = true
+			break
+		}
+	}
+	return editing
+}

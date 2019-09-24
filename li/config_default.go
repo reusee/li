@@ -140,4 +140,7 @@ Enable = false
 [Formatter]
 DelaySeconds = 5
 
+[Completion]
+DelayMilliseconds = 100
+
 `

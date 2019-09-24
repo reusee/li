@@ -115,7 +115,7 @@ func (_ Provide) FormatterGo(
 							j("formatter bug, moment content not match")
 							return
 						}
-						j("auto format in %v\n", time.Since(t0))
+						j("auto format in %v", time.Since(t0))
 
 					})
 				})
