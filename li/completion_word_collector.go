@@ -9,7 +9,7 @@ func (_ Provide) CollectWords(
 	on On,
 ) Init2 {
 
-	const partLen = 8
+	const partLen = 3
 
 	type Node struct {
 		Runes [partLen]rune
