@@ -37,7 +37,7 @@ func (view *View) RenderFunc() any {
 		displayOffset := 0
 		for i := 0; i < box.Height(); i++ {
 			lineNum := view.ViewportLine + i
-			line := moment.GetLine(lineNum)
+			line := moment.GetLine(scope, lineNum)
 			if line == nil {
 				continue
 			}
@@ -49,7 +49,7 @@ func (view *View) RenderFunc() any {
 		}
 		var outlineLines []int
 		for i := view.ViewportLine; i >= 0 && i >= view.ViewportLine-uiConfig.MaxOutlineDistance; i-- {
-			line := moment.GetLine(i)
+			line := moment.GetLine(scope, i)
 			if line == nil {
 				continue
 			}
@@ -125,7 +125,7 @@ func (view *View) RenderFunc() any {
 		// indent-based background
 		indentStyle := func(style Style, lineNum int, offset int) Style {
 			for lineNum >= 0 {
-				line := moment.GetLine(lineNum)
+				line := moment.GetLine(scope, lineNum)
 				if line == nil {
 					break
 				}
@@ -147,7 +147,7 @@ func (view *View) RenderFunc() any {
 		}
 
 		// lines
-		selectedRange := view.selectedRange()
+		selectedRange := view.selectedRange(scope)
 		wg := new(sync.WaitGroup)
 		for i := 0; i < contentBox.Height(); i++ {
 			i := i
@@ -159,7 +159,7 @@ func (view *View) RenderFunc() any {
 				isCurrentLine := lineNum == view.CursorLine
 				var line *Line
 				if lineNum < moment.NumLines() {
-					line = moment.GetLine(lineNum)
+					line = moment.GetLine(scope, lineNum)
 				}
 				y := contentBox.Top + i
 				x := contentBox.Left
@@ -351,7 +351,7 @@ func (view *View) RenderFunc() any {
 				baseStyle = baseStyle.Underline(true)
 			}
 			lineStyle := baseStyle
-			line := moment.GetLine(lineNum)
+			line := moment.GetLine(scope, lineNum)
 
 			cells := line.Cells
 			skip := view.ViewportCol

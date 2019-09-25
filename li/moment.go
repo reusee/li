@@ -72,7 +72,7 @@ func NewMoment(prev *Moment) *Moment {
 	return m
 }
 
-func (m *Moment) GetLine(i int) *Line {
+func (m *Moment) GetLine(scope Scope, i int) *Line {
 	if i < 0 {
 		return nil
 	}
@@ -80,7 +80,7 @@ func (m *Moment) GetLine(i int) *Line {
 		return nil
 	}
 	line := m.lines[i]
-	line.init()
+	line.init(scope)
 	return line
 }
 
@@ -198,10 +198,10 @@ func (m *Moment) hashSubContent(lineNum int) {
 	m.subContentHashStates[lineNum] = &packedState
 }
 
-func (m *Moment) ByteOffsetToPosition(offset int) (pos Position) {
+func (m *Moment) ByteOffsetToPosition(scope Scope, offset int) (pos Position) {
 	for i, line := range m.lines {
 		if offset < len(line.content) {
-			line.init()
+			line.init(scope)
 			for _, cell := range line.Cells {
 				if offset < cell.Len {
 					pos.Cell = cell.RuneOffset
@@ -229,7 +229,7 @@ type Line struct {
 	config   *BufferConfig
 }
 
-func (l *Line) init() {
+func (l *Line) init(scope Scope) {
 	l.initOnce.Do(func() {
 		var cells []Cell
 		allSpace := true
@@ -269,8 +269,18 @@ func (l *Line) init() {
 		l.NonSpaceDisplayOffset = nonSpaceOffset
 		l.Cells = cells
 		l.AllSpace = allSpace
+
+		var trigger Trigger
+		scope.Assign(&trigger)
+		trigger(scope.Sub(func() *Line {
+			return l
+		}), EvLineInitialized)
 	})
 }
+
+type evLineInitialized struct{}
+
+var EvLineInitialized = new(evLineInitialized)
 
 type Cell struct {
 	Rune          rune
@@ -440,14 +450,16 @@ func splitLines(s string) (ret []string) {
 
 type LineInitProcs chan []*Line
 
-func (_ Provide) LineInitProcs() LineInitProcs {
+func (_ Provide) LineInitProcs(
+	scope Scope,
+) LineInitProcs {
 	c := make(chan []*Line, 512)
 	for i := 0; i < numCPU; i++ {
 		go func() {
 			for {
 				lines := <-c
 				for i := len(lines) - 1; i >= 0; i-- {
-					lines[i].init()
+					lines[i].init(scope)
 				}
 			}
 		}()

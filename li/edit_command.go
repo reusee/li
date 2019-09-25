@@ -7,7 +7,7 @@ func (_ Command) InsertNewline() (spec CommandSpec) {
 		cur CurrentView,
 	) {
 		view := cur()
-		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
+		indent := getAdjacentIndent(scope, view, view.CursorLine, view.CursorLine+1)
 		scope.Sub(func() (PositionFunc, string) {
 			return PosCursor, "\n" + indent
 		}).Call(InsertAtPositionFunc)
@@ -67,7 +67,7 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 		cur CurrentView,
 	) {
 		view := cur()
-		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
+		indent := getAdjacentIndent(scope, view, view.CursorLine, view.CursorLine+1)
 		scope.Sub(func() (PositionFunc, string, *View) {
 			return PosLineEnd, "\n" + indent, view
 		}).Call(InsertAtPositionFunc)
@@ -84,7 +84,7 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		cur CurrentView,
 	) {
 		view := cur()
-		indent := getAdjacentIndent(view, view.CursorLine-1, view.CursorLine)
+		indent := getAdjacentIndent(scope, view, view.CursorLine-1, view.CursorLine)
 		scope.Sub(func() (PositionFunc, string, *View) {
 			return PosLineBegin, indent + "\n", view
 		}).Call(InsertAtPositionFunc)
@@ -95,12 +95,12 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 	return
 }
 
-func getAdjacentIndent(view *View, l1 int, l2 int) string {
+func getAdjacentIndent(scope Scope, view *View, l1 int, l2 int) string {
 	indent := 0
 	var runes []rune
 	lineNum := l1
 	for {
-		line := view.GetMoment().GetLine(lineNum)
+		line := view.GetMoment().GetLine(scope, lineNum)
 		if line == nil {
 			break
 		}
@@ -121,7 +121,7 @@ func getAdjacentIndent(view *View, l1 int, l2 int) string {
 	}
 	lineNum = l2
 	for {
-		line := view.GetMoment().GetLine(lineNum)
+		line := view.GetMoment().GetLine(scope, lineNum)
 		if line == nil {
 			break
 		}

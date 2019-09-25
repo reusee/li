@@ -8,9 +8,10 @@ type PositionFunc any
 
 func PosCursor(
 	cur CurrentView,
+	scope Scope,
 ) Position {
 	view := cur()
-	return view.cursorPosition()
+	return view.cursorPosition(scope)
 }
 
 func PosLineBegin(
@@ -25,9 +26,10 @@ func PosLineBegin(
 
 func PosLineEnd(
 	cur CurrentView,
+	scope Scope,
 ) (pos Position) {
 	v := cur()
-	line := v.GetMoment().GetLine(v.CursorLine)
+	line := v.GetMoment().GetLine(scope, v.CursorLine)
 	pos.Line = v.CursorLine
 	pos.Cell = len(line.Cells) - 1
 	return
@@ -35,15 +37,16 @@ func PosLineEnd(
 
 func PosPrevRune(
 	cur CurrentView,
+	scope Scope,
 ) Position {
 	v := cur()
-	pos := v.cursorPosition()
+	pos := v.cursorPosition(scope)
 	moment := v.GetMoment()
 	if pos.Cell == 0 {
 		// at line begin
 		if pos.Line > 0 {
 			// prev line
-			line := moment.GetLine(pos.Line - 1)
+			line := moment.GetLine(scope, pos.Line-1)
 			cell := line.Cells[len(line.Cells)-1]
 			return Position{
 				Line: pos.Line - 1,
@@ -53,7 +56,7 @@ func PosPrevRune(
 			return pos
 		}
 	} else {
-		line := moment.GetLine(pos.Line)
+		line := moment.GetLine(scope, pos.Line)
 		cell := line.Cells[pos.Cell-1]
 		return Position{
 			Line: pos.Line,
@@ -64,11 +67,12 @@ func PosPrevRune(
 
 func PosNextRune(
 	cur CurrentView,
+	scope Scope,
 ) Position {
 	v := cur()
-	pos := v.cursorPosition()
+	pos := v.cursorPosition(scope)
 	moment := v.GetMoment()
-	line := moment.GetLine(pos.Line)
+	line := moment.GetLine(scope, pos.Line)
 	if pos.Cell == len(line.Cells)-1 {
 		// at line end
 		if pos.Line < moment.NumLines()-1 {
@@ -100,12 +104,13 @@ func runeCategory(r rune) int {
 
 func PosWordEnd(
 	cur CurrentView,
+	scope Scope,
 ) (
 	pos Position,
 ) {
 	v := cur()
-	pos = v.cursorPosition()
-	line := v.GetMoment().GetLine(v.CursorLine)
+	pos = v.cursorPosition(scope)
+	line := v.GetMoment().GetLine(scope, v.CursorLine)
 	lastCategory := -1
 	for i := pos.Cell; i < len(line.Cells); i++ {
 		pos.Cell = i

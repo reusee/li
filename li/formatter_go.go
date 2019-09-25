@@ -69,7 +69,7 @@ func (_ Provide) FormatterGo(
 					loop_diffs:
 						for _, diff := range diffs {
 
-							position := moment.ByteOffsetToPosition(offset)
+							position := moment.ByteOffsetToPosition(scope, offset)
 							var numRunesInserted int
 
 							switch diff.Type {
@@ -79,7 +79,7 @@ func (_ Provide) FormatterGo(
 									change := Change{
 										Op:    OpDelete,
 										Begin: position,
-										End:   moment.ByteOffsetToPosition(offset + len(diff.Text)),
+										End:   moment.ByteOffsetToPosition(scope, offset+len(diff.Text)),
 									}
 									return moment, change
 								}).Call(ApplyChange, &moment, &numRunesInserted)
@@ -102,7 +102,7 @@ func (_ Provide) FormatterGo(
 
 							job.view.switchMoment(scope, moment)
 							scope.Sub(func() Move {
-								col := moment.GetLine(position.Line).Cells[position.Cell].DisplayOffset
+								col := moment.GetLine(scope, position.Line).Cells[position.Cell].DisplayOffset
 								return Move{AbsLine: intP(position.Line), AbsCol: &col}
 							}).Call(MoveCursor)
 							scope.Sub(func() Move {

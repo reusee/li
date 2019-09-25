@@ -14,7 +14,7 @@ func TestSelection(t *testing.T) {
 				RelLine: 1,
 			}
 		}).Call(MoveCursor)
-		r := view.selectedRange()
+		r := view.selectedRange(scope)
 		eq(t,
 			r.Begin.Line, 0,
 			r.Begin.Cell, 0,
@@ -22,7 +22,7 @@ func TestSelection(t *testing.T) {
 			r.End.Cell, 1,
 		)
 		scope.Call(ToggleSelection)
-		r = view.selectedRange()
+		r = view.selectedRange(scope)
 		eq(t,
 			r == nil, true,
 		)
@@ -33,7 +33,7 @@ func TestSelection(t *testing.T) {
 				RelLine: -1,
 			}
 		}).Call(MoveCursor)
-		r = view.selectedRange()
+		r = view.selectedRange(scope)
 		eq(t,
 			r.Begin.Line, 0,
 			r.Begin.Cell, 0,

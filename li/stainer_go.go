@@ -31,7 +31,7 @@ func (s *GoLexicalStainer) Line() any {
 			return v.([]StyleFunc)
 		}
 
-		line := moment.GetLine(int(lineNum))
+		line := moment.GetLine(scope, int(lineNum))
 		for _, cell := range line.Cells {
 			attr := moment.GetSyntaxAttr(scope, int(lineNum), cell.RuneOffset)
 			fns = append(fns, s.AttrStyleFunc(attr))
