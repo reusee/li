@@ -39,13 +39,13 @@ func (_ Provide) Hook() (
 	}
 
 	trigger = func(scope Scope, ev any) {
+		var fns []any
 		l.Lock()
-		defer l.Unlock()
 		i := 0
 		cs := callbacks[ev]
 		for i < len(cs) {
 			callback := cs[i]
-			scope.Call(callback.fn)
+			fns = append(fns, callback.fn)
 			if callback.oneshot {
 				cs = append(cs[:i], cs[i+1:]...)
 				continue
@@ -53,6 +53,10 @@ func (_ Provide) Hook() (
 			i++
 		}
 		callbacks[ev] = cs
+		l.Unlock()
+		for _, fn := range fns {
+			scope.Call(fn)
+		}
 	}
 
 	return
