@@ -56,13 +56,12 @@ func (_ Provide) CollectWords(
 					if len(line.content) == 0 {
 						continue
 					}
-					words := wordPattern.FindAllString(line.content, -1)
+					words := wordPattern.FindAllString(strings.ToLower(line.content), -1)
 					for _, word := range words {
 						if _, ok := wordSet[word]; ok {
 							continue
 						}
 						wordSet[word] = struct{}{}
-						word = strings.ToLower(word)
 						var parts [][partLen]rune
 						runes := []rune(word)
 						for i := 0; i < len(runes); i += partLen {
