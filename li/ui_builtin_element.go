@@ -119,7 +119,11 @@ func (r _Rect) RenderFunc() any {
 			}
 		})
 
-		marks := make([]bool, box.Width()*box.Height())
+		l := box.Width() * box.Height()
+		if l == 0 {
+			return
+		}
+		marks := make([]bool, l)
 		set := func(x int, y int, mainc rune, combc []rune, style Style) {
 			idx := (y-box.Top)*box.Width() + (x - box.Left)
 			if idx >= 0 && idx < len(marks) {

@@ -15,11 +15,19 @@ type ZBox struct {
 }
 
 func (b Box) Width() int {
-	return b.Right - b.Left
+	w := b.Right - b.Left
+	if w < 0 {
+		w = 0
+	}
+	return w
 }
 
 func (b Box) Height() int {
-	return b.Bottom - b.Top
+	h := b.Bottom - b.Top
+	if h < 0 {
+		h = 0
+	}
+	return h
 }
 
 func (b Box) Intersect(b2 Box) bool {
