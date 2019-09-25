@@ -103,15 +103,15 @@ func (_ Provide) KeyMacroStatus(
 	on On,
 ) Init2 {
 
-	on(EvRenderStatus, func(
-		add AddStatusLine,
+	on(EvCollectStatusSections, func(
+		add AddStatusSection,
 		recording MacroRecording,
 		getMacroName GetMacroName,
 	) {
 		if recording {
-			add("")
-			add("macro", Bold(true), AlignRight, Padding(0, 2, 0, 0))
-			add(getMacroName(), AlignRight, Padding(0, 2, 0, 0))
+			add("macro", [][]any{
+				{getMacroName(), AlignRight, Padding(0, 2, 0, 0)},
+			})
 		}
 	})
 

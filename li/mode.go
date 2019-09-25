@@ -46,14 +46,13 @@ func (_ Provide) ModeStatus(
 	on On,
 ) Init2 {
 
-	on(EvRenderStatus, func(
+	on(EvCollectStatusSections, func(
 		getModes CurrentModes,
-		add AddStatusLine,
+		add AddStatusSection,
 		styles []Style,
 	) {
 		modes := getModes()
-		add("")
-		add("modes", Bold(true), AlignRight, Padding(0, 2, 0, 0))
+		var lines [][]any
 		for _, mode := range modes {
 			name := reflect.TypeOf(mode).Elem().Name()
 			name = strings.TrimSuffix(name, "Mode")
@@ -61,8 +60,11 @@ func (_ Provide) ModeStatus(
 			if name == "Edit" {
 				s = styles[1]
 			}
-			add(s, name, AlignRight, Padding(0, 2, 0, 0))
+			lines = append(lines, []any{
+				s, name, AlignRight, Padding(0, 2, 0, 0),
+			})
 		}
+		add("modes", lines)
 	})
 
 	return nil

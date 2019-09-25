@@ -1,15 +1,20 @@
 package li
 
 import (
-	"fmt"
 	"path"
+	"sort"
 )
 
-type evRenderStatus struct{}
+type StatusSection struct {
+	Title string
+	Lines [][]any
+}
 
-var EvRenderStatus = new(evRenderStatus)
+type evCollectStatusSections struct{}
 
-type AddStatusLine func(...dyn)
+var EvCollectStatusSections = new(evCollectStatusSections)
+
+type AddStatusSection func(string, [][]any)
 
 func Status(
 	scope Scope,
@@ -24,12 +29,28 @@ func Status(
 	ret Element,
 ) {
 
-	focusing := cur()
 	style = darkerOrLighterStyle(style, 15)
 	hlStyle := getStyle("Highlight")
 	fg, _, _ := hlStyle.Decompose()
 	hlStyle = style.Foreground(fg)
 
+	// collect sections
+	var sections []StatusSection
+	trigger(scope.Sub(
+		func() AddStatusSection {
+			return func(title string, lines [][]any) {
+				sections = append(sections, StatusSection{title, lines})
+			}
+		},
+		func() []Style {
+			return []Style{style, hlStyle}
+		},
+	), EvCollectStatusSections)
+	sort.Slice(sections, func(i, j int) bool {
+		return sections[i].Title < sections[j].Title
+	})
+
+	// render
 	lineBox := Box{
 		Top:    box.Top,
 		Left:   box.Left,
@@ -38,39 +59,44 @@ func Status(
 	}
 	var subs []Element
 
-	addTextLine := func(specs ...any) {
-		specs = append(specs, lineBox)
-		subs = append(subs, Text(specs...))
+	// sections
+	for i, section := range sections {
+		if i > 0 {
+			subs = append(subs, Text(lineBox, ""))
+			lineBox.Top++
+			lineBox.Bottom++
+		}
+		// title
+		subs = append(subs, Text(section.Title, Bold(true), AlignRight, Padding(0, 2, 0, 0), lineBox))
 		lineBox.Top++
 		lineBox.Bottom++
+		// lines
+		for _, line := range section.Lines {
+			subs = append(subs, Text(append(line, lineBox)...))
+			lineBox.Top++
+			lineBox.Bottom++
+		}
 	}
 
-	trigger(scope.Sub(
-		func() AddStatusLine {
-			return addTextLine
-		},
-		func() []Style {
-			return []Style{style, hlStyle}
-		},
-	), EvRenderStatus)
-
-	group := curGroup()
-	groupIndex := func() int {
-		for i, g := range groups {
-			if g == group {
-				return i
-			}
-		}
-		return 0
-	}()
-
 	// views
+	group := curGroup()
+	//groupIndex := func() int {
+	//	for i, g := range groups {
+	//		if g == group {
+	//			return i
+	//		}
+	//	}
+	//	return 0
+	//}()
+	focusing := cur()
 	views := group.GetViews(scope)
 	if len(views) > 0 {
-		addTextLine("")
-		addTextLine(
-			fmt.Sprintf("group %d / %d", groupIndex+1, len(groups)),
-			Bold(true), AlignRight, Padding(0, 2, 0, 0))
+		//TODO
+		//addTextLine("")
+		//addTextLine(
+		//	fmt.Sprintf("group %d / %d", groupIndex+1, len(groups)),
+		//	Bold(true), AlignRight, Padding(0, 2, 0, 0),
+		//)
 		box := Box{
 			Top:    lineBox.Top,
 			Left:   box.Left,

@@ -209,14 +209,14 @@ func (_ Provide) KeyStatus(
 	on On,
 ) Init2 {
 
-	on(EvRenderStatus, func(
-		add AddStatusLine,
+	on(EvCollectStatusSections, func(
+		add AddStatusSection,
 		getKeyEv GetLastKeyEvent,
 	) {
 		if ev := getKeyEv(); ev != nil {
-			add("")
-			add("key", Bold(true), AlignRight, Padding(0, 2, 0, 0))
-			add(ev.Name(), AlignRight, Padding(0, 2, 0, 0))
+			add("key", [][]any{
+				{ev.Name(), AlignRight, Padding(0, 2, 0, 0)},
+			})
 		}
 	})
 

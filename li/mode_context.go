@@ -80,14 +80,14 @@ func (_ Provide) ContextStatus(
 	on On,
 ) Init2 {
 
-	on(EvRenderStatus, func(
+	on(EvCollectStatusSections, func(
 		getN GetN,
-		add AddStatusLine,
+		add AddStatusSection,
 	) {
 		if n := getN(); n > 0 {
-			add("")
-			add("context", Bold(true), AlignRight, Padding(0, 2, 0, 0))
-			add(strconv.Itoa(n), AlignRight, Padding(0, 2, 0, 0))
+			add("context", [][]any{
+				{strconv.Itoa(n), AlignRight, Padding(0, 2, 0, 0)},
+			})
 		}
 	})
 
