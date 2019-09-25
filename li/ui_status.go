@@ -60,12 +60,7 @@ func Status(
 	var subs []Element
 
 	// sections
-	for i, section := range sections {
-		if i > 0 {
-			subs = append(subs, Text(lineBox, ""))
-			lineBox.Top++
-			lineBox.Bottom++
-		}
+	for _, section := range sections {
 		// title
 		subs = append(subs, Text(section.Title, Bold(true), AlignRight, Padding(0, 2, 0, 0), lineBox))
 		lineBox.Top++
@@ -76,6 +71,9 @@ func Status(
 			lineBox.Top++
 			lineBox.Bottom++
 		}
+		subs = append(subs, Text(lineBox, ""))
+		lineBox.Top++
+		lineBox.Bottom++
 	}
 
 	// views
