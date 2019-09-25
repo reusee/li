@@ -293,6 +293,7 @@ func (t _Text) RenderFunc() any {
 				setContent(left, y, r, nil, s)
 				left += runeWidth(r)
 			}
+			//TODO not filling when AlignCenter, AlignRight
 			if fill {
 				for left < box.Right {
 					setContent(left, y, ' ', nil, style)

@@ -1,7 +1,6 @@
 package li
 
 import (
-	"path"
 	"sort"
 )
 
@@ -74,78 +73,6 @@ func Status(
 		subs = append(subs, Text(lineBox, ""))
 		lineBox.Top++
 		lineBox.Bottom++
-	}
-
-	// views
-	group := curGroup()
-	//groupIndex := func() int {
-	//	for i, g := range groups {
-	//		if g == group {
-	//			return i
-	//		}
-	//	}
-	//	return 0
-	//}()
-	focusing := cur()
-	views := group.GetViews(scope)
-	if len(views) > 0 {
-		//TODO
-		//addTextLine("")
-		//addTextLine(
-		//	fmt.Sprintf("group %d / %d", groupIndex+1, len(groups)),
-		//	Bold(true), AlignRight, Padding(0, 2, 0, 0),
-		//)
-		box := Box{
-			Top:    lineBox.Top,
-			Left:   box.Left,
-			Right:  box.Right,
-			Bottom: box.Bottom,
-		}
-		focusLine := func() int {
-			for i, view := range views {
-				if view == focusing {
-					return i
-				}
-			}
-			return 0
-		}()
-		subs = append(subs, ElementWith(
-			VerticalScroll(
-				ElementFrom(func(
-					box Box,
-				) (ret []Element) {
-					for i, view := range views {
-						name := path.Base(view.Buffer.Path)
-						s := style
-						if view == focusing {
-							s = hlStyle
-						}
-						if view.Buffer.LastSyncFileInfo == view.GetMoment().FileInfo {
-							s = s.Underline(false)
-						} else {
-							s = s.Underline(true)
-						}
-						ret = append(ret, Text(
-							Box{
-								Top:    box.Top + i,
-								Left:   box.Left,
-								Right:  box.Right,
-								Bottom: box.Top + i + 1,
-							},
-							name,
-							s,
-							AlignRight,
-							Padding(0, 2, 0, 0),
-						))
-					}
-					return
-				}),
-				focusLine,
-			),
-			func() Box {
-				return box
-			},
-		))
 	}
 
 	return Rect(

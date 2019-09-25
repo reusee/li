@@ -19,6 +19,10 @@ TabWidth = 4
 StatusWidth = 20
 JournalHeight = 2
 MaxOutlineDistance = 2000
+  [UI.ViewList]
+  HideTimeoutSeconds = 1
+  MarginLeft = 120
+  Width = 30
 
 [ViewGroup]
 Layouts = [

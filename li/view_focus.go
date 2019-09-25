@@ -6,10 +6,16 @@ type (
 	CurrentView func(...*View) *View
 )
 
+type evCurrentViewChanged struct{}
+
+var EvCurrentViewChanged = new(evCurrentViewChanged)
+
 func (_ Provide) CurrentView(
 	link Link,
 	linkedOne LinkedOne,
 	j AppendJournal,
+	scope Scope,
+	trigger Trigger,
 ) (
 	fn CurrentView,
 ) {
@@ -23,6 +29,11 @@ func (_ Provide) CurrentView(
 			j("switch to %s", path)
 		}
 		linkedOne(flag, &ret)
+		if len(views) > 0 {
+			trigger(scope.Sub(func() *View {
+				return ret
+			}), EvCurrentViewChanged)
+		}
 		return
 	}
 	return

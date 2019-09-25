@@ -101,6 +101,11 @@ type UIConfig struct {
 	StatusWidth        int
 	JournalHeight      int
 	MaxOutlineDistance int
+	ViewList           struct {
+		HideTimeoutSeconds int
+		MarginLeft         int
+		Width              int
+	}
 }
 
 func (_ Provide) UIConfig(
