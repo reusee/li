@@ -46,12 +46,12 @@ func ApplyChange(
 		return
 	}
 
-	var newLines []*Line
+	var newSegments Segments
 
 	switch change.Op {
 
 	case OpInsert:
-		newLines = append(newLines, moment.lines[:change.Begin.Line]...)
+		newSegments = moment.segments.Sub(-1, change.Begin.Line)
 		line := moment.GetLine(scope, change.Begin.Line)
 		offset := 0
 		for _, cell := range line.Cells[:change.Begin.Cell] {
@@ -61,6 +61,7 @@ func ApplyChange(
 		numRunesInserted += len([]rune(change.String))
 		changingLastLine := change.Begin.Line == moment.NumLines()-1
 		lines := splitLines(content)
+		newSegment := new(Segment)
 		for i, content := range lines {
 			if changingLastLine && i == len(lines)-1 {
 				// add newline to the last line
@@ -69,13 +70,14 @@ func ApplyChange(
 					numRunesInserted++
 				}
 			}
-			newLines = append(newLines, &Line{
+			newSegment.lines = append(newSegment.lines, &Line{
 				content:  content,
 				initOnce: new(sync.Once),
 				config:   &config,
 			})
 		}
-		newLines = append(newLines, moment.lines[change.Begin.Line+1:]...)
+		newSegments = append(newSegments, newSegment)
+		newSegments = append(newSegments, moment.segments.Sub(change.Begin.Line+1, -1)...)
 
 	case OpDelete:
 		// resolve change.Number
@@ -108,7 +110,7 @@ func ApplyChange(
 		}
 
 		// assemble new lines
-		newLines = append(newLines, moment.lines[:change.Begin.Line]...)
+		newSegments = moment.segments.Sub(-1, change.Begin.Line)
 		var b strings.Builder
 		for lineNum := change.Begin.Line; lineNum <= change.End.Line; lineNum++ {
 			if lineNum >= moment.NumLines() {
@@ -133,6 +135,7 @@ func ApplyChange(
 		}
 		changingLastLine := change.End.Line >= moment.NumLines()-1
 		lines := splitLines(b.String())
+		newSegment := new(Segment)
 		for i, content := range lines {
 			if changingLastLine && i == len(lines)-1 {
 				// add newline to the last line
@@ -140,20 +143,21 @@ func ApplyChange(
 					content += "\n"
 				}
 			}
-			newLines = append(newLines, &Line{
+			newSegment.lines = append(newSegment.lines, &Line{
 				content:  content,
 				initOnce: new(sync.Once),
 				config:   &config,
 			})
 		}
+		newSegments = append(newSegments, newSegment)
 		res := change.End.Line + 1
 		if res < moment.NumLines() {
-			newLines = append(newLines, moment.lines[res:]...)
+			newSegments = append(newSegments, moment.segments.Sub(res, -1)...)
 		}
 
 	}
 
-	newMoment.lines = newLines
+	newMoment.segments = newSegments
 	var buffer *Buffer
 	linkedOne(moment, &buffer)
 	if buffer != nil {

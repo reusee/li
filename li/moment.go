@@ -27,7 +27,7 @@ type Moment struct {
 	ID       MomentID
 	Previous *Moment
 	Change   Change
-	lines    []*Line
+	segments Segments
 
 	FileInfo FileInfo
 
@@ -69,16 +69,25 @@ func (m *Moment) GetLine(scope Scope, i int) *Line {
 	if i >= m.NumLines() {
 		return nil
 	}
-	line := m.lines[i]
-	line.init(scope)
-	return line
+	for _, segment := range m.segments {
+		if i >= len(segment.lines) {
+			i -= len(segment.lines)
+		} else {
+			line := segment.lines[i]
+			line.init(scope)
+			return line
+		}
+	}
+	panic("impossible")
 }
 
 func (m *Moment) GetContent() string {
 	m.initContentOnce.Do(func() {
 		var b strings.Builder
-		for _, line := range m.lines {
-			b.WriteString(line.content)
+		for _, segment := range m.segments {
+			for _, line := range segment.lines {
+				b.WriteString(line.content)
+			}
 		}
 		m.content = b.String()
 	})
@@ -107,8 +116,10 @@ func (m *Moment) GetCStringContent() *C.char {
 func (m *Moment) GetBytes() []byte {
 	m.initBytesOnce.Do(func() {
 		var b bytes.Buffer
-		for _, line := range m.lines {
-			b.WriteString(line.content)
+		for _, segment := range m.segments {
+			for _, line := range segment.lines {
+				b.WriteString(line.content)
+			}
 		}
 		m.bytes = b.Bytes()
 	})
@@ -155,23 +166,27 @@ func (m *Moment) GetSyntaxAttr(scope Scope, lineNum int, runeOffset int) string 
 }
 
 func (m *Moment) NumLines() int {
-	return len(m.lines)
+	return m.segments.Len()
 }
 
 func (m *Moment) ByteOffsetToPosition(scope Scope, offset int) (pos Position) {
-	for i, line := range m.lines {
-		if offset < len(line.content) {
-			line.init(scope)
-			for _, cell := range line.Cells {
-				if offset < cell.Len {
-					pos.Cell = cell.RuneOffset
-					return
+	i := 0
+	for _, segment := range m.segments {
+		for _, line := range segment.lines {
+			if offset < len(line.content) {
+				line.init(scope)
+				for _, cell := range line.Cells {
+					if offset < cell.Len {
+						pos.Cell = cell.RuneOffset
+						return
+					}
+					offset -= cell.Len
 				}
-				offset -= cell.Len
+			} else {
+				offset -= len(line.content)
+				pos.Line = i + 1
 			}
-		} else {
-			offset -= len(line.content)
-			pos.Line = i + 1
+			i++
 		}
 	}
 	return
@@ -245,7 +260,11 @@ func NewMomentFromBytes(
 	initProcs <- lines
 
 	moment = NewMoment(nil)
-	moment.lines = lines
+	moment.segments = []*Segment{
+		&Segment{
+			lines: lines,
+		},
+	}
 
 	return
 }
