@@ -94,7 +94,7 @@ func PosNextRune(
 }
 
 func runeCategory(r rune) int {
-	if unicode.IsDigit(r) || unicode.IsLetter(r) {
+	if unicode.IsDigit(r) || unicode.IsLetter(r) || r == '_' {
 		return 0
 	} else if unicode.IsSpace(r) {
 		return 1
@@ -123,6 +123,27 @@ func PosWordEnd(
 	return
 }
 
-func PosWordBegin() {
-	//TODO
+func PosWordBegin(
+	cur CurrentView,
+	scope Scope,
+) (
+	pos Position,
+) {
+	//TODO not tested
+	v := cur()
+	pos = v.cursorPosition(scope)
+	line := v.GetMoment().GetLine(scope, pos.Line)
+	for pos.Cell > 0 {
+		category := runeCategory(line.Cells[pos.Cell].Rune)
+		idx := pos.Cell - 1
+		if idx < 0 {
+			break
+		}
+		prevCategory := runeCategory(line.Cells[idx].Rune)
+		if category != prevCategory {
+			break
+		}
+		pos.Cell--
+	}
+	return
 }
