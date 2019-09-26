@@ -95,52 +95,57 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 	return
 }
 
-func getAdjacentIndent(scope Scope, view *View, l1 int, l2 int) string {
-	indent := 0
-	var runes []rune
-	lineNum := l1
+func getAdjacentIndent(scope Scope, view *View, upwardLine int, downwardLine int) string {
+	upwardIndent := 0
+	var upwardRunes []rune
 	for {
-		line := view.GetMoment().GetLine(scope, lineNum)
+		line := view.GetMoment().GetLine(scope, upwardLine)
 		if line == nil {
 			break
 		}
 		if line.NonSpaceDisplayOffset == nil {
-			lineNum--
+			upwardLine--
 			continue
 		}
-		if *line.NonSpaceDisplayOffset > indent {
-			indent = *line.NonSpaceDisplayOffset
+		if *line.NonSpaceDisplayOffset > upwardIndent {
+			upwardIndent = *line.NonSpaceDisplayOffset
 			for _, cell := range line.Cells {
-				if cell.DisplayOffset >= indent {
+				if cell.DisplayOffset >= upwardIndent {
 					break
 				}
-				runes = append(runes, cell.Rune)
+				upwardRunes = append(upwardRunes, cell.Rune)
 			}
 		}
 		break
 	}
-	lineNum = l2
+
+	downwardIndent := 0
+	var downwardRunes []rune
 	for {
-		line := view.GetMoment().GetLine(scope, lineNum)
+		line := view.GetMoment().GetLine(scope, downwardLine)
 		if line == nil {
 			break
 		}
 		if line.NonSpaceDisplayOffset == nil {
-			lineNum++
+			downwardLine++
 			continue
 		}
-		if *line.NonSpaceDisplayOffset > indent {
-			indent = *line.NonSpaceDisplayOffset
+		if *line.NonSpaceDisplayOffset > downwardIndent {
+			downwardIndent = *line.NonSpaceDisplayOffset
 			for _, cell := range line.Cells {
-				if cell.DisplayOffset >= indent {
+				if cell.DisplayOffset >= downwardIndent {
 					break
 				}
-				runes = append(runes, cell.Rune)
+				downwardRunes = append(downwardRunes, cell.Rune)
 			}
 		}
 		break
 	}
-	return string(runes)
+
+	if upwardIndent > downwardIndent {
+		return string(upwardRunes)
+	}
+	return string(downwardRunes)
 }
 
 func (_ Command) ChangeToWordEnd() (spec CommandSpec) {
