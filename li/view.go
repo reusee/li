@@ -15,7 +15,8 @@ type View struct {
 	moment  *Moment
 	Stainer Stainer
 
-	Box Box
+	Box        Box
+	ContentBox Box
 
 	ViewMomentState
 

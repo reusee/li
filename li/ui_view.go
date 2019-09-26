@@ -89,6 +89,7 @@ func (view *View) RenderFunc() any {
 		contentBox := view.Box
 		contentBox.Left += lineNumLength + 2
 		contentBox.Top += len(outlineLines)
+		view.ContentBox = contentBox
 
 		currentView := cur()
 
