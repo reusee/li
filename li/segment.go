@@ -1,7 +1,14 @@
 package li
 
+import (
+	"io"
+	"sync"
+)
+
 type Segment struct {
-	lines []*Line
+	lines       []*Line
+	sum         HashSum
+	initSumOnce sync.Once
 }
 
 type Segments []*Segment
@@ -58,4 +65,15 @@ func (s Segments) Sub(start int, end int) Segments {
 	}
 
 	return ret
+}
+
+func (s *Segment) Sum() HashSum {
+	s.initSumOnce.Do(func() {
+		h := NewHash()
+		for _, line := range s.lines {
+			io.WriteString(h, line.content)
+		}
+		copy(s.sum[:], h.Sum(nil))
+	})
+	return s.sum
 }

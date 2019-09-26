@@ -1,6 +1,9 @@
 package li
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestSegmentsSub(t *testing.T) {
 	segments := Segments{
@@ -165,6 +168,36 @@ func TestSegmentsSub(t *testing.T) {
 	sub = segments.Sub(13, -1)
 	eq(t,
 		len(sub), 0,
+	)
+
+}
+
+func TestSegmentSum(t *testing.T) {
+	seg := &Segment{
+		lines: []*Line{
+			{
+				content: "foo",
+			},
+		},
+	}
+	sum := seg.Sum()
+	eq(t,
+		fmt.Sprintf("%x", sum), "b8fe9f7f6255a6fa08f668ab632a8d081ad87983c77cd274e48ce450f0b349fd",
+	)
+
+	seg = &Segment{
+		lines: []*Line{
+			{
+				content: "foo",
+			},
+			{
+				content: "foo",
+			},
+		},
+	}
+	sum = seg.Sum()
+	eq(t,
+		fmt.Sprintf("%x", sum), "c7416e6b160594ba54a324506887e2b351959110fe20f8a449316fe2db4b0685",
 	)
 
 }
