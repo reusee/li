@@ -46,23 +46,12 @@ func ApplyChange(
 		return
 	}
 
-	newMoment.subContentHashes = make([]*HashSum, 0, len(moment.subContentHashes))
-	newMoment.subContentHashStates = make([]*[]byte, 0, len(moment.subContentHashStates))
-
 	var newLines []*Line
 
 	switch change.Op {
 
 	case OpInsert:
 		newLines = append(newLines, moment.lines[:change.Begin.Line]...)
-		newMoment.subContentHashStates = append(
-			newMoment.subContentHashStates,
-			moment.subContentHashStates[:change.Begin.Line]...,
-		)
-		newMoment.subContentHashes = append(
-			newMoment.subContentHashes,
-			moment.subContentHashes[:change.Begin.Line]...,
-		)
 		line := moment.GetLine(scope, change.Begin.Line)
 		offset := 0
 		for _, cell := range line.Cells[:change.Begin.Cell] {
@@ -120,14 +109,6 @@ func ApplyChange(
 
 		// assemble new lines
 		newLines = append(newLines, moment.lines[:change.Begin.Line]...)
-		newMoment.subContentHashStates = append(
-			newMoment.subContentHashStates,
-			moment.subContentHashStates[:change.Begin.Line]...,
-		)
-		newMoment.subContentHashes = append(
-			newMoment.subContentHashes,
-			moment.subContentHashes[:change.Begin.Line]...,
-		)
 		var b strings.Builder
 		for lineNum := change.Begin.Line; lineNum <= change.End.Line; lineNum++ {
 			if lineNum >= moment.NumLines() {
@@ -173,20 +154,6 @@ func ApplyChange(
 	}
 
 	newMoment.lines = newLines
-	newMoment.subContentHashStates = append(
-		newMoment.subContentHashStates,
-		make(
-			[]*[]byte,
-			len(newMoment.lines)-len(newMoment.subContentHashStates),
-		)...,
-	)
-	newMoment.subContentHashes = append(
-		newMoment.subContentHashes,
-		make(
-			[]*HashSum,
-			len(newMoment.lines)-len(newMoment.subContentHashes),
-		)...,
-	)
 	var buffer *Buffer
 	linkedOne(moment, &buffer)
 	if buffer != nil {

@@ -2,7 +2,6 @@ package li
 
 import (
 	"C"
-	"encoding"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -32,12 +31,6 @@ type Moment struct {
 	Previous *Moment
 	Change   Change
 	lines    []*Line
-
-	// for incremental processing
-	// hash state before line <key>
-	subContentHashStates []*[]byte
-	// hash sum of line [0, <key>]
-	subContentHashes []*HashSum
 
 	FileInfo FileInfo
 
@@ -166,36 +159,6 @@ func (m *Moment) GetSyntaxAttr(scope Scope, lineNum int, runeOffset int) string 
 
 func (m *Moment) NumLines() int {
 	return len(m.lines)
-}
-
-func (m *Moment) GetSubContentHash(lineNum int) HashSum {
-	p := m.subContentHashes[lineNum]
-	if p == nil {
-		m.hashSubContent(lineNum)
-		p = m.subContentHashes[lineNum]
-	}
-	return *p
-}
-
-func (m *Moment) hashSubContent(lineNum int) {
-	h := NewHash()
-	if lineNum > 0 {
-		p := m.subContentHashStates[lineNum-1]
-		if p == nil {
-			m.hashSubContent(lineNum - 1)
-			p = m.subContentHashStates[lineNum-1]
-		}
-		packedState := *p
-		ce(h.(encoding.BinaryUnmarshaler).UnmarshalBinary(packedState))
-	}
-	h.Write([]byte(m.lines[lineNum].content))
-	sum := h.Sum(nil)
-	var hSum HashSum
-	copy(hSum[:], sum[:])
-	m.subContentHashes[lineNum] = &hSum
-	packedState, err := h.(encoding.BinaryMarshaler).MarshalBinary()
-	ce(err)
-	m.subContentHashStates[lineNum] = &packedState
 }
 
 func (m *Moment) ByteOffsetToPosition(scope Scope, offset int) (pos Position) {
@@ -366,8 +329,6 @@ func NewMomentFromBytes(
 
 	moment = NewMoment(nil)
 	moment.lines = lines
-	moment.subContentHashStates = make([]*[]byte, len(lines))
-	moment.subContentHashes = make([]*HashSum, len(lines))
 
 	return
 }

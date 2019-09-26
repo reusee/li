@@ -1,10 +1,7 @@
 package li
 
 import (
-	"fmt"
 	"testing"
-
-	"golang.org/x/crypto/blake2b"
 )
 
 func TestMomentFromBytes(t *testing.T) {
@@ -67,21 +64,6 @@ func TestLowerContent(t *testing.T) {
 		str := view.GetMoment().GetLowerContent()
 		eq(t,
 			str, "hello, world!\n你好，世界！\nこんにちは、世界！\n",
-		)
-	})
-}
-
-func TestSubContentHashing(t *testing.T) {
-	withHelloEditor(t, func(
-		moment *Moment,
-	) {
-		eq(t,
-			fmt.Sprintf("%x", moment.GetSubContentHash(0)),
-			fmt.Sprintf("%x", blake2b.Sum256([]byte("Hello, world!\n"))),
-			fmt.Sprintf("%x", moment.GetSubContentHash(2)),
-			fmt.Sprintf("%x", blake2b.Sum256([]byte("Hello, world!\n你好，世界！\nこんにちは、世界！\n"))),
-			fmt.Sprintf("%x", moment.GetSubContentHash(1)),
-			fmt.Sprintf("%x", blake2b.Sum256([]byte("Hello, world!\n你好，世界！\n"))),
 		)
 	})
 }
