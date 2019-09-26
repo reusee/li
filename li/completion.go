@@ -1,6 +1,9 @@
 package li
 
-import "time"
+import (
+	"sort"
+	"time"
+)
 
 type evCollectCompletionCandidate struct{}
 
@@ -17,12 +20,24 @@ func (_ Provide) Completion(
 	run RunInMainLoop,
 ) Init2 {
 
+	var completionOverlayID ID
+	closeOverlay := func() {
+		if completionOverlayID > 0 {
+			id := completionOverlayID
+			run(func(scope Scope) {
+				scope.Sub(func() ID { return id }).Call(CloseOverlay)
+			})
+		}
+	}
+
 	on(EvKeyEventHandled, func(
 		curView CurrentView,
 		procs CompletionProcs,
 		config CompletionConfig,
 		trigger Trigger,
 		scope Scope,
+		maxWidth Width,
+		maxHeight Height,
 	) {
 
 		view := curView()
@@ -57,6 +72,7 @@ func (_ Provide) Completion(
 			return
 		}
 		if skip(scope) {
+			closeOverlay()
 			return
 		}
 
@@ -64,6 +80,7 @@ func (_ Provide) Completion(
 		time.AfterFunc(time.Millisecond*time.Duration(config.DelayMilliseconds), func() {
 
 			if skip(scope) {
+				closeOverlay()
 				return
 			}
 
@@ -84,14 +101,76 @@ func (_ Provide) Completion(
 				), EvCollectCompletionCandidate)
 
 				if skip(scope) {
+					closeOverlay()
 					return
 				}
 
-				// show
+				// sort TODO
+				sort.SliceStable(candidates, func(i, j int) bool {
+					return candidates[i].Text < candidates[j].Text
+				})
+
+				// position
+				width := 0
+				for _, candidate := range candidates {
+					if w := displayWidth(candidate.Text); w > width {
+						width = w
+					}
+				}
+				width += 2 // padding
+				if width > int(maxWidth)-10 {
+					width = int(maxWidth) - 10
+				}
+				cursorY := view.ContentBox.Top + (view.CursorLine - view.ViewportLine)
+				height := len(candidates)
+				below := true
+				var maxH int
+				if cursorY < int(maxHeight)/2 {
+					maxH = int(maxHeight) - cursorY - 1
+				} else {
+					below = false
+					maxH = cursorY
+				}
+				if height > maxH {
+					height = maxH
+				}
+				cursorX := view.ContentBox.Left + (view.CursorCol - view.ViewportCol)
+				left := cursorX - 1
+				if left+width > int(maxWidth) {
+					left = int(maxWidth) - width
+				}
+				right := left + width
+				top := cursorY + 1 // below
+				bottom := top + height
+				if !below {
+					bottom = cursorY
+					top = bottom - height
+				}
+				box := Box{top, left, bottom, right}
+
+				// truncate
+				candidates = candidates[:height]
+
+				// update
 				run(func(
+					scope Scope,
 					j AppendJournal,
 				) {
-					j("completion candidates %+v", candidates)
+					// close
+					closeOverlay()
+					if len(candidates) == 0 {
+						return
+					}
+
+					// push overlay
+					scope.Sub(func() OverlayObject {
+						return &CompletionList{
+							Box:        box,
+							Candidates: candidates,
+							Below:      below,
+						}
+					}).Call(PushOverlay, &completionOverlayID)
+
 				})
 
 			}
@@ -100,6 +179,60 @@ func (_ Provide) Completion(
 	})
 
 	return nil
+}
+
+type CompletionList struct {
+	Box        Box
+	Candidates []CompletionCandidate
+	Below      bool
+}
+
+var _ Element = new(CompletionList)
+
+var _ KeyStrokeHandler = new(CompletionList)
+
+func (c *CompletionList) RenderFunc() any {
+	return func(
+		scope Scope,
+		cur CurrentView,
+		maxWidth Width,
+		maxHeight Height,
+		style Style,
+	) Element {
+
+		box := c.Box
+		box.Left++
+		var texts []Element
+		for _, candidate := range c.Candidates {
+			texts = append(texts, Text(
+				box,
+				candidate.Text,
+			))
+			box.Top++
+		}
+
+		return Rect(
+			c.Box,
+			Fill(true),
+			Padding(0, 1, 0, 1),
+			style.Background(HexColor(0x123456)),
+			texts,
+		)
+
+	}
+}
+
+func (c *CompletionList) StrokeSpecs() any {
+	return func() []StrokeSpec {
+		return []StrokeSpec{
+			{
+				Sequence: []string{"Tab"},
+				Func: func() {
+					//TODO
+				},
+			},
+		}
+	}
 }
 
 type CompletionProcs chan func()

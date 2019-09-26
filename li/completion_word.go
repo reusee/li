@@ -157,6 +157,7 @@ func (_ Provide) CollectWords(
 			return
 		}
 		patternRunes := line.Runes[cell:endCell]
+		pattern := string(patternRunes)
 		for i, r := range patternRunes {
 			patternRunes[i] = unicode.ToLower(r)
 		}
@@ -173,6 +174,9 @@ func (_ Provide) CollectWords(
 					l.Lock()
 					for _, word := range words {
 						if _, ok := candidateWords[word.Text]; ok {
+							continue
+						}
+						if word.Text == pattern {
 							continue
 						}
 						candidateWords[word.Text] = word
