@@ -26,6 +26,9 @@ func (_ Provide) Completion(
 	) {
 
 		view := curView()
+		if view == nil {
+			return
+		}
 		moment := view.GetMoment()
 		state := view.ViewMomentState
 
