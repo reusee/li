@@ -2,57 +2,101 @@ package li
 
 import "time"
 
+type evCollectCompletionCandidate struct{}
+
+var EvCollectCompletionCandidate = new(evCollectCompletionCandidate)
+
+type CompletionCandidate struct {
+	Text string
+}
+
+type AddCompletionCandidate func(CompletionCandidate)
+
 func (_ Provide) Completion(
 	on On,
 	run RunInMainLoop,
 ) Init2 {
 
-	on(EvViewRendered, func(
-		view *View,
-		moment *Moment,
-		curModes CurrentModes,
+	on(EvKeyEventHandled, func(
+		curView CurrentView,
 		procs CompletionProcs,
 		config CompletionConfig,
+		trigger Trigger,
+		scope Scope,
 	) {
 
-		if !IsEditing(curModes()) {
+		view := curView()
+		moment := view.GetMoment()
+		state := view.ViewMomentState
+
+		skip := func(scope Scope) (b bool) {
+			scope.Call(func(
+				curModes CurrentModes,
+				curView CurrentView,
+			) {
+				// skip if not editing
+				if !IsEditing(curModes()) {
+					b = true
+					return
+				}
+				cur := curView()
+				// skip if view switched
+				if cur != view {
+					b = true
+					return
+				}
+				// skip if state changed
+				if cur.ViewMomentState != state {
+					b = true
+					return
+				}
+			})
+			return
+		}
+		if skip(scope) {
 			return
 		}
 
-		state := view.ViewMomentState
+		// delay
+		time.AfterFunc(time.Millisecond*time.Duration(config.DelayMilliseconds), func() {
 
-		procs <- func() {
+			if skip(scope) {
+				return
+			}
 
-			// async calculate candidates
-			//TODO
+			// async
+			procs <- func() {
 
-			// show
-			time.AfterFunc(time.Millisecond*time.Duration(config.DelayMilliseconds), func() {
+				// collect candidates
+				var candidates []CompletionCandidate
+				trigger(scope.Sub(
+					func() AddCompletionCandidate {
+						return func(c CompletionCandidate) {
+							candidates = append(candidates, c)
+						}
+					},
+					func() (*View, *Moment, ViewMomentState) {
+						return view, moment, state
+					},
+				), EvCollectCompletionCandidate)
+
+				if skip(scope) {
+					return
+				}
+
+				if len(candidates) == 0 {
+					return
+				}
+
+				// show
 				run(func(
 					j AppendJournal,
-					curModes CurrentModes,
-					curView CurrentView,
 				) {
-
-					if !IsEditing(curModes()) {
-						// skip if not editing
-						return
-					}
-					cur := curView()
-					if cur != view {
-						// skip if view switched
-						return
-					}
-					if cur.ViewMomentState != state {
-						// skip if state changed
-						return
-					}
-
-					j("%d rendered, %+v", view.ID, state)
+					j("completion candidates %+v", candidates)
 				})
-			})
 
-		}
+			}
+		})
 
 	})
 
