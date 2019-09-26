@@ -92,6 +92,7 @@ Layouts = [
   'Rune[j]' = 'MoveDown'
   'Rune[k]' = 'MoveUp'
   'Rune[l]' = 'MoveRight'
+  'Rune[m]' = 'ShowCommandPalette'
   'Rune[;]' = 'Imitate'
 
   'Rune[z] Rune[t]' = 'ScrollCursorToUpper' 
