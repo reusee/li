@@ -3,6 +3,7 @@ package li
 import (
 	"reflect"
 	"sort"
+	"sync"
 )
 
 type (
@@ -26,6 +27,7 @@ func (_ Provide) LinkFuncs() (
 	var serial int
 
 	links := make(map[any]map[reflect.Type]map[any]int)
+	var l sync.RWMutex
 
 	save := func(left, right any, n int) {
 		m, ok := links[left]
@@ -56,6 +58,8 @@ func (_ Provide) LinkFuncs() (
 	}
 
 	link = func(left, right any) {
+		l.Lock()
+		defer l.Unlock()
 		n := serial
 		serial++
 		save(left, right, n)
@@ -63,6 +67,8 @@ func (_ Provide) LinkFuncs() (
 	}
 
 	linkedOne = func(o, target any) {
+		l.RLock()
+		defer l.RUnlock()
 		t := reflect.TypeOf(target).Elem()
 		m, ok := links[o]
 		if !ok {
@@ -86,6 +92,8 @@ func (_ Provide) LinkFuncs() (
 	}
 
 	linkedAll = func(o, target any) {
+		l.RLock()
+		defer l.RUnlock()
 		t := reflect.TypeOf(target).Elem().Elem()
 		m, ok := links[o]
 		if !ok {
@@ -113,6 +121,8 @@ func (_ Provide) LinkFuncs() (
 	}
 
 	drop = func(left any) {
+		l.Lock()
+		defer l.Unlock()
 		for _, m := range links[left] {
 			for right := range m {
 				del(right, left)
@@ -122,6 +132,8 @@ func (_ Provide) LinkFuncs() (
 	}
 
 	dropLink = func(left any, right any) {
+		l.Lock()
+		defer l.Unlock()
 		m, ok := links[left]
 		if ok {
 			m2, ok := m[reflect.TypeOf(right)]
@@ -144,6 +156,8 @@ func (_ Provide) LinkFuncs() (
 	}
 
 	dropOne = func(left any) {
+		l.Lock()
+		defer l.Unlock()
 		m, ok := links[left]
 		if !ok {
 			return
