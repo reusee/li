@@ -24,6 +24,8 @@ type View struct {
 
 	//TODO eviction
 	MomentStates map[*Moment]ViewMomentState
+
+	//TODO merge moment segments
 }
 
 type ViewMomentState struct {

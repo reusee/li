@@ -12,7 +12,6 @@ func (_ Provide) CollectWords(
 	on On,
 	cur CurrentView,
 	scope Scope,
-	j AppendJournal,
 ) Init2 {
 
 	type Word struct {
@@ -21,16 +20,21 @@ func (_ Provide) CollectWords(
 	}
 
 	type Req struct {
+		Scope   Scope
 		Pattern []rune
 		Fn      func([]Word)
 	}
 
+	type CollectJob struct {
+		Moment *Moment
+	}
+
 	wordPattern := regexp.MustCompile(`[a-zA-Z0-9]+`)
 	shard := numCPU
-	var newLines []chan *Line
+	var jobs []chan CollectJob
 	var reqs []chan Req
 	for i := 0; i < shard; i++ {
-		newLines = append(newLines, make(chan *Line, 10000))
+		jobs = append(jobs, make(chan CollectJob, 10000))
 		reqs = append(reqs, make(chan Req))
 	}
 
@@ -38,47 +42,68 @@ func (_ Provide) CollectWords(
 		i := i
 		go func() {
 
-			wordSet := make(map[string]Word)
+			wordSets := make(map[HashSum]map[string]Word)
 
 			for {
 				select {
 
-				case line := <-newLines[i]:
-					if len(line.content) == 0 {
-						continue
-					}
+				case job := <-jobs[i]:
 
-					//TODO do not add incomplete words
-					indexPairs := wordPattern.FindAllStringIndex(line.content, -1)
-					for _, pair := range indexPairs {
-						word := line.content[pair[0]:pair[1]]
-						if _, ok := wordSet[word]; ok {
+					for _, segment := range job.Moment.segments {
+						sum := segment.Sum()
+						if _, ok := wordSets[sum]; ok {
 							continue
 						}
-						wordSet[word] = Word{
-							Text:       word,
-							LowerRunes: []rune(strings.ToLower(word)),
+
+						wordSet := make(map[string]Word)
+						for _, line := range segment.lines {
+							indexPairs := wordPattern.FindAllStringIndex(line.content, -1)
+							for _, pair := range indexPairs {
+								word := line.content[pair[0]:pair[1]]
+								if _, ok := wordSet[word]; ok {
+									continue
+								}
+								wordSet[word] = Word{
+									Text:       word,
+									LowerRunes: []rune(strings.ToLower(word)),
+								}
+							}
 						}
+
+						wordSets[sum] = wordSet
 					}
 
 				case req := <-reqs[i]:
 					var words []Word
-					for _, word := range wordSet {
-						pi := 0
-						wi := 0
-						for pi < len(req.Pattern) && wi < len(word.LowerRunes) {
-							if req.Pattern[pi] == word.LowerRunes[wi] {
-								pi++
-								wi++
-							} else {
-								wi++
+					req.Scope.Call(func(
+						views Views,
+					) {
+						for _, view := range views {
+							moment := view.GetMoment()
+							for _, segment := range moment.segments {
+								set, ok := wordSets[segment.Sum()]
+								if !ok {
+									continue
+								}
+								for _, word := range set {
+									pi := 0
+									wi := 0
+									for pi < len(req.Pattern) && wi < len(word.LowerRunes) {
+										if req.Pattern[pi] == word.LowerRunes[wi] {
+											pi++
+											wi++
+										} else {
+											wi++
+										}
+									}
+									if pi < len(req.Pattern) {
+										continue
+									}
+									words = append(words, word)
+								}
 							}
 						}
-						if pi < len(req.Pattern) {
-							continue
-						}
-						words = append(words, word)
-					}
+					})
 					req.Fn(words)
 
 				}
@@ -88,10 +113,12 @@ func (_ Provide) CollectWords(
 	}
 
 	var n int64
-	on(EvLineInitialized, func(
-		line *Line,
+	on(EvMomentSwitched, func(
+		moments [2]*Moment,
 	) {
-		newLines[int(atomic.AddInt64(&n, 1))%shard] <- line
+		jobs[int(atomic.AddInt64(&n, 1))%shard] <- CollectJob{
+			Moment: moments[1],
+		}
 	})
 
 	on(EvCollectCompletionCandidate, func(
@@ -140,6 +167,7 @@ func (_ Provide) CollectWords(
 		wg.Add(shard)
 		for i := 0; i < shard; i++ {
 			reqs[i] <- Req{
+				Scope:   scope,
 				Pattern: patternRunes,
 				Fn: func(words []Word) {
 					l.Lock()
