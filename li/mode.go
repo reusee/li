@@ -3,6 +3,7 @@ package li
 import (
 	"reflect"
 	"strings"
+	"sync"
 )
 
 type Mode any
@@ -17,6 +18,8 @@ func (_ Provide) ModesAccessor(
 	fn CurrentModes,
 ) {
 
+	var l sync.RWMutex
+
 	modes := []Mode{
 		// default modes
 		new(ReadMode),
@@ -26,6 +29,8 @@ func (_ Provide) ModesAccessor(
 
 	fn = func(args ...[]Mode) []Mode {
 		if len(args) > 0 {
+			l.Lock()
+			defer l.Unlock()
 			for _, arg := range args {
 				modes = arg
 			}
@@ -35,8 +40,13 @@ func (_ Provide) ModesAccessor(
 					return fn
 				},
 			)
+		} else {
+			l.RLock()
+			defer l.RUnlock()
 		}
-		return modes
+		ms := make([]Mode, len(modes))
+		copy(ms, modes)
+		return ms
 	}
 
 	return
