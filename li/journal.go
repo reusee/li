@@ -20,6 +20,7 @@ type (
 func (_ Provide) Journal(
 	derive Derive,
 	uiConfig UIConfig,
+	step LoopStep,
 ) (
 	appendJournal AppendJournal,
 	get JournalLines,
@@ -42,6 +43,7 @@ func (_ Provide) Journal(
 		for _, line := range split {
 			lines = append(lines, t+line)
 		}
+		step()
 	}
 
 	get = func() []string {
@@ -105,7 +107,7 @@ func (_ Command) ToggleJournalHeight() (spec CommandSpec) {
 	) {
 		height := int(access())
 		if height == int(initHeight) {
-			height = int(screenHeight)
+			height = int(screenHeight) - 10
 		} else {
 			height = int(initHeight)
 		}
