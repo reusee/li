@@ -235,6 +235,7 @@ func (l *Line) init(scope Scope) {
 		allSpace := true
 		displayOffset := 0
 		utf16ByteOffset := 0
+		byteOffset := 0
 		l.Runes = []rune(l.content)
 		var nonSpaceOffset *int
 		for i, r := range l.Runes {
@@ -245,13 +246,15 @@ func (l *Line) init(scope Scope) {
 			} else {
 				displayWidth = width
 			}
+			runeLen := utf8.RuneLen(r)
 			cell := Cell{
 				Rune:          r,
-				Len:           utf8.RuneLen(r),
+				Len:           runeLen,
 				Width:         width,
 				DisplayWidth:  displayWidth,
 				DisplayOffset: displayOffset,
 				RuneOffset:    i,
+				ByteOffset:    byteOffset,
 				UTF16Offset:   utf16ByteOffset,
 			}
 			cells = append(cells, cell)
@@ -265,6 +268,7 @@ func (l *Line) init(scope Scope) {
 			}
 			displayOffset += displayWidth
 			utf16ByteOffset += len(utf16.Encode([]rune{r})) * 2
+			byteOffset += runeLen
 		}
 		l.NonSpaceDisplayOffset = nonSpaceOffset
 		l.Cells = cells
@@ -289,6 +293,7 @@ type Cell struct {
 	DisplayWidth  int // visual width with padding
 	DisplayOffset int // visual column offset with padding in line
 	RuneOffset    int // rune offset in line
+	ByteOffset    int // utf8 byte offset in line
 	UTF16Offset   int // byte offset in utf16 encoding in line
 }
 
