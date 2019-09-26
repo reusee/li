@@ -87,10 +87,6 @@ func (_ Provide) Completion(
 					return
 				}
 
-				if len(candidates) == 0 {
-					return
-				}
-
 				// show
 				run(func(
 					j AppendJournal,

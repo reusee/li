@@ -145,6 +145,6 @@ Enable = false
 DelaySeconds = 5
 
 [Completion]
-DelayMilliseconds = 100
+DelayMilliseconds = 200
 
 `
