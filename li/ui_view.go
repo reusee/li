@@ -33,6 +33,14 @@ func (view *View) RenderFunc() any {
 
 		moment := view.GetMoment()
 
+		defer func() {
+			trigger(scope.Sub(
+				func() (*Moment, *View) {
+					return moment, view
+				},
+			), EvViewRendered)
+		}()
+
 		// outline
 		displayOffset := 0
 		for i := 0; i < box.Height(); i++ {
@@ -467,12 +475,6 @@ func (view *View) RenderFunc() any {
 			}
 
 		}
-
-		trigger(scope.Sub(
-			func() (*Moment, *View) {
-				return moment, view
-			},
-		), EvViewRendered)
 
 		return frameBuffer
 	}
