@@ -132,6 +132,10 @@ func (_ Provide) KeyLogging() (
 	return
 }
 
+type evKeyEventHandled struct{}
+
+var EvKeyEventHandled = new(evKeyEventHandled)
+
 func HandleKeyEvent(
 	ev KeyEvent,
 	reset ResetStrokeSpecs,
@@ -142,7 +146,12 @@ func HandleKeyEvent(
 	commands Commands,
 	recording MacroRecording,
 	record RecordMacroKey,
+	trigger Trigger,
 ) {
+
+	defer func() {
+		trigger(scope, EvKeyEventHandled)
+	}()
 
 	if recording {
 		record(ev)
