@@ -60,6 +60,12 @@ Layouts = [
   FG = 0xAAFF00
   BG = 0x222222
 
+  [Style.Completion]
+  BG = 0x444444
+
+  [Style.CompletionSelected]
+  BG = 0x336666
+
 [ReadMode]
 
   [ReadMode.SequenceCommand]

@@ -167,6 +167,8 @@ func (_ Provide) CollectWords(
 		for i, r := range patternRunes {
 			patternRunes[i] = unicode.ToLower(r)
 		}
+		beginPos := Position{Line: state.CursorLine, Cell: cell}
+		endPos := Position{Line: state.CursorLine, Cell: endCell}
 
 		allCandidates := make(map[string]CompletionCandidate)
 		var l sync.Mutex
@@ -179,6 +181,8 @@ func (_ Provide) CollectWords(
 				Fn: func(candidates []CompletionCandidate) {
 					l.Lock()
 					for _, candidate := range candidates {
+						candidate.Begin = beginPos
+						candidate.End = endPos
 						if _, ok := allCandidates[candidate.Text]; ok {
 							continue
 						}

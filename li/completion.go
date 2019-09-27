@@ -2,6 +2,7 @@ package li
 
 import (
 	"sort"
+	"sync/atomic"
 	"time"
 )
 
@@ -13,9 +14,13 @@ type CompletionCandidate struct {
 	Text             string
 	Rank             float64
 	MatchRuneOffsets []int
+	Begin            Position
+	End              Position
 }
 
 type AddCompletionCandidate func(CompletionCandidate)
+
+type ContinueCompletion *int64
 
 func (_ Provide) Completion(
 	on On,
@@ -40,7 +45,13 @@ func (_ Provide) Completion(
 		scope Scope,
 		maxWidth Width,
 		maxHeight Height,
+		cont ContinueCompletion,
 	) {
+
+		// continue, dont update
+		if atomic.CompareAndSwapInt64(cont, 1, 0) {
+			return
+		}
 
 		view := curView()
 		if view == nil {
@@ -161,6 +172,13 @@ func (_ Provide) Completion(
 				// truncate
 				candidates = candidates[:height]
 
+				// reverse
+				if !below {
+					for i := 0; i < len(candidates)/2; i++ {
+						candidates[i], candidates[len(candidates)-1-i] = candidates[len(candidates)-1-i], candidates[i]
+					}
+				}
+
 				// update
 				run(func(
 					scope Scope,
@@ -178,6 +196,8 @@ func (_ Provide) Completion(
 							Box:        box,
 							Candidates: candidates,
 							Below:      below,
+							Moment:     moment,
+							View:       view,
 						}
 					}).Call(PushOverlay, &completionOverlayID)
 
@@ -188,13 +208,20 @@ func (_ Provide) Completion(
 
 	})
 
-	return nil
+	var cont int64
+	return func() ContinueCompletion {
+		return &cont
+	}
 }
 
 type CompletionList struct {
 	Box        Box
 	Candidates []CompletionCandidate
 	Below      bool
+	Moment     *Moment
+	View       *View
+
+	index *int
 }
 
 var _ Element = new(CompletionList)
@@ -207,26 +234,31 @@ func (c *CompletionList) RenderFunc() any {
 		cur CurrentView,
 		maxWidth Width,
 		maxHeight Height,
-		style Style,
+		getStyle GetStyle,
 	) Element {
 
-		style = style.Background(HexColor(0x123456))
+		style := getStyle("Completion")
+		selectedStyle := getStyle("CompletionSelected")
 
 		box := c.Box
 		box.Left++
 		var texts []Element
-		for _, candidate := range c.Candidates {
+		for idx, candidate := range c.Candidates {
 			candidate := candidate
+			lineStyle := style
+			if c.index != nil && idx == *c.index {
+				lineStyle = selectedStyle
+			}
 			texts = append(texts, Text(
 				box,
 				candidate.Text,
 				OffsetStyleFunc(func(i int) Style {
 					for _, offset := range candidate.MatchRuneOffsets {
 						if offset == i {
-							return style.Underline(true)
+							return lineStyle.Underline(true)
 						}
 					}
-					return style
+					return lineStyle
 				}),
 			))
 			box.Top++
@@ -244,12 +276,45 @@ func (c *CompletionList) RenderFunc() any {
 }
 
 func (c *CompletionList) StrokeSpecs() any {
-	return func() []StrokeSpec {
+	return func(
+		cont ContinueCompletion,
+	) []StrokeSpec {
 		return []StrokeSpec{
 			{
 				Sequence: []string{"Tab"},
-				Func: func() {
-					//TODO
+
+				Func: func(
+					scope Scope,
+				) {
+					apply := func(index int) {
+						c.index = &index
+						candidate := c.Candidates[index]
+						moment := c.Moment
+						scope.Sub(func() (*View, *Moment, Range, string) {
+							return c.View, c.Moment, Range{
+								candidate.Begin,
+								candidate.End,
+							}, candidate.Text
+						}).Call(ReplaceWithinRange, &moment)
+					}
+					if c.index == nil {
+						index := 0
+						if !c.Below {
+							index = len(c.Candidates) - 1
+						}
+						apply(index)
+					} else if c.Below && *c.index < len(c.Candidates)-1 {
+						index := *c.index + 1
+						apply(index)
+					} else if !c.Below && *c.index >= 1 {
+						index := *c.index - 1
+						apply(index)
+					} else {
+						c.index = nil
+						c.View.switchMoment(scope, c.Moment)
+					}
+
+					atomic.AddInt64(cont, 1)
 				},
 			},
 		}
