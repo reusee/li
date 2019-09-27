@@ -1,5 +1,3 @@
-autocompletion
-language server support
 more editing commands
 multi-head redo selector
 command hints
@@ -8,7 +6,6 @@ moment recycle / compact / merge in Buffer
 context number awared commands
 generate dscope fast path
 view group switching
-wasm plungins
 changing view's group
 key macro
 source outline
