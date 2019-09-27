@@ -121,11 +121,7 @@ func ViewArea(
 							if view == focusing {
 								s = hlStyle
 							}
-							if view.Buffer.LastSyncFileInfo == view.GetMoment().FileInfo {
-								s = s.Underline(false)
-							} else {
-								s = s.Underline(true)
-							}
+							s = s.Underline(false)
 							ret = append(ret, Text(
 								Box{
 									Top:    box.Top + i,
