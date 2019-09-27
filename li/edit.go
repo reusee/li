@@ -168,16 +168,13 @@ func ApplyChange(
 }
 
 func InsertAtPositionFunc(
+	view *View,
+	moment *Moment,
 	fn PositionFunc,
 	str string,
-	getCur CurrentView,
 	scope Scope,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) {
 
-	view := getCur()
 	if view == nil {
 		return
 	}
@@ -208,14 +205,11 @@ func InsertAtPositionFunc(
 }
 
 func DeleteWithinRange(
+	view *View,
+	moment *Moment,
 	r Range,
-	cur CurrentView,
 	scope Scope,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) {
-	view := cur()
 	if view == nil {
 		return
 	}
@@ -236,14 +230,11 @@ func DeleteWithinRange(
 }
 
 func DeleteWithinPositionFuncs(
+	view *View,
+	moment *Moment,
 	fns [2]PositionFunc,
 	scope Scope,
-	cur CurrentView,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) {
-	view := cur()
 	if view == nil {
 		return
 	}
@@ -251,8 +242,8 @@ func DeleteWithinPositionFuncs(
 	scope.Call(fns[0], &begin)
 	var end Position
 	scope.Call(fns[1], &end)
-	scope.Sub(func() Range {
-		return Range{
+	scope.Sub(func() (*View, *Moment, Range) {
+		return view, moment, Range{
 			Begin: begin,
 			End:   end,
 		}
@@ -309,42 +300,45 @@ func ReplaceWithinRange(
 func DeletePrevRune(
 	scope Scope,
 ) {
-	scope.Sub(func() [2]PositionFunc {
-		return [2]PositionFunc{
-			PosPrevRune,
-			PosCursor,
-		}
-	}).Call(DeleteWithinPositionFuncs)
+	scope.Sub(
+		WithCurrentViewMoment,
+		func() [2]PositionFunc {
+			return [2]PositionFunc{
+				PosPrevRune,
+				PosCursor,
+			}
+		},
+	).Call(DeleteWithinPositionFuncs)
 }
 
 func DeleteRune(
 	scope Scope,
 ) {
-	scope.Sub(func() [2]PositionFunc {
-		return [2]PositionFunc{
-			PosCursor,
-			PosNextRune,
-		}
-	}).Call(DeleteWithinPositionFuncs)
+	scope.Sub(
+		WithCurrentViewMoment,
+		func() [2]PositionFunc {
+			return [2]PositionFunc{
+				PosCursor,
+				PosNextRune,
+			}
+		},
+	).Call(DeleteWithinPositionFuncs)
 }
 
 func _Delete(
-	cur CurrentView,
+	view *View,
+	moment *Moment,
 	scope Scope,
 	afterFunc AfterFunc,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) {
-	view := cur()
 	if view == nil {
 		return
 	}
 
 	// delete selected
 	if r := view.selectedRange(scope); r != nil {
-		scope.Sub(func() Range {
-			return *r
+		scope.Sub(func() (*View, *Moment, Range) {
+			return view, moment, *r
 		}).Call(DeleteWithinRange)
 		view.SelectionAnchor = nil
 	}
@@ -358,25 +352,26 @@ func _Delete(
 func Delete(
 	scope Scope,
 ) {
-	scope.Sub(func() AfterFunc {
-		return func() {}
-	}).Call(_Delete)
+	scope.Sub(
+		WithCurrentViewMoment,
+		func() AfterFunc {
+			return func() {}
+		},
+	).Call(_Delete)
 }
 
 func ChangeText(
+	view *View,
+	moment *Moment,
 	scope Scope,
-	cur CurrentView,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) (
 	abort Abort,
 ) {
 
-	if view := cur(); view != nil && view.selectedRange(scope) != nil {
+	if view != nil && view.selectedRange(scope) != nil {
 		// if selected
-		scope.Sub(func() AfterFunc {
-			return func(scope Scope) {
+		scope.Sub(func() (*View, *Moment, AfterFunc) {
+			return view, moment, func(scope Scope) {
 				scope.Call(EnableEditMode)
 			}
 		}).Call(_Delete)
@@ -389,17 +384,15 @@ func ChangeText(
 }
 
 func ChangeToWordEnd(
+	view *View,
+	moment *Moment,
 	scope Scope,
-	cur CurrentView,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) {
-	if cur() == nil {
+	if view == nil {
 		return
 	}
-	scope.Sub(func() [2]PositionFunc {
-		return [2]PositionFunc{
+	scope.Sub(func() (*View, *Moment, [2]PositionFunc) {
+		return view, moment, [2]PositionFunc{
 			PosCursor,
 			PosWordEnd,
 		}

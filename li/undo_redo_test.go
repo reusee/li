@@ -64,9 +64,12 @@ func TestUndoRedo4(t *testing.T) {
 		eq(t,
 			view.GetMoment().GetLine(scope, 0).content, "Hello, world!\n",
 		)
-		scope.Sub(func() (PositionFunc, string) {
-			return PosCursor, "foo"
-		}).Call(InsertAtPositionFunc)
+		scope.Sub(
+			WithCurrentViewMoment,
+			func() (PositionFunc, string) {
+				return PosCursor, "foo"
+			},
+		).Call(InsertAtPositionFunc)
 		eq(t,
 			view.GetMoment().GetLine(scope, 0).content, "fooHello, world!\n",
 		)
@@ -97,7 +100,12 @@ func TestTimedUndo(t *testing.T) {
 			if time.Since(t0) > time.Millisecond*50 {
 				break
 			}
-			scope.Sub(func() (string, PositionFunc) { return "foo", PosCursor }).Call(InsertAtPositionFunc)
+			scope.Sub(
+				WithCurrentViewMoment,
+				func() (string, PositionFunc) {
+					return "foo", PosCursor
+				},
+			).Call(InsertAtPositionFunc)
 		}
 
 		scope.Call(UndoDuration1)

@@ -321,9 +321,12 @@ func TestNoViewEditCommands(t *testing.T) {
 	withEditor(func(
 		scope Scope,
 	) {
-		scope.Sub(func() (PositionFunc, string) {
-			return PosCursor, "foo"
-		}).Call(InsertAtPositionFunc)
+		scope.Sub(
+			WithCurrentViewMoment,
+			func() (PositionFunc, string) {
+				return PosCursor, "foo"
+			},
+		).Call(InsertAtPositionFunc)
 		scope.Call(DeletePrevRune)
 	})
 }
@@ -334,9 +337,12 @@ func TestInsertToEmptyBuffer(t *testing.T) {
 		view *View,
 		moment *Moment,
 	) {
-		scope.Sub(func() (PositionFunc, string) {
-			return PosCursor, "a"
-		}).Call(InsertAtPositionFunc)
+		scope.Sub(
+			WithCurrentViewMoment,
+			func() (PositionFunc, string) {
+				return PosCursor, "a"
+			},
+		).Call(InsertAtPositionFunc)
 		eq(t,
 			view.CursorCol, 1,
 		)
@@ -516,7 +522,7 @@ func TestChangeText(t *testing.T) {
 		scope.Sub(func() Move {
 			return Move{RelRune: 2}
 		}).Call(MoveCursor)
-		scope.Call(ChangeText)
+		scope.Sub(WithCurrentViewMoment).Call(ChangeText)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 			view.GetMoment().GetLine(scope, 0).content, "ちは、世界！\n",
@@ -569,27 +575,27 @@ func TestChangeToWordEnd(t *testing.T) {
 		scope Scope,
 		view *View,
 	) {
-		scope.Call(ChangeToWordEnd)
+		scope.Sub(WithCurrentViewMoment).Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 0).content, ", world!\n",
 		)
-		scope.Call(ChangeToWordEnd)
+		scope.Sub(WithCurrentViewMoment).Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 0).content, " world!\n",
 		)
-		scope.Call(ChangeToWordEnd)
+		scope.Sub(WithCurrentViewMoment).Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 0).content, "world!\n",
 		)
-		scope.Call(ChangeToWordEnd)
+		scope.Sub(WithCurrentViewMoment).Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 0).content, "!\n",
 		)
-		scope.Call(ChangeToWordEnd)
+		scope.Sub(WithCurrentViewMoment).Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 0).content, "\n",
 		)
-		scope.Call(ChangeToWordEnd)
+		scope.Sub(WithCurrentViewMoment).Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 0).content, "\n",
 		)
@@ -597,14 +603,14 @@ func TestChangeToWordEnd(t *testing.T) {
 		scope.Sub(func() Move {
 			return Move{RelLine: 1}
 		}).Call(MoveCursor)
-		scope.Call(ChangeToWordEnd)
+		scope.Sub(WithCurrentViewMoment).Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 1).content, "，世界！\n",
 		)
 		scope.Sub(func() Move {
 			return Move{RelRune: 2}
 		}).Call(MoveCursor)
-		scope.Call(ChangeToWordEnd)
+		scope.Sub(WithCurrentViewMoment).Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 1).content, "，世！\n",
 		)

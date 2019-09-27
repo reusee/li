@@ -82,7 +82,7 @@ func TestDerivedMomentLanguage(t *testing.T) {
 		eq(t,
 			parser != nil, true,
 		)
-		scope.Call(ChangeToWordEnd)
+		scope.Sub(WithCurrentViewMoment).Call(ChangeToWordEnd)
 		parser = view.GetMoment().GetParser(scope)
 		eq(t,
 			parser != nil, true,

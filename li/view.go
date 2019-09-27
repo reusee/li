@@ -209,3 +209,10 @@ func (_ Provide) OnMomentSwitchedDebugHint(
 
 	return nil
 }
+
+func WithCurrentViewMoment(
+	v CurrentView,
+	m CurrentMoment,
+) (*View, *Moment) {
+	return v(), m()
+}
