@@ -10,7 +10,9 @@ type evCollectCompletionCandidate struct{}
 var EvCollectCompletionCandidate = new(evCollectCompletionCandidate)
 
 type CompletionCandidate struct {
-	Text string
+	Text             string
+	Rank             float64
+	MatchRuneOffsets []int
 }
 
 type AddCompletionCandidate func(CompletionCandidate)
@@ -105,9 +107,17 @@ func (_ Provide) Completion(
 					return
 				}
 
-				// sort TODO
+				// sort
 				sort.SliceStable(candidates, func(i, j int) bool {
-					return candidates[i].Text < candidates[j].Text
+					c1 := candidates[i]
+					c2 := candidates[j]
+					if c1.MatchRuneOffsets[0] != c2.MatchRuneOffsets[0] {
+						return c1.MatchRuneOffsets[0] < c2.MatchRuneOffsets[0]
+					}
+					if c1.Rank != c2.Rank {
+						return c1.Rank > c2.Rank
+					}
+					return c1.Text < c2.Text
 				})
 
 				// position
@@ -200,13 +210,24 @@ func (c *CompletionList) RenderFunc() any {
 		style Style,
 	) Element {
 
+		style = style.Background(HexColor(0x123456))
+
 		box := c.Box
 		box.Left++
 		var texts []Element
 		for _, candidate := range c.Candidates {
+			candidate := candidate
 			texts = append(texts, Text(
 				box,
 				candidate.Text,
+				OffsetStyleFunc(func(i int) Style {
+					for _, offset := range candidate.MatchRuneOffsets {
+						if offset == i {
+							return style.Underline(true)
+						}
+					}
+					return style
+				}),
 			))
 			box.Top++
 		}
@@ -215,7 +236,7 @@ func (c *CompletionList) RenderFunc() any {
 			c.Box,
 			Fill(true),
 			Padding(0, 1, 0, 1),
-			style.Background(HexColor(0x123456)),
+			style,
 			texts,
 		)
 

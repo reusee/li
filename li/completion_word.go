@@ -22,7 +22,7 @@ func (_ Provide) CollectWords(
 	type Req struct {
 		Scope   Scope
 		Pattern []rune
-		Fn      func([]Word)
+		Fn      func([]CompletionCandidate)
 	}
 
 	type CollectJob struct {
@@ -74,7 +74,7 @@ func (_ Provide) CollectWords(
 					}
 
 				case req := <-reqs[i]:
-					var words []Word
+					var candidates []CompletionCandidate
 					req.Scope.Call(func(
 						views Views,
 					) {
@@ -88,8 +88,10 @@ func (_ Provide) CollectWords(
 								for _, word := range set {
 									pi := 0
 									wi := 0
+									var offsets []int
 									for pi < len(req.Pattern) && wi < len(word.LowerRunes) {
 										if req.Pattern[pi] == word.LowerRunes[wi] {
+											offsets = append(offsets, wi)
 											pi++
 											wi++
 										} else {
@@ -99,12 +101,16 @@ func (_ Provide) CollectWords(
 									if pi < len(req.Pattern) {
 										continue
 									}
-									words = append(words, word)
+									candidates = append(candidates, CompletionCandidate{
+										Text:             word.Text,
+										Rank:             float64(wi) / float64(pi),
+										MatchRuneOffsets: offsets,
+									})
 								}
 							}
 						}
 					})
-					req.Fn(words)
+					req.Fn(candidates)
 
 				}
 			}
@@ -162,7 +168,7 @@ func (_ Provide) CollectWords(
 			patternRunes[i] = unicode.ToLower(r)
 		}
 
-		candidateWords := make(map[string]Word)
+		allCandidates := make(map[string]CompletionCandidate)
 		var l sync.Mutex
 		wg := new(sync.WaitGroup)
 		wg.Add(shard)
@@ -170,16 +176,16 @@ func (_ Provide) CollectWords(
 			reqs[i] <- Req{
 				Scope:   scope,
 				Pattern: patternRunes,
-				Fn: func(words []Word) {
+				Fn: func(candidates []CompletionCandidate) {
 					l.Lock()
-					for _, word := range words {
-						if _, ok := candidateWords[word.Text]; ok {
+					for _, candidate := range candidates {
+						if _, ok := allCandidates[candidate.Text]; ok {
 							continue
 						}
-						if word.Text == pattern {
+						if candidate.Text == pattern {
 							continue
 						}
-						candidateWords[word.Text] = word
+						allCandidates[candidate.Text] = candidate
 					}
 					l.Unlock()
 					wg.Done()
@@ -188,10 +194,8 @@ func (_ Provide) CollectWords(
 		}
 		wg.Wait()
 
-		for _, word := range candidateWords {
-			add(CompletionCandidate{
-				Text: word.Text,
-			})
+		for _, candidate := range allCandidates {
+			add(candidate)
 		}
 
 	})
