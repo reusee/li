@@ -6,7 +6,7 @@ Work in progress
 
 # screenshot
 
-![Screenshot](misc/screenshot-2019-09-21.png?raw=true "Screenshot")
+![Screenshot](misc/screenshot-2019-09-27.png?raw=true "Screenshot")
 
 # install
 
