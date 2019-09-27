@@ -172,6 +172,9 @@ func InsertAtPositionFunc(
 	str string,
 	getCur CurrentView,
 	scope Scope,
+	//TODO
+	//view *View,
+	//moment *Moment,
 ) {
 
 	view := getCur()
@@ -208,6 +211,9 @@ func DeleteWithinRange(
 	r Range,
 	cur CurrentView,
 	scope Scope,
+	//TODO
+	//view *View,
+	//moment *Moment,
 ) {
 	view := cur()
 	if view == nil {
@@ -233,6 +239,9 @@ func DeleteWithinPositionFuncs(
 	fns [2]PositionFunc,
 	scope Scope,
 	cur CurrentView,
+	//TODO
+	//view *View,
+	//moment *Moment,
 ) {
 	view := cur()
 	if view == nil {
@@ -248,6 +257,53 @@ func DeleteWithinPositionFuncs(
 			End:   end,
 		}
 	}).Call(DeleteWithinRange)
+}
+
+func ReplaceWithinRange(
+	view *View,
+	moment *Moment,
+	r Range,
+	text string,
+	scope Scope,
+) (
+	newMoment *Moment,
+) {
+
+	if r.Begin != r.End {
+		// delete
+		change := Change{
+			Op:    OpDelete,
+			Begin: r.Begin,
+			End:   r.End,
+		}
+		scope.Sub(func() (*Moment, Change) {
+			return moment, change
+		}).Call(ApplyChange, &moment)
+	}
+
+	// insert
+	change := Change{
+		Op:     OpInsert,
+		Begin:  r.Begin,
+		String: text,
+	}
+	var nRunesInserted int
+	scope.Sub(func() (*Moment, Change) {
+		return moment, change
+	}).Call(ApplyChange, &moment, &nRunesInserted)
+
+	view.switchMoment(scope, moment)
+
+	scope.Sub(func() Move {
+		col := moment.GetLine(scope, r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
+		return Move{AbsLine: intP(r.Begin.Line), AbsCol: &col}
+	}).Call(MoveCursor)
+	scope.Sub(func() Move {
+		return Move{RelRune: nRunesInserted}
+	}).Call(MoveCursor)
+
+	newMoment = moment
+	return
 }
 
 func DeletePrevRune(
@@ -276,6 +332,9 @@ func _Delete(
 	cur CurrentView,
 	scope Scope,
 	afterFunc AfterFunc,
+	//TODO
+	//view *View,
+	//moment *Moment,
 ) {
 	view := cur()
 	if view == nil {
@@ -307,6 +366,9 @@ func Delete(
 func ChangeText(
 	scope Scope,
 	cur CurrentView,
+	//TODO
+	//view *View,
+	//moment *Moment,
 ) (
 	abort Abort,
 ) {
@@ -329,6 +391,9 @@ func ChangeText(
 func ChangeToWordEnd(
 	scope Scope,
 	cur CurrentView,
+	//TODO
+	//view *View,
+	//moment *Moment,
 ) {
 	if cur() == nil {
 		return

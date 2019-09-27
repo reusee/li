@@ -610,3 +610,46 @@ func TestChangeToWordEnd(t *testing.T) {
 		)
 	})
 }
+
+func TestReplace(t *testing.T) {
+	withEditorBytes(t, []byte("a\nb"), func(
+		scope Scope,
+		view *View,
+		moment *Moment,
+	) {
+
+		scope.Sub(func() (*View, *Moment, Range, string) {
+			return view, moment, Range{
+				Position{0, 0},
+				Position{0, 0},
+			}, "foo"
+		}).Call(ReplaceWithinRange, &moment)
+		eq(t,
+			moment.NumLines(), 2,
+			moment.GetLine(scope, 0).content, "fooa\n",
+		)
+
+		scope.Sub(func() (*View, *Moment, Range, string) {
+			return view, moment, Range{
+				Position{0, 0},
+				Position{0, 1},
+			}, "foo"
+		}).Call(ReplaceWithinRange, &moment)
+		eq(t,
+			moment.NumLines(), 2,
+			moment.GetLine(scope, 0).content, "fooooa\n",
+		)
+
+		scope.Sub(func() (*View, *Moment, Range, string) {
+			return view, moment, Range{
+				Position{0, 0},
+				Position{1, 0},
+			}, "foo"
+		}).Call(ReplaceWithinRange, &moment)
+		eq(t,
+			moment.NumLines(), 1,
+			moment.GetLine(scope, 0).content, "foob\n",
+		)
+
+	})
+}
