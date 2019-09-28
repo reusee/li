@@ -159,3 +159,13 @@ func (_ Command) DeleteLine() (spec CommandSpec) {
 	spec.Func = DeleteLine
 	return
 }
+
+func (_ Command) AppendAtLineEnd() (spec CommandSpec) {
+	spec.Desc = "append at line end"
+	spec.Func = func(scope Scope) {
+		scope.Call(LineEnd)
+		scope.Call(EnableEditMode)
+	}
+	return
+}
+

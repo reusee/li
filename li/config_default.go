@@ -89,6 +89,7 @@ Layouts = [
   'Rune[]]' = 'NextDedentLine'
 
   'Rune[a]' = 'Append'
+  'Rune[A]' = 'AppendAtLineEnd'
   'Rune[d]' = 'Delete'
   'Rune[d] Rune[d]' = 'DeleteLine'
   'Rune[F]' = 'PrevRune'
