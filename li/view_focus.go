@@ -40,12 +40,16 @@ func (_ Provide) CurrentView(
 	return
 }
 
-func AsCurrentView(view *View) CurrentView {
-	return func(vs ...*View) *View {
-		if len(vs) > 0 {
-			panic("not updatable")
+func AsCurrentView(view *View) (
+	_ func() CurrentView,
+) {
+	return func() CurrentView {
+		return func(vs ...*View) *View {
+			if len(vs) > 0 {
+				panic("not updatable")
+			}
+			return view
 		}
-		return view
 	}
 }
 
@@ -61,9 +65,13 @@ func (_ Provide) CurrentMoment(
 	}
 }
 
-func AsCurrentMoment(moment *Moment) CurrentMoment {
-	return func() *Moment {
-		return moment
+func AsCurrentMoment(moment *Moment) (
+	_ func() CurrentMoment,
+) {
+	return func() CurrentMoment {
+		return func() *Moment {
+			return moment
+		}
 	}
 }
 
