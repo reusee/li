@@ -7,6 +7,9 @@ func (_ Command) InsertNewline() (spec CommandSpec) {
 		cur CurrentView,
 	) {
 		view := cur()
+		if view == nil {
+			return
+		}
 		indent := getAdjacentIndent(scope, view, view.CursorLine, view.CursorLine+1)
 		scope.Sub(func() (PositionFunc, string) {
 			return PosCursor, "\n" + indent
@@ -67,6 +70,9 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 		cur CurrentView,
 	) {
 		view := cur()
+		if view == nil {
+			return
+		}
 		indent := getAdjacentIndent(scope, view, view.CursorLine, view.CursorLine+1)
 		scope.Sub(func() (PositionFunc, string, *View) {
 			return PosLineEnd, "\n" + indent, view
@@ -84,6 +90,9 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		cur CurrentView,
 	) {
 		view := cur()
+		if view == nil {
+			return
+		}
 		indent := getAdjacentIndent(scope, view, view.CursorLine-1, view.CursorLine)
 		scope.Sub(func() (PositionFunc, string, *View) {
 			return PosLineBegin, indent + "\n", view
@@ -93,6 +102,24 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		scope.Call(EnableEditMode)
 	}
 	return
+}
+
+func getIndent(scope Scope, view *View, lineNum int) string {
+	line := view.GetMoment().GetLine(scope, lineNum)
+	if line == nil {
+		return ""
+	}
+	if line.NonSpaceDisplayOffset == nil {
+		return ""
+	}
+	var runes []rune
+	for _, cell := range line.Cells {
+		if cell.DisplayOffset >= *line.NonSpaceDisplayOffset {
+			break
+		}
+		runes = append(runes, cell.Rune)
+	}
+	return string(runes)
 }
 
 func getAdjacentIndent(scope Scope, view *View, upwardLine int, downwardLine int) string {
@@ -169,3 +196,27 @@ func (_ Command) AppendAtLineEnd() (spec CommandSpec) {
 	return
 }
 
+func (_ Command) ChangeLine() (spec CommandSpec) {
+	spec.Desc = "change current line"
+	spec.Func = func(
+		scope Scope,
+		v CurrentView,
+	) {
+		view := v()
+		if view == nil {
+			return
+		}
+		indent := getIndent(scope, view, view.CursorLine)
+		var begin, end Position
+		scope.Call(PosLineBegin, &begin)
+		scope.Call(PosLineEnd, &end)
+		scope.Sub(func() (Range, string) {
+			return Range{begin, end}, ""
+		}).Call(ReplaceWithinRange)
+		scope.Sub(func() (PositionFunc, string) {
+			return PosCursor, indent
+		}).Call(InsertAtPositionFunc)
+		scope.Call(EnableEditMode)
+	}
+	return
+}

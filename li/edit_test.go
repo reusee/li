@@ -618,8 +618,8 @@ func TestReplace(t *testing.T) {
 		moment *Moment,
 	) {
 
-		scope.Sub(func() (*View, *Moment, Range, string) {
-			return view, moment, Range{
+		scope.Sub(func() (Range, string) {
+			return Range{
 				Position{0, 0},
 				Position{0, 0},
 			}, "foo"
@@ -629,8 +629,8 @@ func TestReplace(t *testing.T) {
 			moment.GetLine(scope, 0).content, "fooa\n",
 		)
 
-		scope.Sub(func() (*View, *Moment, Range, string) {
-			return view, moment, Range{
+		scope.Sub(func() (Range, string) {
+			return Range{
 				Position{0, 0},
 				Position{0, 1},
 			}, "foo"
@@ -640,8 +640,8 @@ func TestReplace(t *testing.T) {
 			moment.GetLine(scope, 0).content, "fooooa\n",
 		)
 
-		scope.Sub(func() (*View, *Moment, Range, string) {
-			return view, moment, Range{
+		scope.Sub(func() (Range, string) {
+			return Range{
 				Position{0, 0},
 				Position{1, 0},
 			}, "foo"

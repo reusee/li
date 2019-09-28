@@ -3,7 +3,8 @@ package li
 import "path/filepath"
 
 type (
-	CurrentView func(...*View) *View
+	CurrentView   func(...*View) *View
+	CurrentMoment func() *Moment
 )
 
 type evCurrentViewChanged struct{}
@@ -37,6 +38,33 @@ func (_ Provide) CurrentView(
 		return
 	}
 	return
+}
+
+func AsCurrentView(view *View) CurrentView {
+	return func(vs ...*View) *View {
+		if len(vs) > 0 {
+			panic("not updatable")
+		}
+		return view
+	}
+}
+
+func (_ Provide) CurrentMoment(
+	v CurrentView,
+) CurrentMoment {
+	return func() *Moment {
+		view := v()
+		if view == nil {
+			return nil
+		}
+		return view.GetMoment()
+	}
+}
+
+func AsCurrentMoment(moment *Moment) CurrentMoment {
+	return func() *Moment {
+		return moment
+	}
 }
 
 func FocusNextViewInGroup(

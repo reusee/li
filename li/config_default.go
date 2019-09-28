@@ -109,6 +109,7 @@ Layouts = [
   'Rune[x]' = 'DeleteRune' 
   'Rune[c]' = 'Change' 
   'Rune[c] Rune[w]' = 'ChangeToWordEnd' 
+  'Rune[c] Rune[c]' = 'ChangeLine'
   'Rune[v]' = 'ToggleSelection' 
   'Rune[b]' = 'ShowViewSwitcher' 
   'Rune[M]' = 'PageDown'

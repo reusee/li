@@ -170,11 +170,12 @@ func ApplyChange(
 func InsertAtPositionFunc(
 	fn PositionFunc,
 	str string,
-	getCur CurrentView,
+	v CurrentView,
+	m CurrentMoment,
 	scope Scope,
 ) {
 
-	view := getCur()
+	view := v()
 	if view == nil {
 		return
 	}
@@ -189,7 +190,7 @@ func InsertAtPositionFunc(
 	var newMoment *Moment
 	var nRunesInserted int
 	scope.Sub(func() (*Moment, Change) {
-		return view.GetMoment(), change
+		return m(), change
 	}).Call(ApplyChange, &newMoment, &nRunesInserted)
 
 	view.switchMoment(scope, newMoment)
@@ -206,10 +207,11 @@ func InsertAtPositionFunc(
 
 func DeleteWithinRange(
 	r Range,
-	cur CurrentView,
+	v CurrentView,
+	m CurrentMoment,
 	scope Scope,
 ) {
-	view := cur()
+	view := v()
 	if view == nil {
 		return
 	}
@@ -220,7 +222,7 @@ func DeleteWithinRange(
 	}
 	var newMoment *Moment
 	scope.Sub(func() (*Moment, Change) {
-		return view.GetMoment(), change
+		return m(), change
 	}).Call(ApplyChange, &newMoment)
 	view.switchMoment(scope, newMoment)
 	scope.Sub(func() Move {
@@ -251,14 +253,19 @@ func DeleteWithinPositionFuncs(
 }
 
 func ReplaceWithinRange(
-	view *View,
-	moment *Moment,
+	v CurrentView,
+	m CurrentMoment,
 	r Range,
 	text string,
 	scope Scope,
 ) (
 	newMoment *Moment,
 ) {
+	view := v()
+	if view == nil {
+		return
+	}
+	moment := m()
 
 	if r.Begin != r.End {
 		// delete
@@ -401,14 +408,15 @@ func ChangeToWordEnd(
 }
 
 func DeleteLine(
-	cur CurrentView,
+	v CurrentView,
+	m CurrentMoment,
 	scope Scope,
 ) {
-	view := cur()
+	view := v()
 	if view == nil {
 		return
 	}
-	if view.CursorLine == view.GetMoment().NumLines()-1 {
+	if view.CursorLine == m().NumLines()-1 {
 		scope.Sub(func() [2]PositionFunc {
 			return [2]PositionFunc{
 				PosPrevLineEnd,
