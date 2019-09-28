@@ -153,3 +153,9 @@ func (_ Command) ChangeToWordEnd() (spec CommandSpec) {
 	spec.Func = ChangeToWordEnd
 	return
 }
+
+func (_ Command) DeleteLine() (spec CommandSpec) {
+	spec.Desc = "delete current line"
+	spec.Func = DeleteLine
+	return
+}

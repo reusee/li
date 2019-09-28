@@ -90,6 +90,7 @@ Layouts = [
 
   'Rune[a]' = 'Append'
   'Rune[d]' = 'Delete'
+  'Rune[d] Rune[d]' = 'DeleteLine'
   'Rune[F]' = 'PrevRune'
   'Rune[f]' = 'NextRune'
   'Rune[G]' = 'ScrollAbsOrEnd'
@@ -140,7 +141,7 @@ DisableSequence = "kd"
   'Ctrl+O' = 'ShowCommandPalette'
 
 [Undo]
-DurationMS1 = 3000
+DurationMS1 = 1000
 
 [Debug]
 Verbose = false

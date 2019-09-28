@@ -24,6 +24,20 @@ func PosLineBegin(
 	}
 }
 
+func PosNextLineBegin(
+	cur CurrentView,
+) Position {
+	v := cur()
+	line := v.CursorLine
+	if line < v.GetMoment().NumLines()-1 {
+		line++
+	}
+	return Position{
+		Line: line,
+		Cell: 0,
+	}
+}
+
 func PosLineEnd(
 	cur CurrentView,
 	scope Scope,
@@ -145,5 +159,22 @@ func PosWordBegin(
 		}
 		pos.Cell--
 	}
+	return
+}
+
+func PosPrevLineEnd(
+	cur CurrentView,
+	scope Scope,
+) (
+	pos Position,
+) {
+	v := cur()
+	pos = v.cursorPosition(scope)
+	if pos.Line == 0 {
+		pos.Cell = 0
+		return
+	}
+	pos.Line--
+	pos.Cell = len(v.GetMoment().GetLine(scope, pos.Line).Cells) - 1
 	return
 }

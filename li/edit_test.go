@@ -653,3 +653,27 @@ func TestReplace(t *testing.T) {
 
 	})
 }
+
+func TestDeleteLine(t *testing.T) {
+	withHelloEditor(t, func(
+		scope Scope,
+		view *View,
+	) {
+		scope.Call(DeleteLine)
+		eq(t,
+			view.GetMoment().NumLines(), 2,
+		)
+		scope.Call(DeleteLine)
+		eq(t,
+			view.GetMoment().NumLines(), 1,
+		)
+		scope.Call(DeleteLine)
+		eq(t,
+			view.GetMoment().NumLines(), 1,
+		)
+		scope.Call(DeleteLine)
+		eq(t,
+			view.GetMoment().NumLines(), 1,
+		)
+	})
+}

@@ -172,9 +172,6 @@ func InsertAtPositionFunc(
 	str string,
 	getCur CurrentView,
 	scope Scope,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) {
 
 	view := getCur()
@@ -211,9 +208,6 @@ func DeleteWithinRange(
 	r Range,
 	cur CurrentView,
 	scope Scope,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) {
 	view := cur()
 	if view == nil {
@@ -239,9 +233,6 @@ func DeleteWithinPositionFuncs(
 	fns [2]PositionFunc,
 	scope Scope,
 	cur CurrentView,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) {
 	view := cur()
 	if view == nil {
@@ -332,9 +323,6 @@ func _Delete(
 	cur CurrentView,
 	scope Scope,
 	afterFunc AfterFunc,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) {
 	view := cur()
 	if view == nil {
@@ -356,19 +344,27 @@ func _Delete(
 }
 
 func Delete(
+	cur CurrentView,
 	scope Scope,
+) (
+	abort Abort,
 ) {
-	scope.Sub(func() AfterFunc {
-		return func() {}
-	}).Call(_Delete)
+	view := cur()
+	if view != nil && view.selectedRange(scope) != nil {
+		scope.Sub(
+			func() AfterFunc {
+				return func() {}
+			},
+		).Call(_Delete)
+	} else {
+		abort = true
+	}
+	return
 }
 
 func ChangeText(
 	scope Scope,
 	cur CurrentView,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) (
 	abort Abort,
 ) {
@@ -391,9 +387,6 @@ func ChangeText(
 func ChangeToWordEnd(
 	scope Scope,
 	cur CurrentView,
-	//TODO
-	//view *View,
-	//moment *Moment,
 ) {
 	if cur() == nil {
 		return
@@ -405,4 +398,30 @@ func ChangeToWordEnd(
 		}
 	}).Call(DeleteWithinPositionFuncs)
 	scope.Call(EnableEditMode)
+}
+
+func DeleteLine(
+	cur CurrentView,
+	scope Scope,
+) {
+	view := cur()
+	if view == nil {
+		return
+	}
+	if view.CursorLine == view.GetMoment().NumLines()-1 {
+		scope.Sub(func() [2]PositionFunc {
+			return [2]PositionFunc{
+				PosPrevLineEnd,
+				PosLineEnd,
+			}
+		}).Call(DeleteWithinPositionFuncs)
+		scope.Call(LineBegin)
+	} else {
+		scope.Sub(func() [2]PositionFunc {
+			return [2]PositionFunc{
+				PosLineBegin,
+				PosNextLineBegin,
+			}
+		}).Call(DeleteWithinPositionFuncs)
+	}
 }
