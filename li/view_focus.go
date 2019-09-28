@@ -3,8 +3,7 @@ package li
 import "path/filepath"
 
 type (
-	CurrentView   func(...*View) *View
-	CurrentMoment func() *Moment
+	CurrentView func(...*View) *View
 )
 
 type evCurrentViewChanged struct{}
@@ -18,14 +17,11 @@ func (_ Provide) CurrentView(
 	scope Scope,
 	trigger Trigger,
 ) (
-	cur CurrentView,
-	m CurrentMoment,
+	fn CurrentView,
 ) {
-
 	type Flag struct{}
 	var flag Flag
-
-	cur = func(views ...*View) (ret *View) {
+	fn = func(views ...*View) (ret *View) {
 		for _, view := range views {
 			link(flag, view)
 			path, err := filepath.Abs(view.Buffer.Path)
@@ -40,15 +36,6 @@ func (_ Provide) CurrentView(
 		}
 		return
 	}
-
-	m = func() *Moment {
-		view := cur()
-		if view == nil {
-			return nil
-		}
-		return view.GetMoment()
-	}
-
 	return
 }
 

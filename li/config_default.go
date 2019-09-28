@@ -5,8 +5,8 @@ package li
 const DefaultConfig = `
 
 [Scroll]
-PaddingTop = 10
-PaddingBottom = 10
+PaddingTop = 20
+PaddingBottom = 20
 
 [Mouse]
 ScrollLines = 5

@@ -8,12 +8,9 @@ func (_ Command) InsertNewline() (spec CommandSpec) {
 	) {
 		view := cur()
 		indent := getAdjacentIndent(scope, view, view.CursorLine, view.CursorLine+1)
-		scope.Sub(
-			WithCurrentViewMoment,
-			func() (PositionFunc, string) {
-				return PosCursor, "\n" + indent
-			},
-		).Call(InsertAtPositionFunc)
+		scope.Sub(func() (PositionFunc, string) {
+			return PosCursor, "\n" + indent
+		}).Call(InsertAtPositionFunc)
 	}
 	return
 }
@@ -23,12 +20,9 @@ func (_ Command) InsertTab() (spec CommandSpec) {
 	spec.Func = func(
 		scope Scope,
 	) {
-		scope.Sub(
-			WithCurrentViewMoment,
-			func() (PositionFunc, string) {
-				return PosCursor, "\t"
-			},
-		).Call(InsertAtPositionFunc)
+		scope.Sub(func() (PositionFunc, string) {
+			return PosCursor, "\t"
+		}).Call(InsertAtPositionFunc)
 	}
 	return
 }
@@ -62,9 +56,7 @@ func (_ Command) Delete() (spec CommandSpec) {
 
 func (_ Command) Change() (spec CommandSpec) {
 	spec.Desc = "change selected or text object"
-	spec.Func = func(scope Scope) {
-		scope.Sub(WithCurrentViewMoment).Call(ChangeText)
-	}
+	spec.Func = ChangeText
 	return
 }
 
@@ -76,12 +68,9 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 	) {
 		view := cur()
 		indent := getAdjacentIndent(scope, view, view.CursorLine, view.CursorLine+1)
-		scope.Sub(
-			WithCurrentViewMoment,
-			func() (PositionFunc, string, *View) {
-				return PosLineEnd, "\n" + indent, view
-			},
-		).Call(InsertAtPositionFunc)
+		scope.Sub(func() (PositionFunc, string, *View) {
+			return PosLineEnd, "\n" + indent, view
+		}).Call(InsertAtPositionFunc)
 		scope.Call(LineEnd)
 		scope.Call(EnableEditMode)
 	}
@@ -96,12 +85,9 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 	) {
 		view := cur()
 		indent := getAdjacentIndent(scope, view, view.CursorLine-1, view.CursorLine)
-		scope.Sub(
-			WithCurrentViewMoment,
-			func() (PositionFunc, string, *View) {
-				return PosLineBegin, indent + "\n", view
-			},
-		).Call(InsertAtPositionFunc)
+		scope.Sub(func() (PositionFunc, string, *View) {
+			return PosLineBegin, indent + "\n", view
+		}).Call(InsertAtPositionFunc)
 		scope.Sub(func() Move { return Move{RelLine: -1} }).Call(MoveCursor)
 		scope.Call(LineEnd)
 		scope.Call(EnableEditMode)
@@ -164,8 +150,6 @@ func getAdjacentIndent(scope Scope, view *View, upwardLine int, downwardLine int
 
 func (_ Command) ChangeToWordEnd() (spec CommandSpec) {
 	spec.Desc = "change text from current cursor position to end of word"
-	spec.Func = func(scope Scope) {
-		scope.Sub(WithCurrentViewMoment).Call(ChangeToWordEnd)
-	}
+	spec.Func = ChangeToWordEnd
 	return
 }

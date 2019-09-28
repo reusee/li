@@ -227,10 +227,3 @@ func (_ Provide) ViewEvents(
 
 	return nil
 }
-
-func WithCurrentViewMoment(
-	v CurrentView,
-	m CurrentMoment,
-) (*View, *Moment) {
-	return v(), m()
-}
