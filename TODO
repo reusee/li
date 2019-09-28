@@ -1,5 +1,7 @@
-more editing commands: V dw
+more editing commands: dw I r ci_ di_
 multi-head redo selector
+line-based selection
+block selection
 command hints
 time-based redo
 moment recycle / compact / merge in Buffer

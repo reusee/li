@@ -5,8 +5,8 @@ package li
 const DefaultConfig = `
 
 [Scroll]
-PaddingTop = 20
-PaddingBottom = 20
+PaddingTop = 10
+PaddingBottom = 10
 
 [Mouse]
 ScrollLines = 5
@@ -83,6 +83,7 @@ Layouts = [
   'Rune[i]' = 'EnableEditMode'
   'Rune[O]' = 'EditNewLineAbove'
   'Rune[o]' = 'EditNewLineBelow'
+  'Rune[p]' = 'PrevDedentLine'
   'Rune[{]' = 'PrevEmptyLine'
   'Rune[[]' = 'PrevDedentLine'
   'Rune[}]' = 'NextEmptyLine'
@@ -101,6 +102,7 @@ Layouts = [
   'Rune[k]' = 'MoveUp'
   'Rune[l]' = 'MoveRight'
   'Rune[m]' = 'ShowCommandPalette'
+  'Rune[n]' = 'NextDedentLine'
   'Rune[;]' = 'Imitate'
 
   'Rune[z] Rune[t]' = 'ScrollCursorToUpper' 
