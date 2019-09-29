@@ -1,7 +1,6 @@
 package li
 
 import (
-	"regexp"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -29,7 +28,6 @@ func (_ Provide) CollectWords(
 		Moment *Moment
 	}
 
-	wordPattern := regexp.MustCompile(`[a-zA-Z0-9]+`)
 	shard := numCPU
 	var jobs []chan CollectJob
 	var reqs []chan Req
@@ -57,17 +55,34 @@ func (_ Provide) CollectWords(
 
 						wordSet := make(map[string]Word)
 						for _, line := range segment.lines {
-							indexPairs := wordPattern.FindAllStringIndex(line.content, -1)
-							for _, pair := range indexPairs {
-								word := line.content[pair[0]:pair[1]]
-								if _, ok := wordSet[word]; ok {
-									continue
+							beginIndex := 0
+							lastCategory := -1
+
+							for i, r := range line.Runes {
+								category := runeCategory(r)
+								if i > 0 && category != lastCategory {
+									word := string(line.Runes[beginIndex:i])
+									if _, ok := wordSet[word]; !ok {
+										wordSet[word] = Word{
+											Text:       word,
+											LowerRunes: []rune(strings.ToLower(word)),
+										}
+									}
+									beginIndex = i
 								}
-								wordSet[word] = Word{
-									Text:       word,
-									LowerRunes: []rune(strings.ToLower(word)),
+								lastCategory = category
+							}
+
+							if beginIndex < len(line.Runes) {
+								word := string(line.Runes[beginIndex:])
+								if _, ok := wordSet[word]; !ok {
+									wordSet[word] = Word{
+										Text:       word,
+										LowerRunes: []rune(strings.ToLower(word)),
+									}
 								}
 							}
+
 						}
 
 						wordSets[sum] = wordSet
