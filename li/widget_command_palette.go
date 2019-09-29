@@ -159,6 +159,8 @@ func ShowCommandPalette(
 			box Box,
 			getStyle GetStyle,
 		) Element {
+			
+			//TODO scrollable
 
 			top := box.Top + marginTop
 			length := paddingLeft + leftLen + 1 + rightLen + paddingRight
