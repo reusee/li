@@ -261,7 +261,7 @@ func NewMomentFromBytes(
 
 	moment = NewMoment(nil)
 	moment.segments = []*Segment{
-		&Segment{
+		{
 			lines: lines,
 		},
 	}

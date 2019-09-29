@@ -122,7 +122,7 @@ func (_ EditMode) StrokeSpecs() any {
 						return PosCursor, string(r)
 					}).Call(InsertAtPositionFunc)
 					if len(inserted) > 0 {
-						copy(inserted[0:len(inserted)-1], inserted[1:len(inserted)])
+						copy(inserted[0:len(inserted)-1], inserted[1:])
 						inserted[len(inserted)-1] = ev
 					}
 				},
