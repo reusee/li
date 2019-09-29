@@ -62,29 +62,27 @@ func (_ Provide) CollectWords(
 								category := runeCategory(r)
 								if i > 0 && category != lastCategory {
 									word := strings.TrimSpace(string(line.Runes[beginIndex:i]))
-									if word == "" {
-										continue
-									}
-									if _, ok := wordSet[word]; !ok {
-										wordSet[word] = Word{
-											Text:       word,
-											LowerRunes: []rune(strings.ToLower(word)),
+									beginIndex = i
+									if word != "" {
+										if _, ok := wordSet[word]; !ok {
+											wordSet[word] = Word{
+												Text:       word,
+												LowerRunes: []rune(strings.ToLower(word)),
+											}
 										}
 									}
-									beginIndex = i
 								}
 								lastCategory = category
 							}
 
 							if beginIndex < len(line.Runes) {
 								word := strings.TrimSpace(string(line.Runes[beginIndex:]))
-								if word == "" {
-									continue
-								}
-								if _, ok := wordSet[word]; !ok {
-									wordSet[word] = Word{
-										Text:       word,
-										LowerRunes: []rune(strings.ToLower(word)),
+								if word != "" {
+									if _, ok := wordSet[word]; !ok {
+										wordSet[word] = Word{
+											Text:       word,
+											LowerRunes: []rune(strings.ToLower(word)),
+										}
 									}
 								}
 							}
