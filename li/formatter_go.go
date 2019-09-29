@@ -129,14 +129,40 @@ func (_ Provide) FormatterGo(
 		buffer *Buffer,
 		moments [2]*Moment,
 		view *View,
+		curModes CurrentModes,
 	) {
 		if buffer.language != LanguageGo {
+			return
+		}
+		if IsEditing(curModes()) {
 			return
 		}
 		c <- Job{
 			view:   view,
 			buffer: buffer,
 			moment: moments[1],
+		}
+	})
+
+	on(EvModesChanged, func(
+		v CurrentView,
+		modes []Mode,
+	) {
+		view := v()
+		if view == nil {
+			return
+		}
+		buffer := view.Buffer
+		if buffer.language != LanguageGo {
+			return
+		}
+		if IsEditing(modes) {
+			return
+		}
+		c <- Job{
+			view:   view,
+			buffer: buffer,
+			moment: view.GetMoment(),
 		}
 	})
 

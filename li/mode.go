@@ -14,6 +14,8 @@ type (
 
 func (_ Provide) ModesAccessor(
 	derive Derive,
+	trigger Trigger,
+	scope Scope,
 ) (
 	fn CurrentModes,
 ) {
@@ -40,6 +42,9 @@ func (_ Provide) ModesAccessor(
 					return fn
 				},
 			)
+			trigger(scope.Sub(func() []Mode {
+				return modes
+			}), EvModesChanged)
 		} else {
 			l.RLock()
 			defer l.RUnlock()
@@ -51,6 +56,10 @@ func (_ Provide) ModesAccessor(
 
 	return
 }
+
+type evModesChanged struct{}
+
+var EvModesChanged = new(evModesChanged)
 
 func (_ Provide) ModeStatus(
 	on On,
