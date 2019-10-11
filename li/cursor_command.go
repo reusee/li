@@ -2,28 +2,28 @@ package li
 
 func (_ Command) MoveLeft() (spec CommandSpec) {
 	spec.Func = func(scope Scope) {
-		scope.Sub(func() Move { return Move{RelRune: -1} }).Call(MoveCursor)
+		scope.Sub(&Move{RelRune: -1}).Call(MoveCursor)
 	}
 	return
 }
 
 func (_ Command) MoveDown() (spec CommandSpec) {
 	spec.Func = func(scope Scope) {
-		scope.Sub(func() Move { return Move{RelLine: 1} }).Call(MoveCursor)
+		scope.Sub(&Move{RelLine: 1}).Call(MoveCursor)
 	}
 	return
 }
 
 func (_ Command) MoveUp() (spec CommandSpec) {
 	spec.Func = func(scope Scope) {
-		scope.Sub(func() Move { return Move{RelLine: -1} }).Call(MoveCursor)
+		scope.Sub(&Move{RelLine: -1}).Call(MoveCursor)
 	}
 	return
 }
 
 func (_ Command) MoveRight() (spec CommandSpec) {
 	spec.Func = func(scope Scope) {
-		scope.Sub(func() Move { return Move{RelRune: 1} }).Call(MoveCursor)
+		scope.Sub(&Move{RelRune: 1}).Call(MoveCursor)
 	}
 	return
 }

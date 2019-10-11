@@ -21,10 +21,10 @@ func HandleScreenEvent(
 	switch ev := ev.(type) {
 
 	case *tcell.EventKey:
-		scope.Sub(func() KeyEvent { return ev }).Call(HandleKeyEvent)
+		scope.Sub(&ev).Call(HandleKeyEvent)
 
 	case *tcell.EventMouse:
-		scope.Sub(func() MouseEvent { return ev }).Call(HandleMouseEvent)
+		scope.Sub(&ev).Call(HandleMouseEvent)
 
 	case *tcell.EventResize:
 		width, height := ev.Size()
