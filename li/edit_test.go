@@ -418,18 +418,16 @@ func TestDeletePrevRune(t *testing.T) {
 			view.GetMoment().NumLines(), 1,
 		)
 
-		scope.Sub(func() Move {
-			return Move{RelRune: 3}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{RelRune: 3}).
+			Call(MoveCursor)
 		scope.Call(DeletePrevRune)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 			view.GetMoment().GetLine(scope, 0).content, "fo\n",
 		)
 
-		scope.Sub(func() Move {
-			return Move{RelLine: 0, RelRune: 2}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{RelLine: 0, RelRune: 2}).
+			Call(MoveCursor)
 		scope.Call(NamedCommands["InsertNewline"].Func)
 		eq(t,
 			view.GetMoment().NumLines(), 2,
@@ -469,12 +467,10 @@ func TestDeleteMultiline(t *testing.T) {
 		scope Scope,
 	) {
 		scope.Call(ToggleSelection)
-		scope.Sub(func() Move {
-			return Move{RelLine: 1}
-		}).Call(MoveCursor)
-		scope.Sub(func() Move {
-			return Move{RelRune: 2}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{RelLine: 1}).
+			Call(MoveCursor)
+		scope.Sub(&Move{RelRune: 2}).
+			Call(MoveCursor)
 		scope.Call(Delete)
 		eq(t,
 			view.GetMoment().NumLines(), 2,
@@ -489,12 +485,10 @@ func TestDeleteMultiline2(t *testing.T) {
 		scope Scope,
 	) {
 		scope.Call(ToggleSelection)
-		scope.Sub(func() Move {
-			return Move{RelLine: 2}
-		}).Call(MoveCursor)
-		scope.Sub(func() Move {
-			return Move{RelRune: 2}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{RelLine: 2}).
+			Call(MoveCursor)
+		scope.Sub(&Move{RelRune: 2}).
+			Call(MoveCursor)
 		scope.Call(Delete)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
@@ -510,12 +504,10 @@ func TestChangeText(t *testing.T) {
 		curModes CurrentModes,
 	) {
 		scope.Call(ToggleSelection)
-		scope.Sub(func() Move {
-			return Move{RelLine: 2}
-		}).Call(MoveCursor)
-		scope.Sub(func() Move {
-			return Move{RelRune: 2}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{RelLine: 2}).
+			Call(MoveCursor)
+		scope.Sub(&Move{RelRune: 2}).
+			Call(MoveCursor)
 		scope.Call(ChangeText)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
@@ -594,16 +586,14 @@ func TestChangeToWordEnd(t *testing.T) {
 			view.GetMoment().GetLine(scope, 0).content, "\n",
 		)
 
-		scope.Sub(func() Move {
-			return Move{RelLine: 1}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{RelLine: 1}).
+			Call(MoveCursor)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 1).content, "，世界！\n",
 		)
-		scope.Sub(func() Move {
-			return Move{RelRune: 2}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{RelRune: 2}).
+			Call(MoveCursor)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 1).content, "，世！\n",

@@ -199,9 +199,8 @@ func InsertAtPositionFunc(
 		col := newMoment.GetLine(scope, position.Line).Cells[position.Cell].DisplayOffset
 		return Move{AbsLine: intP(position.Line), AbsCol: &col}
 	}).Call(MoveCursor)
-	scope.Sub(func() Move {
-		return Move{RelRune: nRunesInserted}
-	}).Call(MoveCursor)
+	scope.Sub(&Move{RelRune: nRunesInserted}).
+		Call(MoveCursor)
 
 }
 
@@ -296,9 +295,8 @@ func ReplaceWithinRange(
 		col := moment.GetLine(scope, r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
 		return Move{AbsLine: intP(r.Begin.Line), AbsCol: &col}
 	}).Call(MoveCursor)
-	scope.Sub(func() Move {
-		return Move{RelRune: nRunesInserted}
-	}).Call(MoveCursor)
+	scope.Sub(&Move{RelRune: nRunesInserted}).
+		Call(MoveCursor)
 
 	newMoment = moment
 	return

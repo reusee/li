@@ -238,7 +238,7 @@ func PageDown(
 	if view.ViewportLine != line {
 		view.ViewportLine = line
 	}
-	scope.Sub(func() Move { return Move{RelLine: lines} }).Call(MoveCursor)
+	scope.Sub(&Move{RelLine: lines}).Call(MoveCursor)
 }
 
 func PageUp(
@@ -259,7 +259,7 @@ func PageUp(
 	if view.ViewportLine != line {
 		view.ViewportLine = line
 	}
-	scope.Sub(func() Move { return Move{RelLine: -lines} }).Call(MoveCursor)
+	scope.Sub(&Move{RelLine: -lines}).Call(MoveCursor)
 }
 
 func NextEmptyLine(
@@ -280,7 +280,7 @@ func NextEmptyLine(
 		}
 		n++
 	}
-	scope.Sub(func() Move { return Move{AbsLine: &n, AbsCol: intP(0)} }).Call(MoveCursor)
+	scope.Sub(&Move{AbsLine: &n, AbsCol: intP(0)}).Call(MoveCursor)
 	scope.Call(ScrollToCursor)
 }
 
@@ -300,7 +300,7 @@ func PrevEmptyLine(
 		}
 		n--
 	}
-	scope.Sub(func() Move { return Move{AbsLine: &n, AbsCol: intP(0)} }).Call(MoveCursor)
+	scope.Sub(&Move{AbsLine: &n, AbsCol: intP(0)}).Call(MoveCursor)
 	scope.Call(ScrollToCursor)
 }
 
@@ -313,11 +313,10 @@ func LineBegin(
 		return
 	}
 	zero := 0
-	scope.Sub(func() Move {
-		return Move{
-			AbsCol: &zero,
-		}
-	}).Call(MoveCursor)
+	scope.Sub(&Move{
+		AbsCol: &zero,
+	}).
+		Call(MoveCursor)
 	scope.Call(ScrollToCursor)
 }
 
@@ -330,11 +329,10 @@ func LineEnd(
 		return
 	}
 	largeCol := math.MaxInt32
-	scope.Sub(func() Move {
-		return Move{
-			AbsCol: &largeCol,
-		}
-	}).Call(MoveCursor)
+	scope.Sub(&Move{
+		AbsCol: &largeCol,
+	}).
+		Call(MoveCursor)
 	scope.Call(ScrollToCursor)
 }
 
@@ -392,11 +390,10 @@ func NextRune() []StrokeSpec {
 					if !found {
 						return
 					}
-					scope.Sub(func() Move {
-						return Move{
-							AbsCol: &col,
-						}
-					}).Call(MoveCursor)
+					scope.Sub(&Move{
+						AbsCol: &col,
+					}).
+						Call(MoveCursor)
 				}
 				return
 			},
@@ -448,11 +445,10 @@ func PrevRune() []StrokeSpec {
 					if foundCol < 0 {
 						return
 					}
-					scope.Sub(func() Move {
-						return Move{
-							AbsCol: &foundCol,
-						}
-					}).Call(MoveCursor)
+					scope.Sub(&Move{
+						AbsCol: &foundCol,
+					}).
+						Call(MoveCursor)
 				}
 				return
 			},
@@ -491,12 +487,11 @@ func NextLineWithRune() []StrokeSpec {
 						col := 0
 						for _, cell := range moment.GetLine(scope, line).Cells {
 							if cell.Rune == toFind {
-								scope.Sub(func() Move {
-									return Move{
-										AbsLine: intP(line),
-										AbsCol:  intP(col),
-									}
-								}).Call(MoveCursor)
+								scope.Sub(&Move{
+									AbsLine: intP(line),
+									AbsCol:  intP(col),
+								}).
+									Call(MoveCursor)
 								return
 							}
 							col += cell.DisplayWidth
@@ -542,12 +537,11 @@ func PrevLineWithRune() []StrokeSpec {
 						col := 0
 						for _, cell := range moment.GetLine(scope, line).Cells {
 							if cell.Rune == toFind {
-								scope.Sub(func() Move {
-									return Move{
-										AbsLine: intP(line),
-										AbsCol:  intP(col),
-									}
-								}).Call(MoveCursor)
+								scope.Sub(&Move{
+									AbsLine: intP(line),
+									AbsCol:  intP(col),
+								}).
+									Call(MoveCursor)
 								return
 							}
 							col += cell.DisplayWidth
@@ -591,12 +585,11 @@ func PrevDedentLine(
 	if offset := moment.GetLine(scope, n).NonSpaceDisplayOffset; offset != nil {
 		col = *offset
 	}
-	scope.Sub(func() Move {
-		return Move{
-			AbsLine: &n,
-			AbsCol:  intP(col),
-		}
-	}).Call(MoveCursor)
+	scope.Sub(&Move{
+		AbsLine: &n,
+		AbsCol:  intP(col),
+	}).
+		Call(MoveCursor)
 	scope.Call(ScrollToCursor)
 }
 
@@ -632,11 +625,10 @@ func NextDedentLine(
 	if offset := moment.GetLine(scope, n).NonSpaceDisplayOffset; offset != nil {
 		col = *offset
 	}
-	scope.Sub(func() Move {
-		return Move{
-			AbsLine: &n,
-			AbsCol:  intP(col),
-		}
-	}).Call(MoveCursor)
+	scope.Sub(&Move{
+		AbsLine: &n,
+		AbsCol:  intP(col),
+	}).
+		Call(MoveCursor)
 	scope.Call(ScrollToCursor)
 }

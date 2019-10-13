@@ -12,9 +12,8 @@ func TestMomentFromBytes(t *testing.T) {
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 		)
-		scope.Sub(func() Move {
-			return Move{AbsLine: intP(999)}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{AbsLine: intP(999)}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorLine, 0,
 		)

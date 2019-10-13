@@ -71,7 +71,7 @@ func ScrollEnd(
 		return
 	}
 	line := view.GetMoment().NumLines() - 1
-	scope.Sub(func() Move { return Move{AbsLine: &line} }).Call(MoveCursor)
+	scope.Sub(&Move{AbsLine: &line}).Call(MoveCursor)
 	scope.Call(ScrollToCursor)
 }
 
@@ -79,7 +79,7 @@ func ScrollHome(
 	scope Scope,
 ) {
 	zero := 0
-	scope.Sub(func() Move { return Move{AbsLine: &zero, AbsCol: &zero} }).Call(MoveCursor)
+	scope.Sub(&Move{AbsLine: &zero, AbsCol: &zero}).Call(MoveCursor)
 	scope.Call(ScrollToCursor)
 }
 
@@ -97,7 +97,7 @@ func ScrollAbsOrEnd(
 	n := useN()
 	if n > 0 {
 		n--
-		scope.Sub(func() Move { return Move{AbsLine: &n} }).Call(MoveCursor)
+		scope.Sub(&Move{AbsLine: &n}).Call(MoveCursor)
 	} else {
 		scope.Call(ScrollEnd)
 	}
@@ -110,7 +110,7 @@ func ScrollAbsOrHome(
 	n := useN()
 	if n > 0 {
 		n--
-		scope.Sub(func() Move { return Move{AbsLine: &n} }).Call(MoveCursor)
+		scope.Sub(&Move{AbsLine: &n}).Call(MoveCursor)
 	} else {
 		scope.Call(ScrollHome)
 	}

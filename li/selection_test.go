@@ -9,11 +9,10 @@ func TestSelection(t *testing.T) {
 	) {
 
 		scope.Call(ToggleSelection)
-		scope.Sub(func() Move {
-			return Move{
-				RelLine: 1,
-			}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{
+			RelLine: 1,
+		}).
+			Call(MoveCursor)
 		r := view.selectedRange(scope)
 		eq(t,
 			r.Begin.Line, 0,
@@ -28,11 +27,10 @@ func TestSelection(t *testing.T) {
 		)
 
 		scope.Call(ToggleSelection)
-		scope.Sub(func() Move {
-			return Move{
-				RelLine: -1,
-			}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{
+			RelLine: -1,
+		}).
+			Call(MoveCursor)
 		r = view.selectedRange(scope)
 		eq(t,
 			r.Begin.Line, 0,

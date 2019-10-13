@@ -34,15 +34,13 @@ func HandleMouseEvent(
 
 	if mask&tcell.WheelDown > 0 {
 		// scroll down
-		scope.Sub(func() Move {
-			return Move{RelLine: mouseConfig.ScrollLines}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{RelLine: mouseConfig.ScrollLines}).
+			Call(MoveCursor)
 
 	} else if mask&tcell.WheelUp > 0 {
 		// scroll up
-		scope.Sub(func() Move {
-			return Move{RelLine: -mouseConfig.ScrollLines}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{RelLine: -mouseConfig.ScrollLines}).
+			Call(MoveCursor)
 
 	}
 

@@ -27,9 +27,8 @@ func ShowSearchDialog(scope Scope) {
 
 		OnSelect: func(_ Scope, id ID) {
 			scope.Sub(func() ID { return id }).Call(CloseOverlay)
-			scope.Sub(func() Move {
-				return Move{AbsLine: intP(results[id].LineNumber - 1)}
-			}).Call(MoveCursor)
+			scope.Sub(&Move{AbsLine: intP(results[id].LineNumber - 1)}).
+				Call(MoveCursor)
 		},
 
 		OnUpdate: func(scope Scope, runes []rune) (ids []ID, maxLen int, initIndex int) {

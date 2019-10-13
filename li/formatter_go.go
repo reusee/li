@@ -105,9 +105,8 @@ func (_ Provide) FormatterGo(
 								col := moment.GetLine(scope, position.Line).Cells[position.Cell].DisplayOffset
 								return Move{AbsLine: intP(position.Line), AbsCol: &col}
 							}).Call(MoveCursor)
-							scope.Sub(func() Move {
-								return Move{RelRune: numRunesInserted}
-							}).Call(MoveCursor)
+							scope.Sub(&Move{RelRune: numRunesInserted}).
+								Call(MoveCursor)
 
 						}
 

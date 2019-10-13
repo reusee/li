@@ -33,7 +33,7 @@ func (_ Command) InsertTab() (spec CommandSpec) {
 func (_ Command) Append() (spec CommandSpec) {
 	spec.Desc = "start append at current cursor"
 	spec.Func = func(scope Scope) {
-		scope.Sub(func() Move { return Move{RelRune: 1} }).Call(MoveCursor)
+		scope.Sub(&Move{RelRune: 1}).Call(MoveCursor)
 		scope.Call(EnableEditMode)
 	}
 	return
@@ -97,7 +97,7 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		scope.Sub(func() (PositionFunc, string, *View) {
 			return PosLineBegin, indent + "\n", view
 		}).Call(InsertAtPositionFunc)
-		scope.Sub(func() Move { return Move{RelLine: -1} }).Call(MoveCursor)
+		scope.Sub(&Move{RelLine: -1}).Call(MoveCursor)
 		scope.Call(LineEnd)
 		scope.Call(EnableEditMode)
 	}

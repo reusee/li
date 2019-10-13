@@ -20,206 +20,175 @@ func TestCursor(t *testing.T) {
 	) {
 
 		// empty move
-		s.Sub(func() Move {
-			return Move{}
-		}).Call(MoveCursor)
+		s.Sub(&Move{}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorLine, 0,
 			view.CursorCol, 0,
 		)
 
 		// move cursor, col
-		s.Sub(func() Move {
-			return Move{AbsCol: intP(1)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsCol: intP(1)}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 1,
 		)
-		s.Sub(func() Move {
-			return Move{RelRune: 2}
-		}).Call(MoveCursor)
+		s.Sub(&Move{RelRune: 2}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 3,
 		)
-		s.Sub(func() Move {
-			return Move{RelRune: -1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{RelRune: -1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 2,
 		)
-		s.Sub(func() Move {
-			return Move{RelRune: 200}
-		}).Call(MoveCursor)
+		s.Sub(&Move{RelRune: 200}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 18,
 			view.CursorLine, 2,
 		)
 
 		// move cursor, line
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(1)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(1)}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorLine, 1,
 		)
-		s.Sub(func() Move {
-			return Move{RelLine: -1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{RelLine: -1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorLine, 0,
 		)
 
 		// move down to middle of rune
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(1)}
-		}).Call(MoveCursor)
-		s.Sub(func() Move {
-			return Move{RelLine: 1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(1)}).
+			Call(MoveCursor)
+		s.Sub(&Move{RelLine: 1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 0,
 			view.CursorLine, 1,
 		)
 
 		// move left to wide rune
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(1), AbsCol: intP(2)}
-		}).Call(MoveCursor)
-		s.Sub(func() Move {
-			return Move{RelRune: -1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(1), AbsCol: intP(2)}).
+			Call(MoveCursor)
+		s.Sub(&Move{RelRune: -1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 0,
 			view.CursorLine, 1,
 		)
 
 		// move right from wide rune
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(1), AbsCol: intP(0)}
-		}).Call(MoveCursor)
-		s.Sub(func() Move {
-			return Move{RelRune: 1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(1), AbsCol: intP(0)}).
+			Call(MoveCursor)
+		s.Sub(&Move{RelRune: 1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 2,
 			view.CursorLine, 1,
 		)
 
 		// context number
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(0)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(0)}).
+			Call(MoveCursor)
 		setN(3)
-		s.Sub(func() Move {
-			return Move{RelRune: 1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{RelRune: 1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 3,
 			view.CursorLine, 0,
 		)
 
 		// crossing line break
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(1), AbsCol: intP(0)}
-		}).Call(MoveCursor)
-		s.Sub(func() Move {
-			return Move{RelRune: -10}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(1), AbsCol: intP(0)}).
+			Call(MoveCursor)
+		s.Sub(&Move{RelRune: -10}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 4,
 			view.CursorLine, 0,
 		)
-		s.Sub(func() Move {
-			return Move{RelRune: 12}
-		}).Call(MoveCursor)
+		s.Sub(&Move{RelRune: 12}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 4,
 			view.CursorLine, 1,
 		)
 
 		// move negative col
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(0)}
-		}).Call(MoveCursor)
-		s.Sub(func() Move {
-			return Move{RelRune: -1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(0)}).
+			Call(MoveCursor)
+		s.Sub(&Move{RelRune: -1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 0,
 			view.CursorLine, 0,
 		)
 
 		// move negative line
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(0)}
-		}).Call(MoveCursor)
-		s.Sub(func() Move {
-			return Move{RelLine: -1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(0)}).
+			Call(MoveCursor)
+		s.Sub(&Move{RelLine: -1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 0,
 			view.CursorLine, 0,
 		)
 
 		// move out of range line
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(3), AbsCol: intP(0)}
-		}).Call(MoveCursor)
-		s.Sub(func() Move {
-			return Move{RelLine: 1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(3), AbsCol: intP(0)}).
+			Call(MoveCursor)
+		s.Sub(&Move{RelLine: 1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 0,
 			view.CursorLine, 2,
 		)
 
 		// prefer col
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(2), AbsCol: intP(18)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(2), AbsCol: intP(18)}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 18,
 			view.CursorLine, 2,
 			view.PreferCursorCol, 18,
 		)
-		s.Sub(func() Move {
-			return Move{RelLine: -1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{RelLine: -1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 12,
 			view.CursorLine, 1,
 		)
-		s.Sub(func() Move {
-			return Move{RelLine: 1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{RelLine: 1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 18,
 			view.CursorLine, 2,
 		)
 
 		// at line begin and line end
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(2), AbsCol: intP(0)}
-		}).Call(MoveCursor)
-		s.Sub(func() Move {
-			return Move{RelRune: -1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(2), AbsCol: intP(0)}).
+			Call(MoveCursor)
+		s.Sub(&Move{RelRune: -1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 12,
 			view.CursorLine, 1,
 		)
-		s.Sub(func() Move {
-			return Move{RelRune: 1}
-		}).Call(MoveCursor)
+		s.Sub(&Move{RelRune: 1}).
+			Call(MoveCursor)
 		eq(t,
 			view.CursorCol, 0,
 			view.CursorLine, 2,
 		)
 
 		// move commands
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(1)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(1)}).
+			Call(MoveCursor)
 		s.Call(commands["MoveLeft"].Func)
 		eq(t,
 			view.CursorCol, 0,
@@ -242,9 +211,8 @@ func TestCursor(t *testing.T) {
 		)
 
 		// page up / down
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(1)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(1)}).
+			Call(MoveCursor)
 		s.Call(commands["PageDown"].Func)
 		eq(t,
 			view.CursorCol, 0,
@@ -257,9 +225,8 @@ func TestCursor(t *testing.T) {
 		)
 
 		// next empty line
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(0)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(0)}).
+			Call(MoveCursor)
 		s.Call(commands["NextEmptyLine"].Func)
 		eq(t,
 			view.CursorCol, 0,
@@ -272,9 +239,8 @@ func TestCursor(t *testing.T) {
 		)
 
 		// line begin / end
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(0)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(0)}).
+			Call(MoveCursor)
 		s.Call(commands["LineEnd"].Func)
 		eq(t,
 			view.CursorCol, 13,
@@ -287,9 +253,8 @@ func TestCursor(t *testing.T) {
 		)
 
 		// next / prev rune
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(0)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(0)}).
+			Call(MoveCursor)
 		s.Sub(func() Func {
 			return commands["NextRune"].Func
 		}).Call(ExecuteCommandFunc)
@@ -356,9 +321,8 @@ func TestPrevNextEmptyLine(t *testing.T) {
 		commands Commands,
 		view *View,
 	) {
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(0)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(0)}).
+			Call(MoveCursor)
 		s.Call(commands["NextEmptyLine"].Func)
 		eq(t,
 			view.CursorCol, 0,
@@ -398,9 +362,8 @@ func TestPageUpAndDown(t *testing.T) {
 				}
 			},
 		)
-		s.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(0)}
-		}).Call(MoveCursor)
+		s.Sub(&Move{AbsLine: intP(0), AbsCol: intP(0)}).
+			Call(MoveCursor)
 		s.Call(commands["PageDown"].Func)
 		eq(t,
 			view.CursorCol, 0,
@@ -458,9 +421,8 @@ func TestCursorNoView(t *testing.T) {
 		commands Commands,
 		emitKey EmitKey,
 	) {
-		scope.Sub(func() Move {
-			return Move{AbsLine: intP(0), AbsCol: intP(0)}
-		}).Call(MoveCursor)
+		scope.Sub(&Move{AbsLine: intP(0), AbsCol: intP(0)}).
+			Call(MoveCursor)
 		scope.Call(commands["PageDown"].Func)
 		scope.Call(commands["PageUp"].Func)
 		scope.Call(commands["NextEmptyLine"].Func)
