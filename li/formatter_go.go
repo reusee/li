@@ -75,24 +75,24 @@ func (_ Provide) FormatterGo(
 							switch diff.Type {
 
 							case diffmatchpatch.DiffDelete:
-								scope.Sub(func() (*Moment, Change) {
-									change := Change{
+								scope.Sub(
+									&moment,
+									&Change{
 										Op:    OpDelete,
 										Begin: position,
 										End:   moment.ByteOffsetToPosition(scope, offset+len(diff.Text)),
-									}
-									return moment, change
-								}).Call(ApplyChange, &moment, &numRunesInserted)
+									},
+								).Call(ApplyChange, &moment, &numRunesInserted)
 
 							case diffmatchpatch.DiffInsert:
-								scope.Sub(func() (*Moment, Change) {
-									change := Change{
+								scope.Sub(
+									&moment,
+									&Change{
 										Op:     OpInsert,
 										String: diff.Text,
 										Begin:  position,
-									}
-									return moment, change
-								}).Call(ApplyChange, &moment, &numRunesInserted)
+									},
+								).Call(ApplyChange, &moment, &numRunesInserted)
 								offset += len(diff.Text)
 
 							case diffmatchpatch.DiffEqual:
@@ -101,10 +101,10 @@ func (_ Provide) FormatterGo(
 							}
 
 							job.view.switchMoment(scope, moment)
-							scope.Sub(func() Move {
-								col := moment.GetLine(scope, position.Line).Cells[position.Cell].DisplayOffset
-								return Move{AbsLine: intP(position.Line), AbsCol: &col}
-							}).Call(MoveCursor)
+							col := moment.GetLine(scope, position.Line).Cells[position.Cell].DisplayOffset
+							scope.Sub(
+								&Move{AbsLine: intP(position.Line), AbsCol: &col},
+							).Call(MoveCursor)
 							scope.Sub(&Move{RelRune: numRunesInserted}).
 								Call(MoveCursor)
 

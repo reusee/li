@@ -118,9 +118,11 @@ func (_ EditMode) StrokeSpecs() any {
 						}
 					}
 
-					scope.Sub(func() (PositionFunc, string) {
-						return PosCursor, string(r)
-					}).Call(InsertAtPositionFunc)
+					fn := PositionFunc(PosCursor)
+					str := string(r)
+					scope.Sub(
+						&fn, &str,
+					).Call(InsertAtPositionFunc)
 					if len(inserted) > 0 {
 						copy(inserted[0:len(inserted)-1], inserted[1:])
 						inserted[len(inserted)-1] = ev

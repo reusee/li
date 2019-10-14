@@ -10,23 +10,24 @@ import (
 func (_ Command) ChoosePathAndLoad() (spec CommandSpec) {
 	spec.Desc = "load file or dir"
 	spec.Func = func(scope Scope) (NoResetN, NoLogImitation) {
-		scope.Sub(func() func(string) {
-			return func(path string) {
-				var buffers []*Buffer
-				var err error
-				scope.Sub(func() string {
-					return path
-				}).Call(NewBuffersFromPath, &buffers, &err)
-				if err != nil {
-					return
-				}
-				for _, buffer := range buffers {
-					scope.Sub(func() *Buffer {
-						return buffer
-					}).Call(NewViewFromBuffer)
-				}
+		cb := func(path string) {
+			var buffers []*Buffer
+			var err error
+			scope.Sub(
+				&path,
+			).Call(NewBuffersFromPath, &buffers, &err)
+			if err != nil {
+				return
 			}
-		}).Call(ShowFileChooser)
+			for _, buffer := range buffers {
+				scope.Sub(
+					&buffer,
+				).Call(NewViewFromBuffer)
+			}
+		}
+		scope.Sub(
+			&cb,
+		).Call(ShowFileChooser)
 		return true, true
 	}
 	return
@@ -105,13 +106,15 @@ func SyncViewToFile(
 	if view == nil {
 		return
 	}
-	scope.Sub(func() (*Buffer, *Moment) {
-		return view.Buffer, view.GetMoment()
-	}).Call(SyncBufferMomentToFile, &err)
+	moment := view.GetMoment()
+	scope.Sub(
+		&view.Buffer, &moment,
+	).Call(SyncBufferMomentToFile, &err)
 	if err != nil {
-		scope.Sub(func() []string {
-			return strings.Split(err.Error(), "\n")
-		}).Call(ShowMessage)
+		msg := strings.Split(err.Error(), "\n")
+		scope.Sub(
+			&msg,
+		).Call(ShowMessage)
 	}
 	return
 }

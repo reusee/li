@@ -42,9 +42,9 @@ func (_ Provide) ModesAccessor(
 					return fn
 				},
 			)
-			trigger(scope.Sub(func() []Mode {
-				return modes
-			}), EvModesChanged)
+			trigger(scope.Sub(
+				&modes,
+			), EvModesChanged)
 		} else {
 			l.RLock()
 			defer l.RUnlock()

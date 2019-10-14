@@ -164,9 +164,9 @@ func HandleKeyEvent(
 
 	r := ev.Name()
 	setEv(ev)
-	keyScope := scope.Sub(func() KeyEvent {
-		return ev
-	})
+	keyScope := scope.Sub(
+		&ev,
+	)
 
 	var nextSpecs []StrokeSpec
 	for _, spec := range specs {
@@ -189,7 +189,7 @@ func HandleKeyEvent(
 		if match {
 
 			// call handling function
-			var fn any
+			var fn Func
 			if spec.Func != nil {
 				fn = spec.Func
 			} else if spec.Command.Func != nil {
@@ -198,7 +198,7 @@ func HandleKeyEvent(
 				fn = commands[spec.CommandName].Func
 			}
 			var abort Abort
-			keyScope.Sub(func() Func { return fn }).Call(
+			keyScope.Sub(&fn).Call(
 				ExecuteCommandFunc,
 				&abort,
 			)

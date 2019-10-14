@@ -77,9 +77,9 @@ func (l *Line) init(scope Scope) {
 
 		var trigger Trigger
 		scope.Assign(&trigger)
-		trigger(scope.Sub(func() *Line {
-			return l
-		}), EvLineInitialized)
+		trigger(scope.Sub(
+			&l,
+		), EvLineInitialized)
 	})
 }
 
