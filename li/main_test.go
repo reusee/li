@@ -3,6 +3,7 @@ package li
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/gdamore/tcell"
@@ -52,8 +53,8 @@ func withEditor(fn any) {
 		},
 		func() AppendJournal {
 			return func(format string, args ...any) {
-				pt(format, args...)
-				pt("\n")
+				fmt.Printf(format, args...)
+				fmt.Printf("\n")
 			}
 		},
 	)
@@ -203,7 +204,7 @@ func eq(t *testing.T, args ...any) {
 	for i, res := range results {
 		if !res.Equal {
 			fatal = true
-			pt(
+			fmt.Printf(
 				"pair %d not equal:\n%s\n------\n%s\n",
 				i+1,
 				res.J1,

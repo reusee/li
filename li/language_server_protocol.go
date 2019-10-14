@@ -266,7 +266,6 @@ func (l *LSPEndpoint) startHandler() {
 				strings.TrimSpace(header[len("Content-Length:"):]),
 			)
 			if err != nil {
-				pt("%v\n", err)
 				break
 			}
 

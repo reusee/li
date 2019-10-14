@@ -7,9 +7,8 @@ func ShowMessage(
 
 	length := 0
 	for _, line := range lines {
-		runes := []rune(line)
 		w := 0
-		for _, r := range runes {
+		for _, r := range line {
 			w += runeWidth(r)
 		}
 		if w > length {

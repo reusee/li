@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strings"
 	"sync"
 	"time"
 )
@@ -31,24 +29,3 @@ func log(format string, args ...any) {
 }
 
 var Log = log
-
-func logStack() {
-	skip := 2
-	pcs := make([]uintptr, 128)
-	skip += runtime.Callers(skip, pcs)
-	log("--- stack start ---\n")
-	for len(pcs) > 0 {
-		frames := runtime.CallersFrames(pcs)
-		frame, more := frames.Next()
-		for more {
-			if !strings.Contains(frame.File, "reusee/li") {
-				continue
-			}
-			log("-> file %s, line %d\n", frame.File, frame.Line)
-			frame, more = frames.Next()
-		}
-		pcs = pcs[0:0]
-		skip += runtime.Callers(skip, pcs)
-	}
-	log("... stack end .....\n")
-}

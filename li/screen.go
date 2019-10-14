@@ -1,6 +1,8 @@
 package li
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell"
 )
 
@@ -16,9 +18,9 @@ type TcellScreen struct {
 func (t TcellScreen) SetCursorShape(shape CursorShape) {
 	switch shape {
 	case CursorBeam:
-		pt("\033[6 q")
+		fmt.Print("\033[6 q")
 	case CursorBlock:
-		pt("\033[2 q")
+		fmt.Print("\033[2 q")
 	}
 }
 

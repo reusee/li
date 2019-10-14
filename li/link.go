@@ -36,9 +36,9 @@ func (_ Provide) LinkFuncs() (
 			links[left] = m
 		}
 		t := reflect.TypeOf(right)
-		m2, ok := m[t]
+		_, ok = m[t]
 		if !ok {
-			m2 = make(map[any]int)
+			m2 := make(map[any]int)
 			m[t] = m2
 		}
 		links[left][t][right] = n

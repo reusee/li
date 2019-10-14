@@ -33,9 +33,7 @@ func (_ Provide) Config() (
 	dir = ConfigDir(configDir)
 
 	userConfig, err := ioutil.ReadFile(filepath.Join(configDir, "config.toml"))
-	if os.IsNotExist(err) {
-		err = nil
-	} else {
+	if err != nil && !os.IsNotExist(err) {
 		ce(err, "open config.toml")
 	}
 

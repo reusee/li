@@ -71,7 +71,8 @@ func (s *Segment) Sum() HashSum {
 	s.initSumOnce.Do(func() {
 		h := NewHash()
 		for _, line := range s.lines {
-			io.WriteString(h, line.content)
+			_, err := io.WriteString(h, line.content)
+			ce(err)
 		}
 		copy(s.sum[:], h.Sum(nil))
 	})

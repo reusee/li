@@ -7,12 +7,10 @@ import "C"
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
-	"time"
 	"unsafe"
 
 	"github.com/reusee/dscope"
@@ -23,8 +21,6 @@ import (
 var (
 	me       = e.Default.WithStack().WithName("li")
 	ce, he   = e.New(me)
-	pt       = fmt.Printf
-	t0       = time.Now()
 	NewScope = dscope.New
 	is       = errors.Is
 	numCPU   = runtime.NumCPU()
@@ -56,7 +52,7 @@ func runeWidth(r rune) int {
 }
 
 func displayWidth(s string) (l int) {
-	for _, r := range []rune(s) {
+	for _, r := range s {
 		l += runeWidth(r)
 	}
 	return
@@ -67,11 +63,6 @@ func runesDisplayWidth(runes []rune) (l int) {
 		l += runeWidth(r)
 	}
 	return
-}
-
-func leftPad(s string, pad rune, l int) string {
-	padLen := l - displayWidth(s)
-	return strings.Repeat(string(pad), padLen) + s
 }
 
 func rightPad(s string, pad rune, l int) string {

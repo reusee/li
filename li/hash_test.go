@@ -15,7 +15,8 @@ func benchmarkHashBlake2b(n int, b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		h, _ := blake2b.New256(nil)
-		h.Write(input)
+		_, err := h.Write(input)
+		ce(err)
 	}
 }
 
@@ -32,7 +33,8 @@ func benchmarkHashBlake2s(n int, b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		h, _ := blake2s.New256(nil)
-		h.Write(input)
+		_, err := h.Write(input)
+		ce(err)
 	}
 }
 
@@ -49,7 +51,8 @@ func benchmarkHashSha256(n int, b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		h := sha256.New()
-		h.Write(input)
+		_, err := h.Write(input)
+		ce(err)
 	}
 }
 
@@ -66,7 +69,8 @@ func benchmarkHashSha512(n int, b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		h := sha512.New()
-		h.Write(input)
+		_, err := h.Write(input)
+		ce(err)
 	}
 }
 
