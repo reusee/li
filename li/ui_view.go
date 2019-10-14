@@ -119,7 +119,7 @@ func (view *View) RenderFunc() any {
 		lineNumBox.Right = lineNumBox.Left + lineNumLength + 2
 
 		frameBuffer := NewFrameBuffer(box)
-		set := frameBuffer.SetContent
+		set := SetContent(frameBuffer.SetContent)
 		defer func() {
 			view.FrameBufferArgs = args
 			view.FrameBuffer = frameBuffer

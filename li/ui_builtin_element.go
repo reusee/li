@@ -124,13 +124,13 @@ func (r _Rect) RenderFunc() any {
 			return
 		}
 		marks := make([]bool, l)
-		set := func(x int, y int, mainc rune, combc []rune, style Style) {
+		set := SetContent(func(x int, y int, mainc rune, combc []rune, style Style) {
 			idx := (y-box.Top)*box.Width() + (x - box.Left)
 			if idx >= 0 && idx < len(marks) {
 				marks[idx] = true
 			}
 			setContent(x, y, mainc, combc, style)
-		}
+		})
 
 		fg, bg, _ := style.Decompose()
 		childBox := Box{
@@ -139,13 +139,14 @@ func (r _Rect) RenderFunc() any {
 			Right:  box.Right + marginRight + paddingRight,
 			Bottom: box.Bottom + marginBottom + paddingBottom,
 		}
+		fgColor := FGColor(fg)
+		bgColor := BGColor(bg)
 		childScope := scope.Sub(
-			func() (Box, SetContent) {
-				return childBox, set
-			},
-			func() (Style, FGColor, BGColor) {
-				return style, FGColor(fg), BGColor(bg)
-			},
+			&childBox,
+			&set,
+			&style,
+			&fgColor,
+			&bgColor,
 		)
 		renderAll(childScope, children...)
 
@@ -413,7 +414,7 @@ func (v _VerticalScroll) RenderFunc() any {
 			Style Style
 		}
 		cells := make(map[int]map[int]Cell)
-		set := func(x int, y int, mainc rune, combc []rune, style Style) {
+		set := SetContent(func(x int, y int, mainc rune, combc []rune, style Style) {
 			if y > maxY {
 				maxY = y
 			}
@@ -426,7 +427,7 @@ func (v _VerticalScroll) RenderFunc() any {
 				Rune:  mainc,
 				Style: style,
 			}
-		}
+		})
 		scope.Sub(
 			&elemBox, &set,
 		).Call(v.element.RenderFunc())

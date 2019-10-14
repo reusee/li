@@ -189,16 +189,17 @@ func InsertAtPositionFunc(
 	}
 	var newMoment *Moment
 	var nRunesInserted int
-	scope.Sub(func() (*Moment, Change) {
-		return m(), change
-	}).Call(ApplyChange, &newMoment, &nRunesInserted)
+	moment := m()
+	scope.Sub(
+		&moment, &change,
+	).Call(ApplyChange, &newMoment, &nRunesInserted)
 
 	view.switchMoment(scope, newMoment)
 
-	scope.Sub(func() Move {
-		col := newMoment.GetLine(scope, position.Line).Cells[position.Cell].DisplayOffset
-		return Move{AbsLine: intP(position.Line), AbsCol: &col}
-	}).Call(MoveCursor)
+	col := newMoment.GetLine(scope, position.Line).Cells[position.Cell].DisplayOffset
+	scope.Sub(
+		&Move{AbsLine: intP(position.Line), AbsCol: &col},
+	).Call(MoveCursor)
 	scope.Sub(&Move{RelRune: nRunesInserted}).
 		Call(MoveCursor)
 
@@ -220,14 +221,15 @@ func DeleteWithinRange(
 		End:   r.End,
 	}
 	var newMoment *Moment
-	scope.Sub(func() (*Moment, Change) {
-		return m(), change
-	}).Call(ApplyChange, &newMoment)
+	moment := m()
+	scope.Sub(
+		&moment, &change,
+	).Call(ApplyChange, &newMoment)
 	view.switchMoment(scope, newMoment)
-	scope.Sub(func() Move {
-		col := newMoment.GetLine(scope, r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
-		return Move{AbsLine: intP(r.Begin.Line), AbsCol: &col}
-	}).Call(MoveCursor)
+	col := newMoment.GetLine(scope, r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
+	scope.Sub(
+		&Move{AbsLine: intP(r.Begin.Line), AbsCol: &col},
+	).Call(MoveCursor)
 }
 
 func DeleteWithinPositionFuncs(
@@ -243,12 +245,12 @@ func DeleteWithinPositionFuncs(
 	scope.Call(fns[0], &begin)
 	var end Position
 	scope.Call(fns[1], &end)
-	scope.Sub(func() Range {
-		return Range{
+	scope.Sub(
+		&Range{
 			Begin: begin,
 			End:   end,
-		}
-	}).Call(DeleteWithinRange)
+		},
+	).Call(DeleteWithinRange)
 }
 
 func ReplaceWithinRange(
@@ -273,9 +275,9 @@ func ReplaceWithinRange(
 			Begin: r.Begin,
 			End:   r.End,
 		}
-		scope.Sub(func() (*Moment, Change) {
-			return moment, change
-		}).Call(ApplyChange, &moment)
+		scope.Sub(
+			&moment, &change,
+		).Call(ApplyChange, &moment)
 	}
 
 	// insert
@@ -285,16 +287,16 @@ func ReplaceWithinRange(
 		String: text,
 	}
 	var nRunesInserted int
-	scope.Sub(func() (*Moment, Change) {
-		return moment, change
-	}).Call(ApplyChange, &moment, &nRunesInserted)
+	scope.Sub(
+		&moment, &change,
+	).Call(ApplyChange, &moment, &nRunesInserted)
 
 	view.switchMoment(scope, moment)
 
-	scope.Sub(func() Move {
-		col := moment.GetLine(scope, r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
-		return Move{AbsLine: intP(r.Begin.Line), AbsCol: &col}
-	}).Call(MoveCursor)
+	col := moment.GetLine(scope, r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
+	scope.Sub(
+		&Move{AbsLine: intP(r.Begin.Line), AbsCol: &col},
+	).Call(MoveCursor)
 	scope.Sub(&Move{RelRune: nRunesInserted}).
 		Call(MoveCursor)
 
@@ -305,23 +307,23 @@ func ReplaceWithinRange(
 func DeletePrevRune(
 	scope Scope,
 ) {
-	scope.Sub(func() [2]PositionFunc {
-		return [2]PositionFunc{
+	scope.Sub(
+		&[2]PositionFunc{
 			PosPrevRune,
 			PosCursor,
-		}
-	}).Call(DeleteWithinPositionFuncs)
+		},
+	).Call(DeleteWithinPositionFuncs)
 }
 
 func DeleteRune(
 	scope Scope,
 ) {
-	scope.Sub(func() [2]PositionFunc {
-		return [2]PositionFunc{
+	scope.Sub(
+		&[2]PositionFunc{
 			PosCursor,
 			PosNextRune,
-		}
-	}).Call(DeleteWithinPositionFuncs)
+		},
+	).Call(DeleteWithinPositionFuncs)
 }
 
 func _Delete(
@@ -336,9 +338,7 @@ func _Delete(
 
 	// delete selected
 	if r := view.selectedRange(scope); r != nil {
-		scope.Sub(func() Range {
-			return *r
-		}).Call(DeleteWithinRange)
+		scope.Sub(r).Call(DeleteWithinRange)
 		view.SelectionAnchor = nil
 	}
 
@@ -356,10 +356,9 @@ func Delete(
 ) {
 	view := cur()
 	if view != nil && view.selectedRange(scope) != nil {
+		after := AfterFunc(func() {})
 		scope.Sub(
-			func() AfterFunc {
-				return func() {}
-			},
+			&after,
 		).Call(_Delete)
 	} else {
 		abort = true
@@ -376,11 +375,12 @@ func ChangeText(
 
 	if view := cur(); view != nil && view.selectedRange(scope) != nil {
 		// if selected
-		scope.Sub(func() AfterFunc {
-			return func(scope Scope) {
-				scope.Call(EnableEditMode)
-			}
-		}).Call(_Delete)
+		after := AfterFunc(func(scope Scope) {
+			scope.Call(EnableEditMode)
+		})
+		scope.Sub(
+			&after,
+		).Call(_Delete)
 
 	} else {
 		abort = true
@@ -396,12 +396,12 @@ func ChangeToWordEnd(
 	if cur() == nil {
 		return
 	}
-	scope.Sub(func() [2]PositionFunc {
-		return [2]PositionFunc{
+	scope.Sub(
+		&[2]PositionFunc{
 			PosCursor,
 			PosWordEnd,
-		}
-	}).Call(DeleteWithinPositionFuncs)
+		},
+	).Call(DeleteWithinPositionFuncs)
 	scope.Call(EnableEditMode)
 }
 
@@ -415,19 +415,19 @@ func DeleteLine(
 		return
 	}
 	if view.CursorLine == m().NumLines()-1 {
-		scope.Sub(func() [2]PositionFunc {
-			return [2]PositionFunc{
+		scope.Sub(
+			&[2]PositionFunc{
 				PosPrevLineEnd,
 				PosLineEnd,
-			}
-		}).Call(DeleteWithinPositionFuncs)
+			},
+		).Call(DeleteWithinPositionFuncs)
 		scope.Call(LineBegin)
 	} else {
-		scope.Sub(func() [2]PositionFunc {
-			return [2]PositionFunc{
+		scope.Sub(
+			&[2]PositionFunc{
 				PosLineBegin,
 				PosNextLineBegin,
-			}
-		}).Call(DeleteWithinPositionFuncs)
+			},
+		).Call(DeleteWithinPositionFuncs)
 	}
 }

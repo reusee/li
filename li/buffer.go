@@ -41,9 +41,9 @@ func NewBufferFromFile(
 	id := BufferID(atomic.AddInt64(&nextBufferID, 1))
 	var moment *Moment
 	var linebreak Linebreak
-	scope.Sub(func() string {
-		return path
-	}).Call(NewMomentFromFile, &moment, &linebreak, &err)
+	scope.Sub(
+		&path,
+	).Call(NewMomentFromFile, &moment, &linebreak, &err)
 	ce(err)
 
 	absPath, err := filepath.Abs(path)
@@ -59,9 +59,9 @@ func NewBufferFromFile(
 	link(buffer, moment)
 	buffer.SetLanguage(scope, LanguageFromPath(path))
 
-	trigger(scope.Sub(func() (*Buffer, *Moment) {
-		return buffer, moment
-	}), EvBufferCreated)
+	trigger(scope.Sub(
+		&buffer, &moment,
+	), EvBufferCreated)
 
 	return
 }
@@ -80,9 +80,9 @@ func NewBufferFromBytes(
 	id := BufferID(atomic.AddInt64(&nextBufferID, 1))
 	var moment *Moment
 	var linebreak Linebreak
-	scope.Sub(func() []byte {
-		return bs
-	}).Call(NewMomentFromBytes, &moment, &linebreak, &err)
+	scope.Sub(
+		&bs,
+	).Call(NewMomentFromBytes, &moment, &linebreak, &err)
 	ce(err)
 
 	buffer = &Buffer{
@@ -91,9 +91,9 @@ func NewBufferFromBytes(
 	}
 	link(buffer, moment)
 
-	trigger(scope.Sub(func() (*Buffer, *Moment) {
-		return buffer, moment
-	}), EvBufferCreated)
+	trigger(scope.Sub(
+		&buffer, &moment,
+	), EvBufferCreated)
 
 	return
 }
@@ -131,9 +131,9 @@ func NewBuffersFromPath(
 	var moments []*Moment
 	var linebreaks []Linebreak
 	var paths []string
-	scope.Sub(func() string {
-		return path
-	}).Call(NewMomentsFromPath, &moments, &linebreaks, &paths, &err)
+	scope.Sub(
+		&path,
+	).Call(NewMomentsFromPath, &moments, &linebreaks, &paths, &err)
 	ce(err)
 
 	for i, moment := range moments {
@@ -168,9 +168,9 @@ func (b *Buffer) SetLanguage(scope Scope, lang Language) {
 		scope.Call(func(
 			trigger Trigger,
 		) {
-			trigger(scope.Sub(func() (*Buffer, [2]Language) {
-				return b, [2]Language{oldLang, lang}
-			}), EvBufferLanguageChanged)
+			trigger(scope.Sub(
+				&b, &[2]Language{oldLang, lang},
+			), EvBufferLanguageChanged)
 		})
 	}
 }

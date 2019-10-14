@@ -32,7 +32,7 @@ func (_ Provide) Completion(
 		if completionOverlayID > 0 {
 			id := completionOverlayID
 			run(func(scope Scope) {
-				scope.Sub(func() ID { return id }).Call(CloseOverlay)
+				scope.Sub(&id).Call(CloseOverlay)
 			})
 		}
 	}
@@ -108,9 +108,7 @@ func (_ Provide) Completion(
 							candidates = append(candidates, c)
 						}
 					},
-					func() (*View, *Moment, ViewMomentState) {
-						return view, moment, state
-					},
+					&view, &moment, &state,
 				), EvCollectCompletionCandidate)
 
 				if skip(scope) {
@@ -191,15 +189,16 @@ func (_ Provide) Completion(
 					}
 
 					// push overlay
-					scope.Sub(func() OverlayObject {
-						return &CompletionList{
-							Box:        box,
-							Candidates: candidates,
-							Below:      below,
-							Moment:     moment,
-							View:       view,
-						}
-					}).Call(PushOverlay, &completionOverlayID)
+					overlay := OverlayObject(&CompletionList{
+						Box:        box,
+						Candidates: candidates,
+						Below:      below,
+						Moment:     moment,
+						View:       view,
+					})
+					scope.Sub(
+						&overlay,
+					).Call(PushOverlay, &completionOverlayID)
 
 				})
 

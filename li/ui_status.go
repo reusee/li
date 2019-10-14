@@ -35,15 +35,12 @@ func Status(
 
 	// collect sections
 	var sections []StatusSection
+	add := AddStatusSection(func(title string, lines [][]any) {
+		sections = append(sections, StatusSection{title, lines})
+	})
 	trigger(scope.Sub(
-		func() AddStatusSection {
-			return func(title string, lines [][]any) {
-				sections = append(sections, StatusSection{title, lines})
-			}
-		},
-		func() []Style {
-			return []Style{style, hlStyle}
-		},
+		&add,
+		&[]Style{style, hlStyle},
 	), EvCollectStatusSections)
 	sort.Slice(sections, func(i, j int) bool {
 		return sections[i].Title < sections[j].Title

@@ -165,15 +165,9 @@ func (d *SelectionDialog) RenderFunc() any {
 					candidateElements,
 					d.CandidateElement(
 						scope.Sub(
-							func() Box {
-								return candidateBox
-							},
-							func() Style {
-								return style
-							},
-							func() ID {
-								return d.candidates[d.index]
-							},
+							&candidateBox,
+							&style,
+							&d.candidates[d.index],
 						),
 						id,
 					),

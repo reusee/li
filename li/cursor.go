@@ -208,9 +208,7 @@ calculate:
 	scope.Call(ScrollToCursor)
 
 	trigger(scope.Sub(
-		func() (*View, *Moment, [2]Position) {
-			return view, moment, [2]Position{currentPosition, view.cursorPosition(scope)}
-		},
+		&view, &moment, &[2]Position{currentPosition, view.cursorPosition(scope)},
 	), EvCursorMoved)
 
 }

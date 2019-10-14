@@ -10,13 +10,10 @@ func Root(
 ) Element {
 
 	box := Box{0, 0, int(height), int(width)}
+	style := getStyle("Default")
 	scope = scope.Sub(
-		func() Box {
-			return box
-		},
-		func() Style {
-			return getStyle("Default")
-		},
+		&box,
+		&style,
 	)
 
 	journalHeight := getJournalHeight()
