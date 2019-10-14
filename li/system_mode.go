@@ -25,12 +25,12 @@ func (_ Command) Exit() (spec CommandSpec) {
 
 func (_ Command) About() (spec CommandSpec) {
 	spec.Func = func(scope Scope) {
-		scope.Sub(func() []string {
-			return []string{
+		scope.Sub(
+			&[]string{
 				"li editor",
 				time.Now().Format("2006-01-02 15:04:05"),
-			}
-		}).Call(ShowMessage)
+			},
+		).Call(ShowMessage)
 	}
 	spec.Desc = "about editor"
 	return

@@ -35,9 +35,7 @@ func (view *View) RenderFunc() any {
 
 		defer func() {
 			trigger(scope.Sub(
-				func() (*Moment, *View) {
-					return moment, view
-				},
+				&moment, &view,
 			), EvViewRendered)
 		}()
 
@@ -176,11 +174,11 @@ func (view *View) RenderFunc() any {
 				// line number
 				if isCurrentLine {
 					// show absolute
-					scope.Sub(func() (Box, Style, SetContent) {
-						box := lineNumBox
-						box.Top += i
-						return box, defaultStyle, set
-					}).Call(Text(
+					box := lineNumBox
+					box.Top += i
+					scope.Sub(
+						&box, &defaultStyle, &set,
+					).Call(Text(
 						fmt.Sprintf("%d", lineNum+1),
 						hlStyle,
 						Fill(true),
@@ -193,11 +191,11 @@ func (view *View) RenderFunc() any {
 					if rel < 0 {
 						rel = -rel
 					}
-					scope.Sub(func() (Box, Style, SetContent) {
-						box := lineNumBox
-						box.Top += i
-						return box, defaultStyle, set
-					}).Call(Text(
+					box := lineNumBox
+					box.Top += i
+					scope.Sub(
+						&box, &defaultStyle, &set,
+					).Call(Text(
 						fmt.Sprintf("%d", rel),
 						lineNumStyle,
 						Fill(true),
@@ -205,11 +203,11 @@ func (view *View) RenderFunc() any {
 						Padding(0, 1, 0, 0),
 					).RenderFunc())
 				} else {
-					scope.Sub(func() (Box, Style, SetContent) {
-						box := lineNumBox
-						box.Top += i
-						return box, defaultStyle, set
-					}).Call(Text(
+					box := lineNumBox
+					box.Top += i
+					scope.Sub(
+						&box, &defaultStyle, &set,
+					).Call(Text(
 						"",
 						lineNumStyle,
 						Fill(true),
@@ -242,9 +240,10 @@ func (view *View) RenderFunc() any {
 					var cellColors []*Color
 					var cellStyleFuncs []StyleFunc
 					if view.Stainer != nil {
-						scope.Sub(func() (*Moment, *Line, LineNumber) {
-							return moment, line, LineNumber(lineNum)
-						}).Call(
+						l := LineNumber(lineNum)
+						scope.Sub(
+							&moment, &line, &l,
+						).Call(
 							view.Stainer.Line(),
 							&cellColors,
 							&cellStyleFuncs,
@@ -374,9 +373,10 @@ func (view *View) RenderFunc() any {
 			var cellColors []*Color
 			var cellStyleFuncs []StyleFunc
 			if view.Stainer != nil {
-				scope.Sub(func() (*Moment, *Line, LineNumber) {
-					return moment, line, LineNumber(lineNum)
-				}).Call(
+				l := LineNumber(lineNum)
+				scope.Sub(
+					&moment, &line, &l,
+				).Call(
 					view.Stainer.Line(),
 					&cellColors,
 					&cellStyleFuncs,
@@ -384,11 +384,11 @@ func (view *View) RenderFunc() any {
 			}
 
 			// show absolute line number
-			scope.Sub(func() (Box, Style, SetContent) {
-				box := lineNumBox
-				box.Top = y
-				return box, defaultStyle, set
-			}).Call(Text(
+			box := lineNumBox
+			box.Top = y
+			scope.Sub(
+				&box, &defaultStyle, &set,
+			).Call(Text(
 				fmt.Sprintf("%d", lineNum+1),
 				hlStyle,
 				Fill(true),

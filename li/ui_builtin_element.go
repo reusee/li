@@ -427,9 +427,9 @@ func (v _VerticalScroll) RenderFunc() any {
 				Style: style,
 			}
 		}
-		scope.Sub(func() (Box, SetContent) {
-			return elemBox, set
-		}).Call(v.element.RenderFunc())
+		scope.Sub(
+			&elemBox, &set,
+		).Call(v.element.RenderFunc())
 		fromY := box.Top + v.offset - box.Height()/2
 		if fromY < box.Top {
 			fromY = box.Top
