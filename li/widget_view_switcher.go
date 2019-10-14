@@ -62,13 +62,13 @@ func ShowViewSwitcher(scope Scope) {
 		Title: "Switch View",
 
 		OnClose: func(_ Scope) {
-			scope.Sub(func() ID { return id }).Call(CloseOverlay)
+			scope.Sub(&id).Call(CloseOverlay)
 		},
 
 		OnSelect: func(scope Scope, id ID) {
 			var cur CurrentView
 			scope.Assign(&cur)
-			scope.Sub(func() ID { return id }).Call(CloseOverlay)
+			scope.Sub(&id).Call(CloseOverlay)
 			if int(id) < len(candidates) {
 				view := candidates[id].View
 				cur(view)
@@ -114,7 +114,8 @@ func ShowViewSwitcher(scope Scope) {
 		},
 	}
 
-	scope.Sub(func() OverlayObject { return dialog }).Call(PushOverlay, &id)
+	overlay := OverlayObject(dialog)
+	scope.Sub(&overlay).Call(PushOverlay, &id)
 }
 
 func (_ Command) ShowViewSwitcher() (spec CommandSpec) {

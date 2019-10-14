@@ -208,9 +208,9 @@ func NewMomentFromFile(
 	contentBytes, err := ioutil.ReadFile(path)
 	ce(err, "read %s", path)
 
-	scope.Sub(func() []byte {
-		return contentBytes
-	}).Call(NewMomentFromBytes, &moment, &linebreak)
+	scope.Sub(
+		&contentBytes,
+	).Call(NewMomentFromBytes, &moment, &linebreak)
 
 	info, err := getFileInfo(path)
 	ce(err)
@@ -301,9 +301,9 @@ func NewMomentsFromPath(
 				p := filepath.Join(path, name)
 				var moment *Moment
 				var linebreak Linebreak
-				scope.Sub(func() string {
-					return p
-				}).Call(NewMomentFromFile, &moment, &linebreak, &err)
+				scope.Sub(
+					&p,
+				).Call(NewMomentFromFile, &moment, &linebreak, &err)
 				if err != nil {
 					continue
 				}
@@ -319,9 +319,9 @@ func NewMomentsFromPath(
 	} else {
 		var moment *Moment
 		var linebreak Linebreak
-		scope.Sub(func() string {
-			return path
-		}).Call(NewMomentFromFile, &moment, &linebreak, &err)
+		scope.Sub(
+			&path,
+		).Call(NewMomentFromFile, &moment, &linebreak, &err)
 		if err != nil {
 			return
 		}
