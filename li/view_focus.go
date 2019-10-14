@@ -31,9 +31,9 @@ func (_ Provide) CurrentView(
 		}
 		linkedOne(flag, &ret)
 		if len(views) > 0 {
-			trigger(scope.Sub(func() *View {
-				return ret
-			}), EvCurrentViewChanged)
+			trigger(scope.Sub(
+				&ret,
+			), EvCurrentViewChanged)
 		}
 		return
 	}

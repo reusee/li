@@ -181,9 +181,9 @@ func (v *View) switchMoment(scope Scope, m *Moment) {
 		trigger Trigger,
 	) {
 		trigger(scope.Sub(
-			func() (*View, *Buffer, [2]*Moment) {
-				return v, v.Buffer, [2]*Moment{old, m}
-			},
+			&v,
+			&v.Buffer,
+			&[2]*Moment{old, m},
 		), EvMomentSwitched)
 	})
 }

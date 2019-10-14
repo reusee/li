@@ -192,11 +192,11 @@ func ShowFileChooser(scope Scope, cb func(string)) {
 		Title: "Choose File",
 
 		OnClose: func(_ Scope) {
-			scope.Sub(func() ID { return id }).Call(CloseOverlay)
+			scope.Sub(&id).Call(CloseOverlay)
 		},
 
 		OnSelect: func(_ Scope, id ID) {
-			scope.Sub(func() ID { return id }).Call(CloseOverlay)
+			scope.Sub(&id).Call(CloseOverlay)
 			if int(id) < len(candidates) {
 				cb(candidates[id].Path)
 			}
@@ -241,5 +241,6 @@ func ShowFileChooser(scope Scope, cb func(string)) {
 		},
 	}
 
-	scope.Sub(func() OverlayObject { return dialog }).Call(PushOverlay, &id)
+	overlay := OverlayObject(dialog)
+	scope.Sub(&overlay).Call(PushOverlay, &id)
 }

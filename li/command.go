@@ -7,7 +7,7 @@ type Command struct{}
 type CommandSpec struct {
 	Name string
 	Desc string
-	Func any
+	Func Func
 }
 
 type Commands = map[string]CommandSpec

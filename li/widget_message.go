@@ -26,7 +26,7 @@ func ShowMessage(
 			switch ev.Name() {
 			case "Enter", "Esc":
 				// close
-				scope.Sub(func() ID { return id }).Call(CloseOverlay)
+				scope.Sub(&id).Call(CloseOverlay)
 			}
 		},
 
@@ -55,5 +55,6 @@ func ShowMessage(
 		}),
 	}
 
-	scope.Sub(func() OverlayObject { return msgBox }).Call(PushOverlay, &id)
+	overlay := OverlayObject(msgBox)
+	scope.Sub(&overlay).Call(PushOverlay, &id)
 }

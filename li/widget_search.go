@@ -22,11 +22,11 @@ func ShowSearchDialog(scope Scope) {
 		Title: "Search",
 
 		OnClose: func(_ Scope) {
-			scope.Sub(func() ID { return id }).Call(CloseOverlay)
+			scope.Sub(&id).Call(CloseOverlay)
 		},
 
 		OnSelect: func(_ Scope, id ID) {
-			scope.Sub(func() ID { return id }).Call(CloseOverlay)
+			scope.Sub(&id).Call(CloseOverlay)
 			scope.Sub(&Move{AbsLine: intP(results[id].LineNumber - 1)}).
 				Call(MoveCursor)
 		},
@@ -151,7 +151,8 @@ func ShowSearchDialog(scope Scope) {
 		},
 	}
 
-	scope.Sub(func() OverlayObject { return dialog }).Call(PushOverlay, &id)
+	overlay := OverlayObject(dialog)
+	scope.Sub(&overlay).Call(PushOverlay, &id)
 }
 
 func (_ Command) ShowSearchDialog() (spec CommandSpec) {

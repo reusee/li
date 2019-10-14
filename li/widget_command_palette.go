@@ -20,7 +20,7 @@ func ShowCommandPalette(
 		LeftMatchLen  int
 		Right         string
 		RightMatchLen int
-		Func          any
+		Func          Func
 		Score         int
 
 		LeftChars  *util.Chars
@@ -121,7 +121,7 @@ func ShowCommandPalette(
 
 			case tcell.KeyEscape:
 				// close
-				scope.Sub(func() ID { return id }).Call(CloseOverlay)
+				scope.Sub(&id).Call(CloseOverlay)
 
 			case tcell.KeyBackspace2, tcell.KeyBackspace:
 				if len(runes) > 0 {
@@ -135,9 +135,10 @@ func ShowCommandPalette(
 
 			case tcell.KeyEnter:
 				run(func(scope Scope) {
-					scope.Sub(func() Func { return candidates[index].Func }).Call(ExecuteCommandFunc)
+					fn := candidates[index].Func
+					scope.Sub(&fn).Call(ExecuteCommandFunc)
 				})
-				scope.Sub(func() ID { return id }).Call(CloseOverlay)
+				scope.Sub(&id).Call(CloseOverlay)
 
 			case tcell.KeyUp, tcell.KeyCtrlP:
 				index--
@@ -260,7 +261,8 @@ func ShowCommandPalette(
 		}),
 	}
 
-	scope.Sub(func() OverlayObject { return palette }).Call(PushOverlay, &id)
+	overlay := OverlayObject(palette)
+	scope.Sub(&overlay).Call(PushOverlay, &id)
 }
 
 func (_ Command) ShowCommandPalette() (spec CommandSpec) {
