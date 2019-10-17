@@ -18,6 +18,8 @@ github.com/junegunn/fzf v0.0.0-20191008004122-3089880f18b2 h1:mf25AZV0PHPPlOavss
 github.com/junegunn/fzf v0.0.0-20191008004122-3089880f18b2/go.mod h1:mW81EF7s4wSvB4dnjrdXv/kCV+eAOXL4vqVT9h8aXsw=
 github.com/junegunn/fzf v0.0.0-20191011131106-f1520bdde6c2 h1:8ZS2rJ2aCctq67s6xiVqfDtB5d9ei8LhKV/obGVERfU=
 github.com/junegunn/fzf v0.0.0-20191011131106-f1520bdde6c2/go.mod h1:mW81EF7s4wSvB4dnjrdXv/kCV+eAOXL4vqVT9h8aXsw=
+github.com/junegunn/fzf v0.0.0-20191017055157-0c6c76e08115 h1:d8fevlI4bJPLDn4BP0SaHlYNgo5FYF9lRBPWWe2Tf08=
+github.com/junegunn/fzf v0.0.0-20191017055157-0c6c76e08115/go.mod h1:mW81EF7s4wSvB4dnjrdXv/kCV+eAOXL4vqVT9h8aXsw=
 github.com/lucasb-eyer/go-colorful v0.0.0-20170223221042-c900de9dbbc7/go.mod h1:NXg0ArsFk0Y01623LgUqoqcouGDB+PwCCQlrwrG6xJ4=
 github.com/lucasb-eyer/go-colorful v1.0.2 h1:mCMFu6PgSozg9tDNMMK3g18oJBX7oYGrC09mS6CXfO4=
 github.com/lucasb-eyer/go-colorful v1.0.2/go.mod h1:0MS4r+7BZKSJ5mw4/S5MPN+qHFF1fYclkSPilDOKW0s=
@@ -37,6 +39,8 @@ github.com/reusee/dscope v0.0.0-20190907053525-42cbb6fc78f8 h1:172tG8oMkvAMBxB4D
 github.com/reusee/dscope v0.0.0-20190907053525-42cbb6fc78f8/go.mod h1:3YStua5Cdi2FJixYwigqIUYhARAZ8fQSTSNZ2ZotVA8=
 github.com/reusee/dscope v0.0.0-20191011031537-621f80b82680 h1:AE0mBKNHNgPyz11nWjxkLmqOCCWovVJtyiZ87wISEn4=
 github.com/reusee/dscope v0.0.0-20191011031537-621f80b82680/go.mod h1:3YStua5Cdi2FJixYwigqIUYhARAZ8fQSTSNZ2ZotVA8=
+github.com/reusee/dscope v0.0.0-20191014210158-144caf3c7165 h1:iBbFOzTDUCQGDRgctnqFSap9W4f5SC0VnPIfvs/8yWw=
+github.com/reusee/dscope v0.0.0-20191014210158-144caf3c7165/go.mod h1:3YStua5Cdi2FJixYwigqIUYhARAZ8fQSTSNZ2ZotVA8=
 github.com/reusee/e/v2 v2.3.3 h1:/voLHd60okWZ1KEaY4Pln877sbxYQJR2qj48bpWyI0I=
 github.com/reusee/e/v2 v2.3.3/go.mod h1:kykJjxDURd5MAGzB+xkwN7WxfuZaotLjTssHtjpi5LQ=
 github.com/reusee/toml v0.4.0 h1:PXYMfykMkrPXp3BoTO8SFdAa+MZsfEFYzBToqeiybpY=
