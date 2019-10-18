@@ -6,7 +6,7 @@ require (
 	github.com/gdamore/tcell v1.3.0
 	github.com/junegunn/fzf v0.0.0-20191017055157-0c6c76e08115
 	github.com/mattn/go-isatty v0.0.10 // indirect
-	github.com/reusee/dscope v0.0.0-20191014210158-144caf3c7165
+	github.com/reusee/dscope v0.0.0-20191018091943-8e732cb74adc
 	github.com/reusee/e/v2 v2.3.3
 	github.com/reusee/toml v0.4.0
 	github.com/sergi/go-diff v1.0.0
