@@ -32,11 +32,13 @@ func (_ Provide) FormatterGo(
 				job := <-c
 
 				src := job.moment.GetBytes()
+				src = bytes.TrimRight(src, "\n")
 				formatted, err := formatGoSource(job.buffer.AbsPath, src)
 				if err != nil {
 					// do nothing if format error
 					continue
 				}
+				formatted = bytes.TrimRight(formatted, "\n")
 				if bytes.Equal(src, formatted) {
 					continue
 				}
@@ -110,8 +112,12 @@ func (_ Provide) FormatterGo(
 
 						}
 
-						if !bytes.Equal(moment.GetBytes(), formatted) {
-							j("formatter bug, moment content not match")
+						content := moment.GetBytes()
+						content = bytes.TrimRight(content, "\n")
+						if !bytes.Equal(content, formatted) {
+							j("%x", content[len(content)-10:])
+							j("%x", formatted[len(formatted)-10:])
+							j("formatter bug, moment content not match %d %d", len(content), len(formatted))
 							return
 						}
 						j("auto format in %v", time.Since(t0))

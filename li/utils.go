@@ -25,7 +25,7 @@ var (
 	NewScope = dscope.New
 	is       = errors.Is
 	numCPU   = runtime.NumCPU()
-	never    = time.Date(9999, 1, 1, 1, 1, 1, 1, time.Local)
+	never    = time.Date(9102, 1, 1, 1, 1, 1, 1, time.Local)
 )
 
 type (
