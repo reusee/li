@@ -115,7 +115,6 @@ func ShowCommandPalette(
 		OnKey: func(
 			ev KeyEvent,
 			scope Scope,
-			log LogImitation,
 		) {
 			switch ev.Key() {
 
@@ -266,9 +265,8 @@ func ShowCommandPalette(
 }
 
 func (_ Command) ShowCommandPalette() (spec CommandSpec) {
-	spec.Func = func(scope Scope) NoLogImitation {
+	spec.Func = func(scope Scope) {
 		scope.Call(ShowCommandPalette)
-		return true
 	}
 	return
 }

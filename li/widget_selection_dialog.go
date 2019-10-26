@@ -232,7 +232,7 @@ func (d *SelectionDialog) StrokeSpecs() any {
 				Predict: func() bool {
 					return true
 				},
-				Func: func(ev KeyEvent, scope Scope) NoLogImitation {
+				Func: func(ev KeyEvent, scope Scope) {
 
 					switch ev.Key() {
 
@@ -273,7 +273,6 @@ func (d *SelectionDialog) StrokeSpecs() any {
 
 					}
 
-					return true
 				},
 			},
 		}

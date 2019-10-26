@@ -9,7 +9,7 @@ import (
 
 func (_ Command) ChoosePathAndLoad() (spec CommandSpec) {
 	spec.Desc = "load file or dir"
-	spec.Func = func(scope Scope) NoLogImitation {
+	spec.Func = func(scope Scope) {
 		cb := func(path string) {
 			var buffers []*Buffer
 			var err error
@@ -28,7 +28,6 @@ func (_ Command) ChoosePathAndLoad() (spec CommandSpec) {
 		scope.Sub(
 			&cb,
 		).Call(ShowFileChooser)
-		return true
 	}
 	return
 }

@@ -35,7 +35,6 @@ func (_ Provide) Commands() Commands {
 func ExecuteCommandFunc(
 	fn Func,
 	scope Scope,
-	logImitation LogImitation,
 	set SetStrokeSpecs,
 	reset ResetStrokeSpecs,
 ) (
@@ -45,21 +44,15 @@ func ExecuteCommandFunc(
 call:
 	// if non-empty, set as new stroke specs
 	var specs []StrokeSpec
-	// if true, do not log imitation
-	var noLogImitation NoLogImitation
 	// if non-nil, call again
 	var moreFunc Func
 	// abort execution
 	scope.Call(
 		fn,
 		&specs,
-		&noLogImitation,
 		&moreFunc,
 		&abort,
 	)
-	if !noLogImitation {
-		logImitation(fn)
-	}
 	if moreFunc != nil {
 		fn = moreFunc
 		goto call

@@ -24,9 +24,8 @@ func (w WidgetDialog) StrokeSpecs() any {
 				Predict: func() bool {
 					return w.OnKey != nil
 				},
-				Func: func(ev KeyEvent, scope Scope) NoLogImitation {
+				Func: func(ev KeyEvent, scope Scope) {
 					scope.Call(w.OnKey)
-					return true
 				},
 			},
 		}

@@ -351,7 +351,6 @@ func NextRune() []StrokeSpec {
 					return
 				}
 				toFind := ev.Rune()
-				// to make imitation work
 				fn = func(
 					getCur CurrentView,
 					scope Scope,
@@ -416,7 +415,6 @@ func PrevRune() []StrokeSpec {
 					return
 				}
 				toFind := ev.Rune()
-				// to make imitation work
 				fn = func(
 					getCur CurrentView,
 					scope Scope,
@@ -472,7 +470,6 @@ func NextLineWithRune() []StrokeSpec {
 					return
 				}
 				toFind := ev.Rune()
-				// return a new func to make imitation work
 				fn = func(
 					cur CurrentView,
 					scope Scope,
@@ -522,7 +519,6 @@ func PrevLineWithRune() []StrokeSpec {
 					return
 				}
 				toFind := ev.Rune()
-				// return a new func to make imitation work
 				fn = func(
 					cur CurrentView,
 					scope Scope,

@@ -120,9 +120,8 @@ func ShowViewSwitcher(scope Scope) {
 
 func (_ Command) ShowViewSwitcher() (spec CommandSpec) {
 	spec.Desc = "show view switcher"
-	spec.Func = func(scope Scope) NoLogImitation {
+	spec.Func = func(scope Scope) {
 		scope.Call(ShowViewSwitcher)
-		return true
 	}
 	return
 }
