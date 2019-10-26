@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 	"unsafe"
 
 	"github.com/reusee/dscope"
@@ -24,6 +25,7 @@ var (
 	NewScope = dscope.New
 	is       = errors.Is
 	numCPU   = runtime.NumCPU()
+	never    = time.Date(9999, 1, 1, 1, 1, 1, 1, time.Local)
 )
 
 type (

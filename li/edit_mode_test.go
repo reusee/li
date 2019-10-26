@@ -26,13 +26,13 @@ func TestEditModeRedoAfterSwitching(t *testing.T) {
 			t.Fatal()
 		}
 
+		// trigger
 		scope.Sub(func() KeyEvent {
 			return tcell.NewEventKey(tcell.KeyRune, 'j', 0)
 		}).Call(HandleKeyEvent)
 		scope.Sub(func() KeyEvent {
 			return tcell.NewEventKey(tcell.KeyRune, 'j', 0)
 		}).Call(HandleKeyEvent)
-
 		modes = getModes()
 		_, ok = modes[0].(*EditMode)
 		if ok {
@@ -44,5 +44,20 @@ func TestEditModeRedoAfterSwitching(t *testing.T) {
 			// no extra 'j'
 			view.GetMoment().GetLine(scope, 0).content, "foo",
 		)
+
+		// not trigger
+		scope.Call(EnableEditMode)
+		scope.Sub(func() KeyEvent {
+			return tcell.NewEventKey(tcell.KeyRune, 'j', 0)
+		}).Call(HandleKeyEvent)
+		scope.Sub(func() KeyEvent {
+			return tcell.NewEventKey(tcell.KeyRune, 'k', 0)
+		}).Call(HandleKeyEvent)
+		modes = getModes()
+		_, ok = modes[0].(*EditMode)
+		if !ok {
+			t.Fatal()
+		}
+
 	})
 }

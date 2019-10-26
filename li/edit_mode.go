@@ -6,7 +6,12 @@ import (
 	"github.com/gdamore/tcell"
 )
 
-type EditMode struct{}
+type EditMode struct {
+	matchStates     []editModeMatchState
+	disableSeqRunes []rune
+}
+
+type editModeMatchState dyn
 
 func EnableEditMode(
 	cur CurrentModes,
@@ -70,63 +75,93 @@ func (_ Provide) EditModeConfig(
 
 var _ KeyStrokeHandler = new(EditMode)
 
-func (_ EditMode) StrokeSpecs() any {
+func (e *EditMode) matchDisableSeq(
+	index int,
+	late time.Time,
+	rollback *Moment,
+) editModeMatchState {
+	return func(
+		ev KeyEvent,
+		cur CurrentView,
+		scope Scope,
+		dropLink DropLink,
+	) (bool, editModeMatchState) {
+		// not match sequence
+		if ev.Rune() != e.disableSeqRunes[index] {
+			return false, nil
+		}
+		// late
+		if time.Now().After(late) {
+			return false, nil
+		}
+		// match next
+		if index+1 < len(e.disableSeqRunes) {
+			return false, e.matchDisableSeq(
+				index+1,
+				time.Now().Add(time.Millisecond*100),
+				rollback,
+			)
+		}
+		// trigger
+		if rollback != nil {
+			view := cur()
+			moment := view.GetMoment()
+			for moment != rollback {
+				dropLink(view.Buffer, moment)
+				moment = moment.Previous
+			}
+			view.switchMoment(scope, rollback)
+		}
+		scope.Call(DisableEditMode)
+		return true, nil
+	}
+}
+
+func (e *EditMode) StrokeSpecs() any {
 	return func(
 		config EditModeConfig,
 	) []StrokeSpec {
 
-		disableSeqRunes := []rune(config.DisableSequence)
-		inserted := make([]*tcell.EventKey, len(disableSeqRunes))
+		e.disableSeqRunes = []rune(config.DisableSequence)
 
 		specs := []StrokeSpec{
 
-			// input
 			{
 				Predict: func(ev KeyEvent) bool {
 					return ev.Key() == tcell.KeyRune
 				},
 				Func: func(
-					ev KeyEvent,
 					scope Scope,
 					cur CurrentView,
-					dropLink DropLink,
+					ev KeyEvent,
 				) {
-					r := ev.Rune()
 
-					if len(disableSeqRunes) > 0 {
-						if r == disableSeqRunes[len(disableSeqRunes)-1] {
-							trigger := true
-							for i := len(disableSeqRunes) - 2; i >= 0; i-- {
-								if inserted[i+1] == nil ||
-									inserted[i+1].Rune() != disableSeqRunes[i] ||
-									time.Since(inserted[i+1].When()) > (time.Millisecond*100*time.Duration(len(disableSeqRunes))) {
-									trigger = false
-									break
-								}
-							}
-							if trigger {
-								view := cur()
-								moment := view.GetMoment()
-								for i := len(disableSeqRunes) - 2; i >= 0; i-- {
-									dropLink(view.Buffer, moment)
-									moment = moment.Previous
-								}
-								view.switchMoment(scope, moment)
-								scope.Call(DisableEditMode)
-								return
-							}
+					// match disable sequence
+					e.matchStates = append(
+						e.matchStates,
+						e.matchDisableSeq(0, never, cur().GetMoment()),
+					)
+					ts := e.matchStates[:0]
+					for _, thread := range e.matchStates {
+						var next editModeMatchState
+						var handled bool
+						scope.Call(thread, &next, &handled)
+						if handled {
+							e.matchStates = e.matchStates[:0]
+							return
+						} else if next != nil {
+							ts = append(ts, next)
 						}
 					}
+					e.matchStates = ts
 
+					// insert
 					fn := PositionFunc(PosCursor)
-					str := string(r)
+					str := string(ev.Rune())
 					scope.Sub(
 						&fn, &str,
 					).Call(InsertAtPositionFunc)
-					if len(inserted) > 0 {
-						copy(inserted[0:len(inserted)-1], inserted[1:])
-						inserted[len(inserted)-1] = ev
-					}
+
 				},
 			},
 
