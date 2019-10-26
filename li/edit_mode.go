@@ -68,7 +68,7 @@ func (_ Provide) EditModeConfig(
 	return config.EditMode
 }
 
-var _ KeyStrokeHandler = new(ReadMode)
+var _ KeyStrokeHandler = new(EditMode)
 
 func (_ EditMode) StrokeSpecs() any {
 	return func(
