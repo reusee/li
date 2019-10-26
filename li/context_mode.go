@@ -1,77 +1,42 @@
 package li
 
 import (
-	"fmt"
 	"strconv"
 )
 
-type ContextMode struct{}
+type ContextMode struct {
+	Number int
+}
 
 var _ KeyStrokeHandler = new(ContextMode)
 
-type NoResetN bool
-
-type (
-	SetN func(n int)
-	GetN func() int
-	UseN func() int
-)
-
-func (_ Provide) NumberContext() (
-	set SetN,
-	get GetN,
-	use UseN,
-) {
-
-	var n int
-	set = func(i int) {
-		n = i
-	}
-	get = func() int {
-		return n
-	}
-	use = func() (ret int) {
-		ret = n
-		n = 0
-		return
-	}
-
-	return
-}
-
-func makeNumHandler(i int) StrokeSpec {
-	return StrokeSpec{
-		Sequence: []string{fmt.Sprintf("Rune[%d]", i)},
-		Func: func(
-			getN GetN,
-			setN SetN,
-			scope Scope,
-		) NoResetN {
-			n := getN()
-			if n == 0 {
-				setN(i)
-			} else {
-				setN(n*10 + i)
-			}
-			return true
-		},
-	}
-}
-
-func (_ ContextMode) StrokeSpecs() any {
+func (c *ContextMode) StrokeSpecs() any {
 	return func() []StrokeSpec {
 		return []StrokeSpec{
-			// n
-			makeNumHandler(0),
-			makeNumHandler(1),
-			makeNumHandler(2),
-			makeNumHandler(3),
-			makeNumHandler(4),
-			makeNumHandler(5),
-			makeNumHandler(6),
-			makeNumHandler(7),
-			makeNumHandler(8),
-			makeNumHandler(9),
+
+			{
+				Predict: func(ev KeyEvent) bool {
+					r := ev.Rune()
+					return r >= '0' && r <= '9'
+				},
+				Func: func(
+					ev KeyEvent,
+				) {
+					n := int(ev.Rune() - '0')
+					if n == 0 && c.Number > 0 {
+						c.Number = c.Number * 10
+					} else if n > 0 {
+						c.Number = c.Number*10 + n
+					}
+				},
+			},
+
+			{
+				Sequence: []string{"Esc"},
+				Func: func() {
+					c.Number = 0
+				},
+			},
 		}
 	}
 }
@@ -81,15 +46,51 @@ func (_ Provide) ContextStatus(
 ) Init2 {
 
 	on(EvCollectStatusSections, func(
-		getN GetN,
+		getModes CurrentModes,
 		add AddStatusSection,
 	) {
-		if n := getN(); n > 0 {
-			add("context", [][]any{
-				{strconv.Itoa(n), AlignRight, Padding(0, 2, 0, 0)},
-			})
+		for _, mode := range getModes() {
+			m, ok := mode.(*ContextMode)
+			if ok {
+				add("context", [][]any{
+					{"num: " + strconv.Itoa(m.Number), AlignRight, Padding(0, 2, 0, 0)},
+				})
+				break
+			}
 		}
 	})
 
 	return nil
+}
+
+type WithContextNumber func(fn func(int))
+
+type SetContextNumber func(int)
+
+func (_ Provide) ContextNumber(
+	getModes CurrentModes,
+) (
+	with WithContextNumber,
+	set SetContextNumber,
+) {
+	with = func(fn func(int)) {
+		for _, mode := range getModes() {
+			m, ok := mode.(*ContextMode)
+			if ok {
+				fn(m.Number)
+				m.Number = 0
+				break
+			}
+		}
+	}
+	set = func(i int) {
+		for _, mode := range getModes() {
+			m, ok := mode.(*ContextMode)
+			if ok {
+				m.Number = i
+				break
+			}
+		}
+	}
+	return
 }

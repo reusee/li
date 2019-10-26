@@ -23,9 +23,7 @@ type KeyStrokeHandler interface {
 type (
 	GetStrokeSpecs   func() ([]StrokeSpec, bool)
 	SetStrokeSpecs   func([]StrokeSpec, bool)
-	ResetStrokeSpecs func(
-		noResetN NoResetN,
-	) []StrokeSpec
+	ResetStrokeSpecs func() []StrokeSpec
 )
 
 func (_ Provide) StrokeSpecsAccessor() (
@@ -46,7 +44,6 @@ func (_ Provide) StrokeSpecsAccessor() (
 
 func (_ Provide) StrokeSpecs(
 	curModes CurrentModes,
-	setN SetN,
 	overlays []Overlay,
 	scope Scope,
 	set SetStrokeSpecs,
@@ -71,19 +68,14 @@ func (_ Provide) StrokeSpecs(
 		}
 	}
 
-	reset = func(
-		noResetN NoResetN,
-	) []StrokeSpec {
-		if !noResetN {
-			setN(0)
-		}
+	reset = func() []StrokeSpec {
 		set(initial, true)
 		return initial
 	}
 
 	if _, isInitial := get(); isInitial {
 		// after command palette is closed, if current specs is the initial then reset, otherwise keep current
-		reset(false)
+		reset()
 	}
 
 	return
@@ -159,7 +151,7 @@ func HandleKeyEvent(
 
 	specs, _ := get()
 	if len(specs) == 0 {
-		specs = reset(false)
+		specs = reset()
 	}
 
 	r := ev.Name()

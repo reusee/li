@@ -165,7 +165,10 @@ func (e *EditMode) StrokeSpecs() any {
 				},
 			},
 
-			// special keys
+			{
+				Sequence:    []string{"Esc"},
+				CommandName: "DisableEditMode",
+			},
 			{
 				Sequence:    []string{"Backspace2"},
 				CommandName: "DeletePrevRune",

@@ -14,9 +14,9 @@ func TestCursor(t *testing.T) {
 		call func(string),
 		s Scope,
 		view *View,
-		setN SetN,
 		commands Commands,
 		screen Screen,
+		setN SetContextNumber,
 	) {
 
 		// empty move

@@ -91,29 +91,31 @@ func (_ Command) ScrollHome() (spec CommandSpec) {
 }
 
 func ScrollAbsOrEnd(
-	useN UseN,
+	withN WithContextNumber,
 	scope Scope,
 ) {
-	n := useN()
-	if n > 0 {
-		n--
-		scope.Sub(&Move{AbsLine: &n}).Call(MoveCursor)
-	} else {
-		scope.Call(ScrollEnd)
-	}
+	withN(func(n int) {
+		if n > 0 {
+			n--
+			scope.Sub(&Move{AbsLine: &n}).Call(MoveCursor)
+		} else {
+			scope.Call(ScrollEnd)
+		}
+	})
 }
 
 func ScrollAbsOrHome(
-	useN UseN,
+	withN WithContextNumber,
 	scope Scope,
 ) {
-	n := useN()
-	if n > 0 {
-		n--
-		scope.Sub(&Move{AbsLine: &n}).Call(MoveCursor)
-	} else {
-		scope.Call(ScrollHome)
-	}
+	withN(func(n int) {
+		if n > 0 {
+			n--
+			scope.Sub(&Move{AbsLine: &n}).Call(MoveCursor)
+		} else {
+			scope.Call(ScrollHome)
+		}
+	})
 }
 
 func (_ Command) ScrollAbsOrEnd() (spec CommandSpec) {

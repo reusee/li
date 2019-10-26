@@ -266,9 +266,9 @@ func ShowCommandPalette(
 }
 
 func (_ Command) ShowCommandPalette() (spec CommandSpec) {
-	spec.Func = func(scope Scope) (NoResetN, NoLogImitation) {
+	spec.Func = func(scope Scope) NoLogImitation {
 		scope.Call(ShowCommandPalette)
-		return true, true
+		return true
 	}
 	return
 }

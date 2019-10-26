@@ -43,8 +43,6 @@ func ExecuteCommandFunc(
 ) {
 
 call:
-	// if true, do not reset context number
-	var noResetN NoResetN
 	// if non-empty, set as new stroke specs
 	var specs []StrokeSpec
 	// if true, do not log imitation
@@ -54,7 +52,6 @@ call:
 	// abort execution
 	scope.Call(
 		fn,
-		&noResetN,
 		&specs,
 		&noLogImitation,
 		&moreFunc,
@@ -73,7 +70,7 @@ call:
 		set(specs, false)
 	} else if !abort {
 		// reset to inital specs
-		reset(noResetN)
+		reset()
 	}
 
 	return

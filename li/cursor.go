@@ -24,16 +24,18 @@ func MoveCursor(
 	move Move,
 	cur CurrentView,
 	scope Scope,
-	useN UseN,
+	withN WithContextNumber,
 	run RunInMainLoop,
 	trigger Trigger,
 ) {
 
 	// apply context number to relative moves
-	if n := useN(); n > 0 {
-		move.RelLine *= n
-		move.RelRune *= n
-	}
+	withN(func(n int) {
+		if n > 0 {
+			move.RelLine *= n
+			move.RelRune *= n
+		}
+	})
 
 	// get current view
 	view := cur()
