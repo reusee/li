@@ -39,46 +39,6 @@ func (view *View) RenderFunc() any {
 			), EvViewRendered)
 		}()
 
-		// outline
-		displayOffset := 0
-		for i := 0; i < box.Height(); i++ {
-			lineNum := view.ViewportLine + i
-			line := moment.GetLine(scope, lineNum)
-			if line == nil {
-				continue
-			}
-			if line.NonSpaceDisplayOffset == nil {
-				continue
-			}
-			displayOffset = *line.NonSpaceDisplayOffset
-			break
-		}
-		var outlineLines []int
-		for i := view.ViewportLine; i >= 0 && i >= view.ViewportLine-uiConfig.MaxOutlineDistance; i-- {
-			line := moment.GetLine(scope, i)
-			if line == nil {
-				continue
-			}
-			if line.NonSpaceDisplayOffset == nil {
-				continue
-			}
-			if *line.NonSpaceDisplayOffset < displayOffset {
-				outlineLines = append(outlineLines, i)
-				displayOffset = *line.NonSpaceDisplayOffset
-			}
-		}
-		var paddingTop, paddingBottom int
-		if view.Box.Height() > scrollConfig.PaddingTop+scrollConfig.PaddingBottom {
-			paddingTop = scrollConfig.PaddingTop
-			paddingBottom = scrollConfig.PaddingBottom
-		}
-		if len(outlineLines) > paddingTop {
-			outlineLines = outlineLines[len(outlineLines)-paddingTop:]
-		}
-		if len(outlineLines) > paddingBottom {
-			outlineLines = outlineLines[len(outlineLines)-paddingBottom:]
-		}
-
 		// content box
 		lineNumLength := displayWidth(fmt.Sprintf("%d", view.ViewportLine))
 		if l := displayWidth(fmt.Sprintf("%d", view.ViewportLine+view.Box.Height())); l > lineNumLength {
@@ -86,7 +46,6 @@ func (view *View) RenderFunc() any {
 		}
 		contentBox := view.Box
 		contentBox.Left += lineNumLength + 2
-		contentBox.Top += len(outlineLines)
 		view.ContentBox = contentBox
 
 		currentView := cur()
@@ -343,139 +302,6 @@ func (view *View) RenderFunc() any {
 			}
 		}
 		wg.Wait()
-
-		// outlines
-		outlineBox := contentBox
-		outlineBox.Top = view.Box.Top
-		outlineBox.Bottom = contentBox.Top - 1
-		lineNumBox.Bottom = lineNumBox.Top - 1
-		lineNumBox.Top = outlineBox.Top
-		for i, lineNum := range outlineLines {
-			x := outlineBox.Left
-			y := outlineBox.Top + (len(outlineLines) - i - 1)
-
-			baseStyle := defaultStyle
-			if i == 0 {
-				baseStyle = baseStyle.Underline(true)
-			}
-			lineStyle := baseStyle
-			line := moment.GetLine(scope, lineNum)
-
-			cells := line.Cells
-			skip := view.ViewportCol
-			leftSkip := false
-			for skip > 0 && len(cells) > 0 {
-				skip -= cells[0].DisplayWidth
-				cells = cells[1:]
-				leftSkip = true
-			}
-
-			var cellColors []*Color
-			var cellStyleFuncs []StyleFunc
-			if view.Stainer != nil {
-				l := LineNumber(lineNum)
-				scope.Sub(
-					&moment, &line, &l,
-				).Call(
-					view.Stainer.Line(),
-					&cellColors,
-					&cellStyleFuncs,
-				)
-			}
-
-			// show absolute line number
-			box := lineNumBox
-			box.Top = y
-			scope.Sub(
-				&box, &defaultStyle, &set,
-			).Call(Text(
-				fmt.Sprintf("%d", lineNum+1),
-				hlStyle,
-				Fill(true),
-				AlignRight,
-				Padding(0, 1, 0, 0),
-			).RenderFunc())
-
-			// cells
-			for cellNum, cell := range cells {
-
-				// right truncated
-				if x >= outlineBox.Right {
-					set(
-						outlineBox.Right-1, y,
-						'>', nil,
-						hlStyle,
-					)
-					break
-				}
-
-				// indent style
-				if line.NonSpaceDisplayOffset == nil ||
-					cell.DisplayOffset <= *line.NonSpaceDisplayOffset {
-					lineStyle = indentStyle(baseStyle, lineNum, cell.DisplayOffset)
-				}
-
-				style := lineStyle
-
-				if leftSkip && x == outlineBox.Left {
-					// left truncated
-					set(
-						x, y,
-						'<', nil,
-						hlStyle,
-					)
-				} else {
-					// cell style
-					if cellNum < len(cellColors) {
-						if color := cellColors[cellNum]; color != nil {
-							style = style.Foreground(*color)
-						}
-					} else if cellNum < len(cellStyleFuncs) {
-						if fn := cellStyleFuncs[cellNum]; fn != nil {
-							style = fn(style)
-						}
-					}
-					// set content
-					set(
-						x, y,
-						cell.Rune, nil,
-						style,
-					)
-				}
-
-				if cell.DisplayWidth > cell.Width {
-					// expanded tabs
-					for i := 0; i < cell.DisplayWidth-cell.Width; i++ {
-						if x+1+i >= outlineBox.Right {
-							break
-						}
-						set(
-							x+1+i, y,
-							' ', nil,
-							style,
-						)
-					}
-				}
-
-				x += cell.DisplayWidth
-			}
-
-			// fill blank
-			for ; x < outlineBox.Right; x++ {
-				offset := x - contentBox.Left
-				if line == nil ||
-					line.NonSpaceDisplayOffset == nil ||
-					offset <= *line.NonSpaceDisplayOffset {
-					lineStyle = indentStyle(baseStyle, lineNum, offset)
-				}
-				set(
-					x, y,
-					' ', nil,
-					lineStyle,
-				)
-			}
-
-		}
 
 		return frameBuffer
 	}
