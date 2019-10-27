@@ -317,7 +317,7 @@ func (view *View) RenderFunc() any {
 								set(
 									x+1+i, y,
 									' ', nil,
-									lineStyle,
+									style,
 								)
 							}
 						}
