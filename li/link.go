@@ -8,8 +8,8 @@ import (
 
 type (
 	Link          func(left, right any)
-	LinkedOne     func(o, target any)
-	LinkedAll     func(o, target any)
+	LinkedOne     func(o, target any) int
+	LinkedAll     func(o, target any) int
 	DropLink      func(left, right any)
 	DropLinked    func(o any)
 	DropLinkedOne func(o any)
@@ -66,20 +66,20 @@ func (_ Provide) LinkFuncs() (
 		save(right, left, n)
 	}
 
-	linkedOne = func(o, target any) {
+	linkedOne = func(o, target any) int {
 		l.RLock()
 		defer l.RUnlock()
 		t := reflect.TypeOf(target).Elem()
 		m, ok := links[o]
 		if !ok {
-			return
+			return 0
 		}
 		m2, ok := m[t]
 		if !ok {
-			return
+			return 0
 		}
 		if len(m2) == 0 {
-			return
+			return 0
 		}
 		var rights []any
 		for right := range m2 {
@@ -89,22 +89,23 @@ func (_ Provide) LinkFuncs() (
 			return m2[rights[i]] > m2[rights[j]]
 		})
 		reflect.ValueOf(target).Elem().Set(reflect.ValueOf(rights[0]))
+		return 1
 	}
 
-	linkedAll = func(o, target any) {
+	linkedAll = func(o, target any) int {
 		l.RLock()
 		defer l.RUnlock()
 		t := reflect.TypeOf(target).Elem().Elem()
 		m, ok := links[o]
 		if !ok {
-			return
+			return 0
 		}
 		m2, ok := m[t]
 		if !ok {
-			return
+			return 0
 		}
 		if len(m2) == 0 {
-			return
+			return 0
 		}
 		var rights []any
 		for right := range m2 {
@@ -118,6 +119,7 @@ func (_ Provide) LinkFuncs() (
 			slice = reflect.Append(slice, reflect.ValueOf(right))
 		}
 		reflect.ValueOf(target).Elem().Set(slice)
+		return slice.Len()
 	}
 
 	drop = func(left any) {
