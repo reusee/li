@@ -38,14 +38,6 @@ func Root(
 			},
 		),
 
-		// tabs
-		//ElementWith(
-		//	ElementFrom(Tabs),
-		//	func() Box {
-		//		return Box{0, statusWidth, 1, box.Width()}
-		//	},
-		//),
-
 		// view area
 		ElementWith(
 			ElementFrom(ViewArea),
