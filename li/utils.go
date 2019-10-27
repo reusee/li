@@ -7,6 +7,7 @@ import "C"
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -22,6 +23,7 @@ import (
 var (
 	me       = e.Default.WithStack().WithName("li")
 	ce, he   = e.New(me)
+	pt       = fmt.Printf
 	NewScope = dscope.New
 	is       = errors.Is
 	numCPU   = runtime.NumCPU()

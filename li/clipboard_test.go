@@ -89,3 +89,34 @@ func TestClipString(t *testing.T) {
 
 	})
 }
+
+func TestClipFromSelection(t *testing.T) {
+	withHelloEditor(t, func(
+		scope Scope,
+		buffer *Buffer,
+		linkedOne LinkedOne,
+	) {
+		scope.Call(ToggleSelection)
+		scope.Call(NewClipFromSelection)
+		var clip Clip
+		linkedOne(buffer, &clip)
+		eq(t,
+			clip.String(scope), "H",
+		)
+
+		scope.Sub(&Move{RelLine: 1}).Call(MoveCursor)
+		scope.Call(NewClipFromSelection)
+		linkedOne(buffer, &clip)
+		eq(t,
+			clip.String(scope), "Hello, world!\n你",
+		)
+
+		// no selection
+		scope.Call(ToggleSelection)
+		scope.Call(NewClipFromSelection)
+		linkedOne(buffer, &clip)
+		eq(t,
+			clip.String(scope), "Hello, world!\n你",
+		)
+	})
+}

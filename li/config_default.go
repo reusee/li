@@ -78,6 +78,7 @@ Layouts = [
 
   'Rune[w]' = 'FocusPrevViewInGroup'
   'Rune[e]' = 'FocusNextViewInGroup'
+  'Rune[y]' = 'NewClipFromSelection'
   'Rune[U]' = 'PageUp'
   'Rune[u]' = 'UndoDuration1'
   'Rune[i]' = 'EnableEditMode'

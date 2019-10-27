@@ -45,3 +45,31 @@ func (c *Clip) String(scope Scope) string {
 
 	return buf.String()
 }
+
+func NewClipFromSelection(
+	cur CurrentView,
+	link Link,
+	scope Scope,
+) {
+	view := cur()
+	r := view.selectedRange(scope)
+	if r == nil {
+		return
+	}
+	clip := Clip{
+		Moment: view.GetMoment(),
+		Range:  *r,
+	}
+	link(view.Buffer, clip)
+}
+
+func (_ Command) NewClipFromSelection() (spec CommandSpec) {
+	spec.Desc = "create new clip from current selection"
+	spec.Func = func(
+		scope Scope,
+	) {
+		scope.Call(NewClipFromSelection)
+		scope.Call(ToggleSelection)
+	}
+	return
+}
