@@ -53,9 +53,14 @@ func (view *View) RenderFunc() any {
 		// cursor position
 		defer func() {
 			if view == currentView {
+				y := contentBox.Top
+				moment := view.GetMoment()
+				for line := view.ViewportLine; line < view.CursorLine; line++ {
+					y += view.GetLineHeight(moment, line)
+				}
 				screen.ShowCursor(
 					contentBox.Left+(view.CursorCol-view.ViewportCol),
-					contentBox.Top+(view.CursorLine-view.ViewportLine),
+					y,
 				)
 			}
 		}()
