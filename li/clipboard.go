@@ -57,6 +57,9 @@ func NewClipFromSelection(
 	scope Scope,
 ) {
 	view := cur()
+	if view == nil {
+		return
+	}
 	r := view.selectedRange(scope)
 	if r == nil {
 		return
@@ -69,12 +72,36 @@ func NewClipFromSelection(
 }
 
 func (_ Command) NewClipFromSelection() (spec CommandSpec) {
-	spec.Desc = "create new clip from current selection"
+	spec.Desc = "create new clip from current selection (copy)"
 	spec.Func = func(
 		scope Scope,
 	) {
 		scope.Call(NewClipFromSelection)
 		scope.Call(ToggleSelection)
 	}
+	return
+}
+
+func InsertLastClip(
+	cur CurrentView,
+	linkedOne LinkedOne,
+	scope Scope,
+) {
+	view := cur()
+	if view == nil {
+		return
+	}
+	var clip Clip
+	if linkedOne(view.Buffer, &clip) == 0 {
+		return
+	}
+	str := clip.String(scope)
+	fn := PositionFunc(PosCursor)
+	scope.Sub(&str, &fn).Call(InsertAtPositionFunc)
+}
+
+func (_ Command) InsertLastClip() (spec CommandSpec) {
+	spec.Desc = "insert contents of last created clip (paste)"
+	spec.Func = InsertLastClip
 	return
 }

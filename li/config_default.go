@@ -84,7 +84,7 @@ Layouts = [
   'Rune[i]' = 'EnableEditMode'
   'Rune[O]' = 'EditNewLineAbove'
   'Rune[o]' = 'EditNewLineBelow'
-  'Rune[p]' = 'PrevDedentLine'
+  'Rune[p]' = 'InsertLastClip'
   'Rune[{]' = 'PrevEmptyLine'
   'Rune[[]' = 'PrevDedentLine'
   'Rune[}]' = 'NextEmptyLine'
@@ -103,7 +103,6 @@ Layouts = [
   'Rune[k]' = 'MoveUp'
   'Rune[l]' = 'MoveRight'
   'Rune[m]' = 'ShowCommandPalette'
-  'Rune[n]' = 'NextDedentLine'
 
   'Rune[z] Rune[t]' = 'ScrollCursorToUpper'
   'Rune[z] Rune[z]' = 'ScrollCursorToMiddle'

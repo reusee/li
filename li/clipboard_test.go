@@ -120,3 +120,25 @@ func TestClipFromSelection(t *testing.T) {
 		)
 	})
 }
+
+func TestInsertLastClip(t *testing.T) {
+	withHelloEditor(t, func(
+		scope Scope,
+		cur CurrentView,
+	) {
+		view := cur()
+
+		scope.Call(InsertLastClip)
+		eq(t,
+			view.GetMoment().GetLine(scope, 0).content, "Hello, world!\n",
+		)
+
+		scope.Call(ToggleSelection)
+		scope.Call(NewClipFromSelection)
+		scope.Call(InsertLastClip)
+		eq(t,
+			view.GetMoment().GetLine(scope, 0).content, "HHello, world!\n",
+		)
+
+	})
+}
