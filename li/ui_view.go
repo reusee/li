@@ -128,11 +128,10 @@ func (view *View) RenderFunc() any {
 				defer wg.Done()
 
 				isCurrentLine := lineNum == view.CursorLine
-				var line *Line
+				var lines []Line
 				if lineNum < moment.NumLines() {
-					line = moment.GetLine(scope, lineNum)
+					lines = append(lines, *moment.GetLine(scope, lineNum))
 				}
-				x := contentBox.Left
 
 				// line number
 				if isCurrentLine {
@@ -187,122 +186,133 @@ func (view *View) RenderFunc() any {
 				if isCurrentLine {
 					baseStyle = darkerOrLighterStyle(baseStyle, 20)
 				}
-				lineStyle := baseStyle
+				blockStyle := baseStyle
 
-				if line != nil {
-
-					cells := line.Cells
-					skip := view.ViewportCol
-					leftSkip := false
-					for skip > 0 && len(cells) > 0 {
-						skip -= cells[0].DisplayWidth
-						cells = cells[1:]
-						leftSkip = true
+				for i := 0; i < lineHeight; i++ {
+					var line *Line
+					if i < len(lines) {
+						line = &lines[i]
 					}
 
-					var cellColors []*Color
-					var cellStyleFuncs []StyleFunc
-					if view.Stainer != nil {
-						l := LineNumber(lineNum)
-						scope.Sub(
-							&moment, &line, &l,
-						).Call(
-							view.Stainer.Line(),
-							&cellColors,
-							&cellStyleFuncs,
-						)
-					}
+					x := contentBox.Left
+					if line != nil {
 
-					// cells
-					for cellNum, cell := range cells {
-
-						// right truncated
-						if x >= contentBox.Right {
-							set(
-								contentBox.Right-1, y,
-								'>', nil,
-								hlStyle,
-							)
-							break
+						cells := line.Cells
+						skip := view.ViewportCol
+						leftSkip := false
+						for skip > 0 && len(cells) > 0 {
+							skip -= cells[0].DisplayWidth
+							cells = cells[1:]
+							leftSkip = true
 						}
 
-						// indent style
-						if line.NonSpaceDisplayOffset == nil ||
-							cell.DisplayOffset <= *line.NonSpaceDisplayOffset {
-							lineStyle = indentStyle(baseStyle, lineNum, cell.DisplayOffset)
-						}
-
-						// style
-						style := lineStyle
-
-						// selected range style
-						if selectedRange != nil && selectedRange.Contains(Position{
-							Line: lineNum,
-							Cell: cellNum,
-						}) {
-							// selected range
-							style = style.Underline(true)
-							style = darkerOrLighterStyle(style, 20)
-						}
-
-						if leftSkip && x == contentBox.Left {
-							// left truncated
-							set(
-								x, y,
-								'<', nil,
-								hlStyle,
-							)
-						} else {
-							// cell style
-							if cellNum < len(cellColors) {
-								if color := cellColors[cellNum]; color != nil {
-									style = style.Foreground(*color)
-								}
-							} else if cellNum < len(cellStyleFuncs) {
-								if fn := cellStyleFuncs[cellNum]; fn != nil {
-									style = fn(style)
-								}
-							}
-							// set content
-							set(
-								x, y,
-								cell.Rune, nil,
-								style,
+						var cellColors []*Color
+						var cellStyleFuncs []StyleFunc
+						if view.Stainer != nil {
+							l := LineNumber(lineNum)
+							scope.Sub(
+								&moment, &line, &l,
+							).Call(
+								view.Stainer.Line(),
+								&cellColors,
+								&cellStyleFuncs,
 							)
 						}
 
-						if cell.DisplayWidth > cell.Width {
-							// expanded tabs
-							for i := 0; i < cell.DisplayWidth-cell.Width; i++ {
-								if x+1+i >= contentBox.Right {
-									break
-								}
+						// cells
+						for cellNum, cell := range cells {
+
+							// right truncated
+							if x >= contentBox.Right {
 								set(
-									x+1+i, y,
-									' ', nil,
+									contentBox.Right-1, y,
+									'>', nil,
+									hlStyle,
+								)
+								break
+							}
+
+							// indent style
+							if line.NonSpaceDisplayOffset == nil ||
+								cell.DisplayOffset <= *line.NonSpaceDisplayOffset {
+								blockStyle = indentStyle(baseStyle, lineNum, cell.DisplayOffset)
+							}
+
+							// style
+							style := blockStyle
+
+							// selected range style
+							if selectedRange != nil && selectedRange.Contains(Position{
+								Line: lineNum,
+								Cell: cellNum,
+							}) {
+								// selected range
+								style = style.Underline(true)
+								style = darkerOrLighterStyle(style, 20)
+							}
+
+							if leftSkip && x == contentBox.Left {
+								// left truncated
+								set(
+									x, y,
+									'<', nil,
+									hlStyle,
+								)
+							} else {
+								// cell style
+								if cellNum < len(cellColors) {
+									if color := cellColors[cellNum]; color != nil {
+										style = style.Foreground(*color)
+									}
+								} else if cellNum < len(cellStyleFuncs) {
+									if fn := cellStyleFuncs[cellNum]; fn != nil {
+										style = fn(style)
+									}
+								}
+								// set content
+								set(
+									x, y,
+									cell.Rune, nil,
 									style,
 								)
 							}
+
+							if cell.DisplayWidth > cell.Width {
+								// expanded tabs
+								for i := 0; i < cell.DisplayWidth-cell.Width; i++ {
+									if x+1+i >= contentBox.Right {
+										break
+									}
+									set(
+										x+1+i, y,
+										' ', nil,
+										style,
+									)
+								}
+							}
+
+							x += cell.DisplayWidth
 						}
-
-						x += cell.DisplayWidth
 					}
+
+					// fill blank
+					for ; x < contentBox.Right; x++ {
+						offset := x - contentBox.Left
+						if line == nil ||
+							line.NonSpaceDisplayOffset == nil ||
+							offset <= *line.NonSpaceDisplayOffset {
+							blockStyle = indentStyle(baseStyle, lineNum, offset)
+						}
+						set(
+							x, y,
+							' ', nil,
+							blockStyle,
+						)
+					}
+
+					y++
 				}
 
-				// fill blank
-				for ; x < contentBox.Right; x++ {
-					offset := x - contentBox.Left
-					if line == nil ||
-						line.NonSpaceDisplayOffset == nil ||
-						offset <= *line.NonSpaceDisplayOffset {
-						lineStyle = indentStyle(baseStyle, lineNum, offset)
-					}
-					set(
-						x, y,
-						' ', nil,
-						lineStyle,
-					)
-				}
 			}
 		}
 		wg.Wait()
@@ -337,5 +347,5 @@ func (v *View) GetLineHeight(
 	moment *Moment,
 	lineNum int,
 ) int {
-	return 1
+	return 2
 }
