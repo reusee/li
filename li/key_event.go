@@ -142,7 +142,7 @@ func HandleKeyEvent(
 ) {
 
 	defer func() {
-		trigger(scope.Sub(&ev), EvKeyEventHandled)
+		trigger(scope, EvKeyEventHandled)
 	}()
 
 	if recording {
