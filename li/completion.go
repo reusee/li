@@ -140,6 +140,7 @@ func (_ Provide) Completion(
 				if width > int(maxWidth)-10 {
 					width = int(maxWidth) - 10
 				}
+				//TODO make it line height awared
 				cursorY := view.ContentBox.Top + (view.CursorLine - view.ViewportLine)
 				height := len(candidates)
 				below := true

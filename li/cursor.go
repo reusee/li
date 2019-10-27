@@ -228,17 +228,23 @@ func PageDown(
 	if view == nil {
 		return
 	}
-	lines := view.Box.Height() - config.PaddingBottom
+	scrollHeight := view.Box.Height() - config.PaddingBottom
 	line := view.ViewportLine
-	line += lines
 	moment := view.GetMoment()
+	for {
+		scrollHeight -= view.GetLineHeight(moment, line)
+		if scrollHeight < 0 {
+			break
+		}
+		line++
+	}
 	if max := moment.NumLines() - 1; line > max {
 		line = max
 	}
+	scope.Sub(&Move{RelLine: line - view.ViewportLine}).Call(MoveCursor)
 	if view.ViewportLine != line {
 		view.ViewportLine = line
 	}
-	scope.Sub(&Move{RelLine: lines}).Call(MoveCursor)
 }
 
 func PageUp(
@@ -250,16 +256,23 @@ func PageUp(
 	if view == nil {
 		return
 	}
-	lines := view.Box.Height() - config.PaddingTop
+	scrollHeight := view.Box.Height() - config.PaddingTop
 	line := view.ViewportLine
-	line -= lines
+	moment := view.GetMoment()
+	for {
+		scrollHeight -= view.GetLineHeight(moment, line)
+		if scrollHeight < 0 {
+			break
+		}
+		line--
+	}
 	if line < 0 {
 		line = 0
 	}
+	scope.Sub(&Move{RelLine: line - view.ViewportLine}).Call(MoveCursor)
 	if view.ViewportLine != line {
 		view.ViewportLine = line
 	}
-	scope.Sub(&Move{RelLine: -lines}).Call(MoveCursor)
 }
 
 func NextEmptyLine(

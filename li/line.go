@@ -105,3 +105,10 @@ func (_ Provide) LineInitProcs(
 	}
 	return c
 }
+
+func (v *View) GetLineHeight(
+	moment *Moment,
+	lineNum int,
+) int {
+	return 2
+}

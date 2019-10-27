@@ -28,6 +28,8 @@ func ScrollToCursor(
 		return
 	}
 
+	//TODO line height awared
+
 	col := view.CursorCol
 	line := view.CursorLine
 	viewportCol := view.ViewportCol
@@ -140,6 +142,7 @@ func ScrollCursorToUpper(
 	if view == nil {
 		return
 	}
+	//TODO line height awared
 	viewportLine := view.CursorLine - config.PaddingTop
 	if viewportLine < 0 {
 		viewportLine = 0
@@ -161,6 +164,7 @@ func ScrollCursorToMiddle(
 	if view == nil {
 		return
 	}
+	//TODO line height awared
 	viewportLine := view.CursorLine - view.Box.Height()/2
 	if viewportLine < 0 {
 		viewportLine = 0
@@ -182,6 +186,7 @@ func ScrollCursorToLower(
 	if view == nil {
 		return
 	}
+	//TODO line height awared
 	viewportLine := view.CursorLine - (view.Box.Height() - config.PaddingBottom) + 1
 	if viewportLine < 0 {
 		viewportLine = 0

@@ -342,10 +342,3 @@ func (_ Provide) ViewRenderProcs() (
 
 	return
 }
-
-func (v *View) GetLineHeight(
-	moment *Moment,
-	lineNum int,
-) int {
-	return 2
-}
