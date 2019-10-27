@@ -115,26 +115,30 @@ func (view *View) RenderFunc() any {
 		// lines
 		selectedRange := view.selectedRange(scope)
 		wg := new(sync.WaitGroup)
-		for i := 0; i < contentBox.Height(); i++ {
-			i := i
+		loopLineNum := view.ViewportLine
+		loopY := contentBox.Top
+		for loopY < contentBox.Bottom {
+			y := loopY
+			lineNum := loopLineNum
+			lineHeight := view.GetLineHeight(moment, loopLineNum)
+			loopY += lineHeight
+			loopLineNum += 1
 			wg.Add(1)
 			procs <- func() {
 				defer wg.Done()
 
-				lineNum := view.ViewportLine + i
 				isCurrentLine := lineNum == view.CursorLine
 				var line *Line
 				if lineNum < moment.NumLines() {
 					line = moment.GetLine(scope, lineNum)
 				}
-				y := contentBox.Top + i
 				x := contentBox.Left
 
 				// line number
 				if isCurrentLine {
 					// show absolute
 					box := lineNumBox
-					box.Top += i
+					box.Top += (y - contentBox.Top)
 					scope.Sub(
 						&box, &defaultStyle, &set,
 					).Call(Text(
@@ -151,7 +155,7 @@ func (view *View) RenderFunc() any {
 						rel = -rel
 					}
 					box := lineNumBox
-					box.Top += i
+					box.Top += (y - contentBox.Top)
 					scope.Sub(
 						&box, &defaultStyle, &set,
 					).Call(Text(
@@ -163,7 +167,7 @@ func (view *View) RenderFunc() any {
 					).RenderFunc())
 				} else {
 					box := lineNumBox
-					box.Top += i
+					box.Top += (y - contentBox.Top)
 					scope.Sub(
 						&box, &defaultStyle, &set,
 					).Call(Text(
@@ -327,4 +331,11 @@ func (_ Provide) ViewRenderProcs() (
 	}
 
 	return
+}
+
+func (v *View) GetLineHeight(
+	moment *Moment,
+	lineNum int,
+) int {
+	return 1
 }
