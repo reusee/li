@@ -28,33 +28,31 @@ func ScrollToCursor(
 		return
 	}
 
-	//TODO line height awared
-
+	// move viewport column
 	col := view.CursorCol
-	line := view.CursorLine
 	viewportCol := view.ViewportCol
-	viewportLine := view.ViewportLine
-
-	// move viewport
 	if col < viewportCol {
 		viewportCol = viewportCol - (viewportCol - col)
 	} else if col >= viewportCol+view.Box.Width() {
 		viewportCol -= viewportCol + view.Box.Width() - col - 1
 	}
-	var paddingTop, paddingBottom int
-	if view.Box.Height() > config.PaddingTop+config.PaddingBottom {
-		paddingTop = config.PaddingTop
-		paddingBottom = config.PaddingBottom
-	}
-	if line < viewportLine+paddingTop {
-		viewportLine = viewportLine - (viewportLine - line) - paddingTop
-		if viewportLine < 0 {
-			viewportLine = 0
-		}
-	} else if line >= viewportLine+view.Box.Height()-paddingBottom {
-		viewportLine -= viewportLine + view.Box.Height() - line - 1 - paddingBottom
+
+	// move viewport line
+	line := view.CursorLine
+	viewportLine := view.ViewportLine
+	min, max := view.calculateViewportLineRange(
+		view.GetMoment(), line,
+		config.PaddingTop,
+		config.PaddingBottom,
+	)
+	log("%d %d\n", min, max)
+	if viewportLine < min {
+		viewportLine = min
+	} else if viewportLine > max {
+		viewportLine = max
 	}
 
+	// no change
 	if view.ViewportLine == viewportLine && view.ViewportCol == viewportCol {
 		return
 	}
@@ -62,6 +60,60 @@ func ScrollToCursor(
 	view.ViewportLine = viewportLine
 	view.ViewportCol = viewportCol
 
+}
+
+func (v *View) calculateViewportLineRange(
+	moment *Moment,
+	line int,
+	paddingTop int,
+	paddingBottom int,
+) (
+	min int,
+	max int,
+) {
+
+	if paddingTop+paddingBottom > v.Box.Height() {
+		paddingTop = 0
+		paddingBottom = 0
+	}
+
+	min = line
+	height := v.Box.Height() - paddingBottom - v.GetLineHeight(moment, line)
+	for {
+		if min < 0 {
+			min = 0
+			break
+		}
+		l := min - 1
+		if l < 0 {
+			break
+		}
+		height -= v.GetLineHeight(moment, l)
+		if height < 0 {
+			break
+		}
+		min--
+	}
+
+	max = line
+	height = paddingTop
+	for {
+		if max < 0 {
+			max = 0
+			break
+		}
+		l := max - 1
+		if l < 0 {
+			break
+		}
+		height -= v.GetLineHeight(moment, l)
+		if height < 0 {
+			break
+		}
+		max--
+	}
+
+	return
 }
 
 func ScrollEnd(
@@ -142,12 +194,13 @@ func ScrollCursorToUpper(
 	if view == nil {
 		return
 	}
-	//TODO line height awared
-	viewportLine := view.CursorLine - config.PaddingTop
-	if viewportLine < 0 {
-		viewportLine = 0
-	}
-	view.ViewportLine = viewportLine
+	_, max := view.calculateViewportLineRange(
+		view.GetMoment(),
+		view.CursorLine,
+		config.PaddingTop,
+		config.PaddingBottom,
+	)
+	view.ViewportLine = max
 }
 
 func (_ Command) ScrollCursorToUpper() (spec CommandSpec) {
@@ -164,12 +217,13 @@ func ScrollCursorToMiddle(
 	if view == nil {
 		return
 	}
-	//TODO line height awared
-	viewportLine := view.CursorLine - view.Box.Height()/2
-	if viewportLine < 0 {
-		viewportLine = 0
-	}
-	view.ViewportLine = viewportLine
+	min, max := view.calculateViewportLineRange(
+		view.GetMoment(),
+		view.CursorLine,
+		config.PaddingTop,
+		config.PaddingBottom,
+	)
+	view.ViewportLine = (max + min) / 2
 }
 
 func (_ Command) ScrollCursorToMiddle() (spec CommandSpec) {
@@ -186,12 +240,13 @@ func ScrollCursorToLower(
 	if view == nil {
 		return
 	}
-	//TODO line height awared
-	viewportLine := view.CursorLine - (view.Box.Height() - config.PaddingBottom) + 1
-	if viewportLine < 0 {
-		viewportLine = 0
-	}
-	view.ViewportLine = viewportLine
+	min, _ := view.calculateViewportLineRange(
+		view.GetMoment(),
+		view.CursorLine,
+		config.PaddingTop,
+		config.PaddingBottom,
+	)
+	view.ViewportLine = min
 }
 
 func (_ Command) ScrollCursorToLower() (spec CommandSpec) {
