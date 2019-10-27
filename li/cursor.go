@@ -228,23 +228,27 @@ func PageDown(
 	if view == nil {
 		return
 	}
+	moment := view.GetMoment()
+
 	scrollHeight := view.Box.Height() - config.PaddingBottom
 	line := view.ViewportLine
-	moment := view.GetMoment()
+	scrollLines := 0
 	for {
 		scrollHeight -= view.GetLineHeight(moment, line)
 		if scrollHeight < 0 {
 			break
 		}
+		if line > moment.NumLines()-1 {
+			break
+		}
 		line++
+		scrollLines++
 	}
-	if max := moment.NumLines() - 1; line > max {
-		line = max
-	}
-	scope.Sub(&Move{RelLine: line - view.ViewportLine}).Call(MoveCursor)
+
 	if view.ViewportLine != line {
 		view.ViewportLine = line
 	}
+	scope.Sub(&Move{RelLine: scrollLines}).Call(MoveCursor)
 }
 
 func PageUp(
@@ -256,23 +260,31 @@ func PageUp(
 	if view == nil {
 		return
 	}
+	moment := view.GetMoment()
+
 	scrollHeight := view.Box.Height() - config.PaddingTop
 	line := view.ViewportLine
-	moment := view.GetMoment()
 	for {
-		scrollHeight -= view.GetLineHeight(moment, line)
+		l := line - 1
+		if l < 0 {
+			break
+		}
+		scrollHeight -= view.GetLineHeight(moment, l)
 		if scrollHeight < 0 {
 			break
 		}
 		line--
 	}
-	if line < 0 {
-		line = 0
+	lines := view.ViewportLine - line
+	if line == 0 && scrollHeight > 0 {
+		// viewport not moving, set cursor line to 0
+		lines = view.CursorLine
 	}
-	scope.Sub(&Move{RelLine: line - view.ViewportLine}).Call(MoveCursor)
+
 	if view.ViewportLine != line {
 		view.ViewportLine = line
 	}
+	scope.Sub(&Move{RelLine: -lines}).Call(MoveCursor)
 }
 
 func NextEmptyLine(

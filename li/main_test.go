@@ -205,7 +205,7 @@ func eq(t *testing.T, args ...any) {
 		if !res.Equal {
 			fatal = true
 			fmt.Printf(
-				"pair %d not equal:\n%s\n------\n%s\n",
+				"pair %d not equal:\ngot %s\n------\nexpected %s\n",
 				i+1,
 				res.J1,
 				res.J2,

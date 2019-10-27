@@ -110,5 +110,6 @@ func (v *View) GetLineHeight(
 	moment *Moment,
 	lineNum int,
 ) int {
-	return 2
+	//TODO
+	return 1
 }
