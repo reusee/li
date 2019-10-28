@@ -10,7 +10,7 @@ func TestScopeValue(t *testing.T) {
 		type Elem int
 		type Access func(...Elem) Elem
 
-		provider := ScopeValue{
+		provider := SeriesValue{
 			Type:   Elem(0),
 			Access: Access(nil),
 		}.Provider()
@@ -25,7 +25,7 @@ func TestScopeValue(t *testing.T) {
 		})
 
 		ok := false
-		provider = ScopeValue{
+		provider = SeriesValue{
 			Type:   Elem(0),
 			Access: Access(nil),
 			OnLink: func(e Elem) {
@@ -46,7 +46,7 @@ func TestScopeValue(t *testing.T) {
 		})
 
 		ok = false
-		provider = ScopeValue{
+		provider = SeriesValue{
 			Type:   Elem(0),
 			Access: Access(nil),
 			OnChanged: func(e Elem) {

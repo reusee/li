@@ -20,7 +20,7 @@ func (_ Provide) CurrentViewAccessor(
 	trigger Trigger,
 	scope Scope,
 ) Init2 {
-	return ScopeValue{
+	return SeriesValue{
 		Type:   (*View)(nil),
 		Access: CurrentView(nil),
 		OnLink: func(view *View) {

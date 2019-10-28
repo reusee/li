@@ -2,14 +2,14 @@ package li
 
 import "reflect"
 
-type ScopeValue struct {
+type SeriesValue struct {
 	Type      dyn
 	Access    dyn // func(...Type) Type
 	OnLink    dyn // func(Type)
 	OnChanged dyn // func(Type)
 }
 
-func (s ScopeValue) Provider() dyn {
+func (s SeriesValue) Provider() dyn {
 	// as link anchor
 	type Anchor struct{}
 	var anchor Anchor

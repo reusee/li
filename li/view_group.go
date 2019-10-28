@@ -88,7 +88,7 @@ type (
 
 func (_ Provide) CurrentViewGroupAccessor() Init {
 	return func() any {
-		return ScopeValue{
+		return SeriesValue{
 			Type:   (*ViewGroup)(nil),
 			Access: CurrentViewGroup(nil),
 		}.Provider()
