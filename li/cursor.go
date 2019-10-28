@@ -381,6 +381,9 @@ func NextRune() []StrokeSpec {
 			Predict: func() bool {
 				return true
 			},
+			Hints: []string{
+				"press any key to jump...",
+			},
 			Func: func(
 				ev KeyEvent,
 			) (

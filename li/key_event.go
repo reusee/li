@@ -14,6 +14,7 @@ type StrokeSpec struct {
 	Func        any
 	Command     CommandSpec
 	CommandName string
+	Hints       []string
 }
 
 type KeyStrokeHandler interface {
@@ -206,7 +207,7 @@ func HandleKeyEvent(
 	set(nextSpecs, false)
 }
 
-func (_ Provide) KeyStatus(
+func (_ Provide) KeyEventHooks(
 	on On,
 ) Init2 {
 
@@ -218,6 +219,28 @@ func (_ Provide) KeyStatus(
 			add("key", [][]any{
 				{ev.Name(), AlignRight, Padding(0, 2, 0, 0)},
 			})
+		}
+	})
+
+	on(EvCollectLineHint, func(
+		cur CurrentView,
+		lineRange [2]int,
+		add AddLineHint,
+		getSpecs GetStrokeSpecs,
+	) {
+		view := cur()
+		if view == nil {
+			return
+		}
+		curLine := view.CursorLine
+		specs, _ := getSpecs()
+		for _, spec := range specs {
+			if len(spec.Hints) > 0 {
+				add(LineHint{
+					Line:  curLine,
+					Hints: spec.Hints,
+				})
+			}
 		}
 	})
 

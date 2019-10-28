@@ -147,6 +147,10 @@ func CalculateLineHeights(
 		info[hint.Line] += len(hint.Hints)
 	}
 
+	for key := range info {
+		info[key]++
+	}
+
 	if info == nil {
 		info = emptyLineHeightsInfo
 	}
