@@ -19,7 +19,7 @@ func NewGlobal(fns ...any) Scope {
 	processFunc := func(fnValue reflect.Value) {
 		fn := fnValue.Interface()
 		if initFunc, ok := fn.(func() Init); ok {
-			fn = initFunc()
+			fn = initFunc()()
 			if fn == nil {
 				return
 			}

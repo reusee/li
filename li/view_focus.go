@@ -11,33 +11,29 @@ type evCurrentViewChanged struct{}
 
 var EvCurrentViewChanged = new(evCurrentViewChanged)
 
-func (_ Provide) CurrentView(
-	link Link,
-	linkedOne LinkedOne,
+func (_ Provide) CurrentView() CurrentView {
+	return nil // re-provide below
+}
+
+func (_ Provide) CurrentViewAccessor(
 	j AppendJournal,
-	scope Scope,
 	trigger Trigger,
-) (
-	fn CurrentView,
-) {
-	type Flag struct{}
-	var flag Flag
-	fn = func(views ...*View) (ret *View) {
-		for _, view := range views {
-			link(flag, view)
+	scope Scope,
+) Init2 {
+	return ScopeValue{
+		Type:   (*View)(nil),
+		Access: CurrentView(nil),
+		OnLink: func(view *View) {
 			path, err := filepath.Abs(view.Buffer.Path)
 			ce(err)
 			j("switch to %s", path)
-		}
-		linkedOne(flag, &ret)
-		if len(views) > 0 {
+		},
+		OnChanged: func(view *View) {
 			trigger(scope.Sub(
-				&ret,
+				&view,
 			), EvCurrentViewChanged)
-		}
-		return
-	}
-	return
+		},
+	}.Provider()
 }
 
 func AsCurrentView(view *View) (

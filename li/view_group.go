@@ -86,25 +86,13 @@ type (
 	CurrentViewGroup func(...*ViewGroup) *ViewGroup
 )
 
-func (_ Provide) ViewGroupAccessor(
-	link Link,
-	linkedOne LinkedOne,
-) (
-	fn CurrentViewGroup,
-) {
-
-	type Flag struct{}
-	var flag Flag
-
-	fn = func(groups ...*ViewGroup) (ret *ViewGroup) {
-		for _, group := range groups {
-			link(flag, group)
-		}
-		linkedOne(flag, &ret)
-		return
+func (_ Provide) CurrentViewGroupAccessor() Init {
+	return func() any {
+		return ScopeValue{
+			Type:   (*ViewGroup)(nil),
+			Access: CurrentViewGroup(nil),
+		}.Provider()
 	}
-
-	return
 }
 
 func (g *ViewGroup) GetViews(scope Scope) []*View {
