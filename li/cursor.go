@@ -232,9 +232,16 @@ func PageDown(
 
 	scrollHeight := view.Box.Height() - config.PaddingBottom
 	line := view.ViewportLine
+	var lineHeights map[int]int
+	scope.Sub(&moment, &[2]int{line, line + scrollHeight}).
+		Call(CalculateLineHeights, &lineHeights)
 	scrollLines := 0
 	for {
-		scrollHeight -= view.GetLineHeight(moment, line)
+		if h, ok := lineHeights[line]; ok {
+			scrollHeight -= h
+		} else {
+			scrollHeight--
+		}
 		if scrollHeight < 0 {
 			break
 		}
@@ -264,12 +271,19 @@ func PageUp(
 
 	scrollHeight := view.Box.Height() - config.PaddingTop
 	line := view.ViewportLine
+	var lineHeights map[int]int
+	scope.Sub(&moment, &[2]int{line - scrollHeight - 1, line}).
+		Call(CalculateLineHeights, &lineHeights)
 	for {
 		l := line - 1
 		if l < 0 {
 			break
 		}
-		scrollHeight -= view.GetLineHeight(moment, l)
+		if h, ok := lineHeights[l]; ok {
+			scrollHeight -= h
+		} else {
+			scrollHeight--
+		}
 		if scrollHeight < 0 {
 			break
 		}

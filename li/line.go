@@ -106,10 +106,40 @@ func (_ Provide) LineInitProcs(
 	return c
 }
 
-func (v *View) GetLineHeight(
+var emptyLineHeightsInfo = make(map[int]int)
+
+func CalculateLineHeights(
 	moment *Moment,
-	lineNum int,
-) int {
+	lineRange [2]int,
+) (
+	info map[int]int,
+) {
+
+	// set info[line] to line height other than 1
+	// assuming line height is 1 if key not set
+
 	//TODO
-	return 1
+	return emptyLineHeightsInfo
+}
+
+func CalculateSumLineHeight(
+	scope Scope,
+	moment *Moment,
+	lineRange [2]int,
+) int {
+	var info map[int]int
+	scope.Sub(&moment, &lineRange).Call(CalculateLineHeights)
+	if info == nil {
+		return int(lineRange[1] - lineRange[0])
+	}
+	sum := 0
+	for i := lineRange[0]; i < lineRange[1]; i++ {
+		h, ok := info[i]
+		if !ok {
+			sum += 1
+		} else {
+			sum += h
+		}
+	}
+	return sum
 }

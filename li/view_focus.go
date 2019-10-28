@@ -148,6 +148,7 @@ func (_ Command) FocusPrevViewInGroup() (spec CommandSpec) {
 	spec.Func = FocusPrevViewInGroup
 	return
 }
+
 func (_ Provide) CurrentViewFilePathStatus(
 	on On,
 ) Init2 {

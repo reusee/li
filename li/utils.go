@@ -92,6 +92,9 @@ func intP(i int) *int {
 }
 
 func splitDir(path string) (ret []string) {
+	if path == "" {
+		return
+	}
 	dir, name := filepath.Split(path)
 	if dir == "/" {
 		return []string{name}

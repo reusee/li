@@ -55,9 +55,11 @@ func (view *View) RenderFunc() any {
 			if view == currentView {
 				y := contentBox.Top
 				moment := view.GetMoment()
-				for line := view.ViewportLine; line < view.CursorLine; line++ {
-					y += view.GetLineHeight(moment, line)
-				}
+				var lineHeight int
+				scope.Sub(&moment, &[2]int{
+					view.ViewportLine, view.CursorLine,
+				}).Call(CalculateSumLineHeight, &lineHeight)
+				y += lineHeight
 				screen.ShowCursor(
 					contentBox.Left+(view.CursorCol-view.ViewportCol),
 					y,
@@ -122,10 +124,17 @@ func (view *View) RenderFunc() any {
 		wg := new(sync.WaitGroup)
 		loopLineNum := view.ViewportLine
 		loopY := contentBox.Top
+		var lineHeights map[int]int
+		scope.Sub(&moment, &[2]int{
+			view.ViewportLine, view.ViewportLine + view.Box.Height(),
+		}).Call(CalculateLineHeights, &lineHeights)
 		for loopY < contentBox.Bottom {
 			y := loopY
 			lineNum := loopLineNum
-			lineHeight := view.GetLineHeight(moment, loopLineNum)
+			lineHeight := 1
+			if h, ok := lineHeights[loopLineNum]; ok {
+				lineHeight = h
+			}
 			loopY += lineHeight
 			loopLineNum += 1
 			wg.Add(1)

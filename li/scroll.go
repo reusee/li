@@ -41,6 +41,7 @@ func ScrollToCursor(
 	line := view.CursorLine
 	viewportLine := view.ViewportLine
 	min, max := view.calculateViewportLineRange(
+		scope,
 		view.GetMoment(), line,
 		config.PaddingTop,
 		config.PaddingBottom,
@@ -63,6 +64,7 @@ func ScrollToCursor(
 }
 
 func (v *View) calculateViewportLineRange(
+	scope Scope,
 	moment *Moment,
 	line int,
 	paddingTop int,
@@ -77,8 +79,18 @@ func (v *View) calculateViewportLineRange(
 		paddingBottom = 0
 	}
 
+	var lineHeights map[int]int
+	scope.Sub(&moment, &[2]int{
+		line - v.Box.Height() - 1, line,
+	}).Call(CalculateLineHeights, &lineHeights)
+
 	min = line
-	height := v.Box.Height() - paddingBottom - v.GetLineHeight(moment, line)
+	height := v.Box.Height() - paddingBottom
+	if h, ok := lineHeights[line]; ok {
+		height -= h
+	} else {
+		height--
+	}
 	for {
 		if min < 0 {
 			min = 0
@@ -88,7 +100,11 @@ func (v *View) calculateViewportLineRange(
 		if l < 0 {
 			break
 		}
-		height -= v.GetLineHeight(moment, l)
+		if h, ok := lineHeights[l]; ok {
+			height -= h
+		} else {
+			height--
+		}
 		if height < 0 {
 			break
 		}
@@ -106,7 +122,11 @@ func (v *View) calculateViewportLineRange(
 		if l < 0 {
 			break
 		}
-		height -= v.GetLineHeight(moment, l)
+		if h, ok := lineHeights[l]; ok {
+			height -= h
+		} else {
+			height--
+		}
 		if height < 0 {
 			break
 		}
@@ -189,12 +209,14 @@ func (_ Command) ScrollAbsOrHome() (spec CommandSpec) {
 func ScrollCursorToUpper(
 	cur CurrentView,
 	config ScrollConfig,
+	scope Scope,
 ) {
 	view := cur()
 	if view == nil {
 		return
 	}
 	_, max := view.calculateViewportLineRange(
+		scope,
 		view.GetMoment(),
 		view.CursorLine,
 		config.PaddingTop,
@@ -212,12 +234,14 @@ func (_ Command) ScrollCursorToUpper() (spec CommandSpec) {
 func ScrollCursorToMiddle(
 	cur CurrentView,
 	config ScrollConfig,
+	scope Scope,
 ) {
 	view := cur()
 	if view == nil {
 		return
 	}
 	min, max := view.calculateViewportLineRange(
+		scope,
 		view.GetMoment(),
 		view.CursorLine,
 		config.PaddingTop,
@@ -235,12 +259,14 @@ func (_ Command) ScrollCursorToMiddle() (spec CommandSpec) {
 func ScrollCursorToLower(
 	cur CurrentView,
 	config ScrollConfig,
+	scope Scope,
 ) {
 	view := cur()
 	if view == nil {
 		return
 	}
 	min, _ := view.calculateViewportLineRange(
+		scope,
 		view.GetMoment(),
 		view.CursorLine,
 		config.PaddingTop,

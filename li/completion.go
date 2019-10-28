@@ -141,9 +141,12 @@ func (_ Provide) Completion(
 					width = int(maxWidth) - 10
 				}
 				cursorY := view.ContentBox.Top
-				for line := view.ViewportLine; line < view.CursorLine; line++ {
-					cursorY += view.GetLineHeight(moment, line)
-				}
+				var lineHeight int
+				scope.Sub(
+					&moment,
+					&[2]int{view.ViewportLine, view.CursorLine},
+				).Call(CalculateSumLineHeight, &lineHeight)
+				cursorY += lineHeight
 				height := len(candidates)
 				below := true
 				var maxH int
