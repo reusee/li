@@ -89,7 +89,13 @@ func main() {
 
 	// main loop
 	var sigExit li.SigExit
-	scope.Assign(&sigExit)
+	var renderTimer li.RenderTimer
+	var resetRenderTimer li.ResetRenderTimer
+	scope.Assign(
+		&sigExit,
+		&renderTimer,
+		&resetRenderTimer,
+	)
 
 	scope = scope.Sub(
 		func() li.SetContent {
@@ -99,8 +105,6 @@ func main() {
 
 	idleDuration := time.Second * 15
 	idleTimer := time.NewTimer(idleDuration)
-	renderDuration := time.Millisecond * 10
-	renderTimer := time.NewTimer(renderDuration)
 
 	for {
 
@@ -110,14 +114,14 @@ func main() {
 
 		case ev := <-screenEvents:
 			scope.Sub(func() li.ScreenEvent { return ev }).Call(li.HandleScreenEvent)
-			renderTimer.Reset(renderDuration)
+			resetRenderTimer()
 
 		case <-sigExit:
 			return
 
 		case fn := <-funcCalls:
 			scope.Call(fn)
-			renderTimer.Reset(renderDuration)
+			resetRenderTimer()
 
 		case <-renderTimer.C:
 			// render
@@ -140,7 +144,7 @@ func main() {
 					break loop
 				}
 			}
-			renderTimer.Reset(renderDuration)
+			resetRenderTimer()
 
 		}
 	}

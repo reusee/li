@@ -63,7 +63,11 @@ func withEditor(fn any) {
 
 	// panic handling
 	var exit Exit
-	scope.Assign(&exit)
+	var renderTimer RenderTimer
+	scope.Assign(
+		&exit,
+		&renderTimer,
+	)
 	defer exit()
 
 	loop := func() {
@@ -82,6 +86,8 @@ func withEditor(fn any) {
 
 			case fn := <-funcCalls:
 				scope.Call(fn)
+
+			case <-renderTimer.C:
 
 			default:
 				break loop
