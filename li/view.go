@@ -57,6 +57,7 @@ func NewViewFromBuffer(
 	link Link,
 	cur CurrentView,
 	linkedOne LinkedOne,
+	trigger Trigger,
 ) (
 	view *View,
 	err error,
@@ -95,6 +96,14 @@ func NewViewFromBuffer(
 	cur(view)
 
 	views[view.ID] = view
+
+	trigger(scope.Sub(
+		&view,
+		&view.Buffer,
+		&[2]*Moment{
+			nil, moment,
+		},
+	), EvMomentSwitched)
 
 	return
 }
