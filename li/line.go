@@ -108,9 +108,23 @@ func (_ Provide) LineInitProcs(
 
 var emptyLineHeightsInfo = make(map[int]int)
 
+type (
+	LineHint struct {
+		Line  int
+		Hints []string
+	}
+	AddLineHint func(LineHint)
+)
+
+type evCollectLineHint struct{}
+
+var EvCollectLineHint = new(evCollectLineHint)
+
 func CalculateLineHeights(
 	moment *Moment,
 	lineRange [2]int,
+	scope Scope,
+	trigger Trigger,
 ) (
 	info map[int]int,
 ) {
@@ -118,8 +132,25 @@ func CalculateLineHeights(
 	// set info[line] to line height other than 1
 	// assuming line height is 1 if key not set
 
-	//TODO
-	return emptyLineHeightsInfo
+	var hints []LineHint
+	add := AddLineHint(func(hint LineHint) {
+		hints = append(hints, hint)
+	})
+	trigger(
+		scope.Sub(&moment, &lineRange, &add),
+		EvCollectLineHint,
+	)
+	if len(hints) > 0 {
+		info = make(map[int]int)
+	}
+	for _, hint := range hints {
+		info[hint.Line] += len(hint.Hints)
+	}
+
+	if info == nil {
+		info = emptyLineHeightsInfo
+	}
+	return
 }
 
 func CalculateSumLineHeight(

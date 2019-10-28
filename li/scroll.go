@@ -46,7 +46,6 @@ func ScrollToCursor(
 		config.PaddingTop,
 		config.PaddingBottom,
 	)
-	log("%d %d\n", min, max)
 	if viewportLine < min {
 		viewportLine = min
 	} else if viewportLine > max {
