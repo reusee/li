@@ -1,13 +1,13 @@
 package li
 
 import (
-	"io"
+	"bytes/hash"
 	"sync"
 )
 
 type Segment struct {
 	lines       []*Line
-	sum         HashSum
+	sum         uint64
 	initSumOnce sync.Once
 }
 
@@ -67,14 +67,13 @@ func (s Segments) Sub(start int, end int) Segments {
 	return ret
 }
 
-func (s *Segment) Sum() HashSum {
+func (s *Segment) Sum() uint64 {
 	s.initSumOnce.Do(func() {
-		h := NewHash()
+		h := hash.New()
 		for _, line := range s.lines {
-			_, err := io.WriteString(h, line.content)
-			ce(err)
+			h.AddString(line.content)
 		}
-		copy(s.sum[:], h.Sum(nil))
+		s.sum = h.Sum64()
 	})
 	return s.sum
 }

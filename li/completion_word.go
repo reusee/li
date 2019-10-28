@@ -40,7 +40,7 @@ func (_ Provide) CollectWords(
 		i := i
 		go func() {
 
-			wordSets := make(map[HashSum]map[string]Word)
+			wordSets := make(map[uint64]map[string]Word)
 
 			for {
 				select {
