@@ -35,3 +35,11 @@ func (_ Provide) Loop() (
 
 	return
 }
+
+type evLoopBegin struct{}
+
+var EvLoopBegin = new(evLoopBegin)
+
+type evLoopEnd struct{}
+
+var EvLoopEnd = new(evLoopEnd)

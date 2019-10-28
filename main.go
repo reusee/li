@@ -91,10 +91,12 @@ func main() {
 	var sigExit li.SigExit
 	var renderTimer li.RenderTimer
 	var resetRenderTimer li.ResetRenderTimer
+	var trigger li.Trigger
 	scope.Assign(
 		&sigExit,
 		&renderTimer,
 		&resetRenderTimer,
+		&trigger,
 	)
 
 	scope = scope.Sub(
@@ -107,6 +109,8 @@ func main() {
 	idleTimer := time.NewTimer(idleDuration)
 
 	for {
+
+		trigger(scope, li.EvLoopBegin)
 
 		idleTimer.Reset(idleDuration)
 
@@ -147,6 +151,9 @@ func main() {
 			resetRenderTimer()
 
 		}
+
+		trigger(scope, li.EvLoopEnd)
+
 	}
 
 }

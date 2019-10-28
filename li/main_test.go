@@ -64,15 +64,19 @@ func withEditor(fn any) {
 	// panic handling
 	var exit Exit
 	var renderTimer RenderTimer
+	var trigger Trigger
 	scope.Assign(
 		&exit,
 		&renderTimer,
+		&trigger,
 	)
 	defer exit()
 
 	loop := func() {
 	loop:
 		for {
+
+			trigger(scope, EvLoopBegin)
 
 			var root Element
 			scope.Call(Root, &root)
@@ -93,6 +97,9 @@ func withEditor(fn any) {
 				break loop
 
 			}
+
+			trigger(scope, EvLoopEnd)
+
 		}
 	}
 
