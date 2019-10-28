@@ -4,7 +4,6 @@ import "time"
 
 type (
 	RunInMainLoop func(fn any)
-	RunWhenIdle   func(fn any)
 	RenderTimer   struct {
 		*time.Timer
 	}

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/gdamore/tcell"
 	"github.com/reusee/e/v2"
@@ -26,7 +25,6 @@ func main() {
 	// scope
 	var scope Scope
 	funcCalls := make(chan any, 128)
-	idleFuncCalls := make(chan any, 128)
 	scope = li.NewGlobal(
 		func() li.Derive {
 			return func(inits ...any) {
@@ -36,11 +34,6 @@ func main() {
 		func() li.RunInMainLoop {
 			return func(fn any) {
 				funcCalls <- fn
-			}
-		},
-		func() li.RunWhenIdle {
-			return func(fn any) {
-				idleFuncCalls <- fn
 			}
 		},
 	)
@@ -105,14 +98,9 @@ func main() {
 		},
 	)
 
-	idleDuration := time.Second * 15
-	idleTimer := time.NewTimer(idleDuration)
-
 	for {
 
 		trigger(scope, li.EvLoopBegin)
-
-		idleTimer.Reset(idleDuration)
 
 		select {
 
@@ -133,22 +121,6 @@ func main() {
 			scope.Call(li.Root, &root)
 			scope.Call(root.RenderFunc())
 			screen.Show()
-
-		case <-idleTimer.C:
-			t0 := time.Now()
-		loop:
-			for {
-				select {
-				case fn := <-idleFuncCalls:
-					scope.Call(fn)
-					if time.Since(t0) > time.Second {
-						break loop
-					}
-				default:
-					break loop
-				}
-			}
-			resetRenderTimer()
 
 		}
 
