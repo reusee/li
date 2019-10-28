@@ -20,7 +20,7 @@ type (
 func (_ Provide) Journal(
 	derive Derive,
 	uiConfig UIConfig,
-	step LoopStep,
+	cont ContinueMainLoop,
 ) (
 	appendJournal AppendJournal,
 	get JournalLines,
@@ -43,7 +43,7 @@ func (_ Provide) Journal(
 		for _, line := range split {
 			lines = append(lines, t+line)
 		}
-		step()
+		cont()
 	}
 
 	get = func() []string {
