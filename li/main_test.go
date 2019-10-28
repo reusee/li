@@ -20,10 +20,11 @@ func withEditor(fn any) {
 	// scope
 	var scope Scope
 	funcCalls := make(chan any, 128)
+	var derives []any
 	scope = NewGlobal(
 		func() Derive {
 			return func(inits ...any) {
-				scope = scope.Sub(inits...)
+				derives = append(derives, inits...)
 			}
 		},
 		func() RunInMainLoop {
@@ -99,6 +100,11 @@ func withEditor(fn any) {
 			}
 
 			trigger(scope, EvLoopEnd)
+
+			if len(derives) > 0 {
+				scope = scope.Sub(derives...)
+				derives = derives[:0]
+			}
 
 		}
 	}

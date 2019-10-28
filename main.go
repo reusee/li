@@ -25,10 +25,11 @@ func main() {
 	// scope
 	var scope Scope
 	funcCalls := make(chan any, 128)
+	var derives []any
 	scope = li.NewGlobal(
 		func() li.Derive {
 			return func(inits ...any) {
-				scope = scope.Sub(inits...)
+				derives = append(derives, inits...)
 			}
 		},
 		func() li.RunInMainLoop {
@@ -122,6 +123,11 @@ func main() {
 			scope.Call(root.RenderFunc())
 			screen.Show()
 
+		}
+
+		if len(derives) > 0 {
+			scope = scope.Sub(derives...)
+			derives = derives[:0]
 		}
 
 		trigger(scope, li.EvLoopEnd)
