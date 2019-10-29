@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/gdamore/tcell"
@@ -15,6 +16,11 @@ type SimScreen struct {
 
 func (_ SimScreen) SetCursorShape(shape CursorShape) {
 }
+
+type (
+	GetSimScreenContents func() ([]tcell.SimCell, int, int)
+	GetScreenString      func(Box) []string
+)
 
 func withEditor(fn any) {
 	// scope
@@ -146,6 +152,31 @@ func withEditor(fn any) {
 				loop()
 			}
 		},
+
+		func() GetSimScreenContents {
+			return func() ([]tcell.SimCell, int, int) {
+				return screen.GetContents()
+			}
+		},
+
+		func(
+			contents GetSimScreenContents,
+		) GetScreenString {
+			return func(box Box) (ret []string) {
+				cells, width, height := contents()
+				for y := box.Top; y < box.Bottom && y < height; y++ {
+					buf := new(strings.Builder)
+					x := box.Left
+					for x < box.Right && x < width {
+						cell := cells[y*width+x]
+						buf.Write(cell.Bytes)
+						x += runesDisplayWidth(cell.Runes)
+					}
+					ret = append(ret, buf.String())
+				}
+				return
+			}
+		},
 	).Call(fn)
 
 }
@@ -232,4 +263,22 @@ func eq(t *testing.T, args ...any) {
 	if fatal {
 		t.Fatal()
 	}
+}
+
+func TestGetScreenString(t *testing.T) {
+	withHelloEditor(t, func(
+		view *View,
+		get GetScreenString,
+		scope Scope,
+		emitRune EmitRune,
+	) {
+		scope.Call(EnableEditMode)
+		emitRune('H')
+		lines := get(view.ContentBox)
+		eq(t,
+			strings.HasPrefix(lines[0], "HHello, world!"), true,
+			strings.HasPrefix(lines[1], "你好，世界！"), true,
+			strings.HasPrefix(lines[2], "こんにちは、世界！"), true,
+		)
+	})
 }
