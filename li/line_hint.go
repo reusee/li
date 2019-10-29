@@ -58,13 +58,22 @@ func (_ Provide) LineHints(
 						}
 					}
 					if !same {
+						// insert
 						changed = true
-						hints[h] = LineHint{
-							Moment: moment,
-							Line:   line,
-							Hints:  strs,
-							mark:   mark,
-						}
+						hints = append(
+							hints[:h],
+							append(
+								[]LineHint{
+									{
+										Moment: moment,
+										Line:   line,
+										Hints:  strs,
+										mark:   mark,
+									},
+								},
+								hints[h:]...,
+							)...,
+						)
 					} else {
 						hints[h].mark = mark
 					}

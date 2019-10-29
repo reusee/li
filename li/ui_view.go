@@ -225,9 +225,10 @@ func (view *View) RenderFunc() any {
 				n := sort.Search(len(hints), func(i int) bool {
 					return hints[i].Line >= lineNum
 				})
-				if n < len(hints) && hints[n].Line == lineNum {
-					hintLines = hints[n].Hints
+				for ; n < len(hints) && hints[n].Line == lineNum; n++ {
+					hintLines = append(hintLines, hints[n].Hints...)
 				}
+				sort.Strings(hintLines)
 
 				for i := 0; i < lineHeight; i++ {
 					var line *Line

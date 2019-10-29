@@ -30,7 +30,6 @@ func TestStrokeSpecHints(t *testing.T) {
 		eq(t,
 			info[0], 2,
 		)
-
 		lines := getScreenString(view.ContentBox)
 		eq(t,
 			strings.HasPrefix(lines[1], "press any key"), true,
@@ -70,6 +69,16 @@ func TestStrokeSpecHints(t *testing.T) {
 		eq(t,
 			strings.HasPrefix(lines[2], "press Rune[d] to delete cu"), true,
 		)
+		emitRune('a')
+
+		emitRune('z') // zt zb zz
+		lines = getScreenString(view.ContentBox)
+		eq(t,
+			strings.HasPrefix(lines[2], "press Rune[b] to scroll to"), true,
+			strings.HasPrefix(lines[3], "press Rune[t] to scroll to"), true,
+			strings.HasPrefix(lines[4], "press Rune[z] to scroll to"), true,
+		)
+		emitRune('a')
 
 	})
 }
