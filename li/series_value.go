@@ -35,8 +35,10 @@ func (s SeriesValue) Provider() dyn {
 				reflect.MakeFunc(
 					reflect.TypeOf(s.Access),
 					func(args []reflect.Value) []reflect.Value {
+						n := 0
 						for _, arg := range args {
 							for i := 0; i < arg.Len(); i++ {
+								n++
 								value := arg.Index(i)
 								link(anchor, value.Interface())
 								if s.OnLink != nil {
@@ -48,7 +50,7 @@ func (s SeriesValue) Provider() dyn {
 						}
 						retPtr := reflect.New(reflect.TypeOf(s.Type))
 						linkedOne(anchor, retPtr.Interface())
-						if len(args) > 0 && s.OnChanged != nil {
+						if n > 0 && s.OnChanged != nil {
 							reflect.ValueOf(s.OnChanged).Call(
 								[]reflect.Value{retPtr.Elem()},
 							)
