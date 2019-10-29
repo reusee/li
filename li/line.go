@@ -1,6 +1,7 @@
 package li
 
 import (
+	"sort"
 	"sync"
 	"unicode"
 	"unicode/utf16"
@@ -109,18 +110,29 @@ func (_ Provide) LineInitProcs(
 func CalculateLineHeights(
 	moment *Moment,
 	lineRange [2]int,
+
 	scope Scope,
 	trigger Trigger,
-	lineHints LineHints,
+	getHints GetLineHints,
 ) (
 	info map[int]int,
 ) {
 
+	hints := getHints()
 	info = make(map[int]int)
 	for line := lineRange[0]; line < lineRange[1]; line++ {
-		key := MomentLine{moment, line}
-		if hints, ok := lineHints[key]; ok {
-			info[line] = len(hints) + 1
+		n := sort.Search(len(hints), func(i int) bool {
+			return hints[i].Moment.ID >= moment.ID &&
+				hints[i].Line >= line
+		})
+		if n < len(hints) {
+			hint := hints[n]
+			if hint.Moment.ID == moment.ID && hint.Line == line {
+				// found
+				info[line] = len(hint.Hints) + 1
+			} else {
+				info[line] = 1
+			}
 		} else {
 			info[line] = 1
 		}
@@ -130,12 +142,13 @@ func CalculateLineHeights(
 }
 
 func CalculateSumLineHeight(
-	scope Scope,
 	moment *Moment,
 	lineRange [2]int,
+
+	scope Scope,
 ) int {
 	var info map[int]int
-	scope.Sub(&moment, &lineRange).Call(CalculateLineHeights)
+	scope.Sub(&moment, &lineRange).Call(CalculateLineHeights, &info)
 	if info == nil {
 		return int(lineRange[1] - lineRange[0])
 	}
