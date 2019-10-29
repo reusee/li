@@ -2,6 +2,10 @@ package li
 
 type StyleFunc func(style Style) Style
 
+var SameStyle = StyleFunc(func(style Style) Style {
+	return style
+})
+
 func SetFG(color Color) StyleFunc {
 	return func(style Style) Style {
 		return style.Foreground(color)
@@ -53,3 +57,11 @@ func (s StyleFunc) SetUnderline(underline bool) StyleFunc {
 		return style.Underline(underline)
 	}
 }
+
+func (s StyleFunc) And(f2 StyleFunc) StyleFunc {
+	return func(style Style) Style {
+		return f2(s(style))
+	}
+}
+
+//TODO set darker or lighter

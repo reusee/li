@@ -29,7 +29,7 @@ func Status(
 ) {
 
 	style = darkerOrLighterStyle(style, 15)
-	hlStyle := getStyle("Highlight")
+	hlStyle := getStyle("Highlight")(style)
 	fg, _, _ := hlStyle.Decompose()
 	hlStyle = style.Foreground(fg)
 

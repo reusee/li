@@ -136,16 +136,17 @@ func ShowSearchDialog(scope Scope) {
 			}
 			result := results[id]
 			hlStyle := getStyle("Highlight")
-			fg, _, _ := hlStyle.Decompose()
-			hlStyle = style.Foreground(fg).Bold(true)
+			fg, _, _ := hlStyle(style).Decompose()
+			hlStyle = hlStyle.SetFG(fg).SetBold(true)
 			return Text(
 				box,
 				result.Content,
-				OffsetStyleFunc(func(i int) Style {
+				style,
+				OffsetStyleFunc(func(i int) StyleFunc {
 					if i >= result.BeginRuneOffset && i < result.EndRuneOffset {
 						return hlStyle
 					}
-					return style
+					return SameStyle
 				}),
 			)
 		},

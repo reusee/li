@@ -219,7 +219,7 @@ func ShowFileChooser(scope Scope, cb func(string)) {
 			scope.Assign(&box, &focus, &style, &getStyle)
 			s := style
 			if id == focus {
-				hlStyle := getStyle("Highlight")
+				hlStyle := getStyle("Highlight")(s)
 				fg, _, _ := hlStyle.Decompose()
 				s = s.Foreground(fg)
 			}
@@ -228,14 +228,14 @@ func ShowFileChooser(scope Scope, cb func(string)) {
 				box,
 				candidate.Path,
 				s,
-				OffsetStyleFunc(func(i int) Style {
-					runeStyle := s
+				OffsetStyleFunc(func(i int) StyleFunc {
+					fn := SameStyle
 					if i < candidate.MatchLen {
-						runeStyle = runeStyle.Underline(true)
+						fn = fn.SetUnderline(true)
 					} else {
-						runeStyle = runeStyle.Underline(false)
+						fn = fn.SetUnderline(false)
 					}
-					return runeStyle
+					return fn
 				}),
 			)
 		},

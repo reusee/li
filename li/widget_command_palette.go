@@ -158,6 +158,7 @@ func ShowCommandPalette(
 			set SetContent,
 			box Box,
 			getStyle GetStyle,
+			defaultStyle Style,
 		) Element {
 
 			//TODO scrollable
@@ -174,7 +175,7 @@ func ShowCommandPalette(
 			if bottom > maxBottom {
 				bottom = maxBottom
 			}
-			style := darkerOrLighterStyle(getStyle("Default"), -10)
+			style := darkerOrLighterStyle(defaultStyle, -10)
 			hlStyle := getStyle("Highlight")
 
 			box = Box{
@@ -215,7 +216,7 @@ func ShowCommandPalette(
 
 						s := style
 						if i == index {
-							s = hlStyle
+							s = hlStyle(s)
 						}
 
 						candidate := candidates[i]
@@ -233,21 +234,21 @@ func ShowCommandPalette(
 							rightPad(candidate.Left, ' ', leftLen)+
 								" "+
 								rightPad(candidate.Right, ' ', rightLen),
-							OffsetStyleFunc(func(i int) Style {
-								runeStyle := s
+							OffsetStyleFunc(func(i int) StyleFunc {
+								fn := SameStyle
 								if i < leftLen {
-									runeStyle = runeStyle.Bold(true)
+									fn = fn.SetBold(true)
 								} else {
-									runeStyle = runeStyle.Bold(false)
+									fn = fn.SetBold(false)
 								}
 								if i < leftLen && i < candidate.LeftMatchLen {
-									runeStyle = runeStyle.Underline(true)
+									fn = fn.SetUnderline(true)
 								} else if i > leftLen && i-leftLen-1 < candidate.RightMatchLen {
-									runeStyle = runeStyle.Underline(true)
+									fn = fn.SetUnderline(true)
 								} else {
-									runeStyle = runeStyle.Underline(false)
+									fn = fn.SetUnderline(false)
 								}
-								return runeStyle
+								return fn
 							}),
 						))
 

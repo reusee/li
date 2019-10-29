@@ -49,7 +49,7 @@ func TestWidgetSelectionDialog(t *testing.T) {
 				scope.Assign(&box, &focus, &style, &getStyle)
 				s := style
 				if id == focus {
-					hlStyle := getStyle("Highlight")
+					hlStyle := getStyle("Highlight")(s)
 					fg, _, _ := hlStyle.Decompose()
 					s = s.Foreground(fg)
 				}

@@ -36,6 +36,7 @@ func (d *SelectionDialog) RenderFunc() any {
 		box Box,
 		scope Scope,
 		getStyle GetStyle,
+		defaultStyle Style,
 	) {
 
 		d.initOnce.Do(func() {
@@ -96,7 +97,7 @@ func (d *SelectionDialog) RenderFunc() any {
 			Bottom: box.Top + marginTop + paddingTop + contentHeight,
 		}
 
-		style := darkerOrLighterStyle(getStyle("Default"), 40)
+		style := darkerOrLighterStyle(defaultStyle, 40)
 
 		titleElement := Text(
 			Box{
@@ -176,7 +177,7 @@ func (d *SelectionDialog) RenderFunc() any {
 
 			if numTopTruncated > 0 {
 				str := fmt.Sprintf("%d..", numTopTruncated)
-				hlStyle := getStyle("Highlight")
+				hlStyle := getStyle("Highlight")(style)
 				fg, _, _ := hlStyle.Decompose()
 				candidateElements = append(candidateElements, Text(
 					Box{
@@ -190,7 +191,7 @@ func (d *SelectionDialog) RenderFunc() any {
 
 			if numBottomTruncated > 0 {
 				str := fmt.Sprintf("%d..", numBottomTruncated)
-				hlStyle := getStyle("Highlight")
+				hlStyle := getStyle("Highlight")(style)
 				fg, _, _ := hlStyle.Decompose()
 				candidateElements = append(candidateElements, Text(
 					Box{

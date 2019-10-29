@@ -257,10 +257,10 @@ func (c *CompletionList) RenderFunc() any {
 			texts = append(texts, Text(
 				box,
 				candidate.Text,
-				OffsetStyleFunc(func(i int) Style {
+				OffsetStyleFunc(func(i int) StyleFunc {
 					for _, offset := range candidate.MatchRuneOffsets {
 						if offset == i {
-							return lineStyle.Underline(true)
+							return lineStyle.SetUnderline(true)
 						}
 					}
 					return lineStyle

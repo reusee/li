@@ -13,30 +13,35 @@ type StyleConfig map[string]StyleSpec
 type StyleSpec struct {
 	FG        *int32
 	BG        *int32
-	Bold      bool
-	Underline bool
+	Bold      *bool
+	Underline *bool
 }
 
-func (s StyleSpec) ToStyle() Style {
-	style := tcell.StyleDefault
+func (s StyleSpec) ToFunc() StyleFunc {
+	fn := SameStyle
 	if s.FG != nil {
-		style = style.Foreground(tcell.NewHexColor(*s.FG))
+		fn = fn.SetFG(tcell.NewHexColor(*s.FG))
 	}
 	if s.BG != nil {
-		style = style.Background(tcell.NewHexColor(*s.BG))
+		fn = fn.SetBG(tcell.NewHexColor(*s.BG))
 	}
-	style = style.Bold(s.Bold)
-	style = style.Underline(s.Underline)
-	return style
+	if s.Bold != nil {
+		fn = fn.SetBold(*s.Bold)
+	}
+	if s.Underline != nil {
+		fn = fn.SetUnderline(*s.Underline)
+	}
+	return fn
 }
 
 func (_ Provide) DefaultStyle(
 	config StyleConfig,
 ) Style {
+	style := tcell.StyleDefault
 	if spec, ok := config["Default"]; ok {
-		return spec.ToStyle()
+		style = spec.ToFunc()(style)
 	}
-	return tcell.StyleDefault
+	return style
 }
 
 func (_ Provide) StyleConfig(
@@ -49,19 +54,19 @@ func (_ Provide) StyleConfig(
 	return config.Style
 }
 
-type GetStyle func(keys ...string) Style
+type GetStyle func(keys ...string) StyleFunc
 
 func (_ Provide) GetStyle(
 	config StyleConfig,
 ) GetStyle {
 	var specs sync.Map
-	return func(keys ...string) Style {
+	return func(keys ...string) StyleFunc {
 		keys = append(keys, "Default")
 		for _, key := range keys {
 			v, ok := specs.Load(key)
 			if ok {
-				if style, ok := v.(Style); ok {
-					return style
+				if fn, ok := v.(StyleFunc); ok {
+					return fn
 				} else if v == nil {
 					continue
 				}
@@ -70,11 +75,11 @@ func (_ Provide) GetStyle(
 			if !ok {
 				specs.Store(key, nil)
 			} else {
-				style := spec.ToStyle()
-				specs.Store(key, style)
-				return style
+				fn := spec.ToFunc()
+				specs.Store(key, fn)
+				return fn
 			}
 		}
-		return tcell.StyleDefault
+		return SameStyle
 	}
 }

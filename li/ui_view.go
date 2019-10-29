@@ -212,7 +212,7 @@ func (view *View) RenderFunc() any {
 				baseStyle := defaultStyle
 				if y == contentBox.Bottom-1 {
 					if currentView == view {
-						baseStyle = hlStyle
+						baseStyle = hlStyle(baseStyle)
 					}
 					baseStyle = baseStyle.Underline(true)
 				}
@@ -270,7 +270,7 @@ func (view *View) RenderFunc() any {
 								set(
 									contentBox.Right-1, y,
 									'>', nil,
-									hlStyle,
+									hlStyle(blockStyle),
 								)
 								break
 							}
@@ -299,7 +299,7 @@ func (view *View) RenderFunc() any {
 								set(
 									x, y,
 									'<', nil,
-									hlStyle,
+									hlStyle(blockStyle),
 								)
 							} else {
 								// cell style
@@ -345,7 +345,7 @@ func (view *View) RenderFunc() any {
 							set(
 								x, y,
 								r, nil,
-								hintStyle,
+								hintStyle(blockStyle),
 							)
 							x += runeWidth(r)
 						}

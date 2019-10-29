@@ -43,6 +43,9 @@ func (r _Rect) RenderFunc() any {
 			case Style:
 				style = v
 
+			case StyleFunc:
+				style = v(style)
+
 			case Element:
 				if v != nil {
 					children = append(children, v)
@@ -182,7 +185,7 @@ type _Text struct {
 
 var _ Element = _Text{}
 
-type OffsetStyleFunc func(int) Style
+type OffsetStyleFunc func(int) StyleFunc
 
 func (t _Text) RenderFunc() any {
 	return func(
@@ -214,6 +217,9 @@ func (t _Text) RenderFunc() any {
 
 			case Style:
 				style = v
+
+			case StyleFunc:
+				style = v(style)
 
 			case Bold:
 				style = style.Bold(bool(v))
@@ -293,7 +299,7 @@ func (t _Text) RenderFunc() any {
 				}
 				s := style
 				if offsetStyleFunc != nil {
-					s = offsetStyleFunc(runeIdx)
+					s = offsetStyleFunc(runeIdx)(s)
 				}
 				setContent(left, y, r, nil, s)
 				left += runeWidth(r)

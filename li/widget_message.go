@@ -31,13 +31,13 @@ func ShowMessage(
 
 		Element: ElementFrom(func(
 			box Box,
-			getStyle GetStyle,
+			defaultStyle Style,
 		) Element {
 
 			left := (box.Left+box.Right)/2 - paddingHorizontal - length/2
 			top := (box.Top+box.Bottom)/2 - paddingVertical - len(lines)/2
 			return Rect(
-				darkerOrLighterStyle(getStyle("Default"), -10),
+				darkerOrLighterStyle(defaultStyle, -10),
 				Fill(true),
 				Box{
 					Left:   left,

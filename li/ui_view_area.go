@@ -12,6 +12,7 @@ func ViewArea(
 	groupLayoutIndex ViewGroupLayoutIndex,
 	box Box,
 	getStyle GetStyle,
+	defaultStyle Style,
 	views Views,
 	viewGroups ViewGroups,
 	linkedAll LinkedAll,
@@ -54,7 +55,7 @@ func ViewArea(
 	}
 
 	groupBoxes := split(len(groups))
-	style := getStyle("Default")
+	style := defaultStyle
 	for i, group := range groups {
 		s := darkerOrLighterStyle(style, int32(i)*2)
 		subs = append(subs, ElementWith(
@@ -97,7 +98,7 @@ func ViewArea(
 				Right:  frameBox.Right - 1,
 			}
 			style = darkerOrLighterStyle(style, 15)
-			hlStyle := getStyle("Highlight")
+			hlStyle := getStyle("Highlight")(style)
 			fg, _, _ := hlStyle.Decompose()
 			hlStyle = style.Foreground(fg)
 
