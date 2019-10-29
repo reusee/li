@@ -73,16 +73,25 @@ func withEditor(fn any) {
 	)
 	defer exit()
 
+	applyDerives := func() {
+		if len(derives) > 0 {
+			scope = scope.Sub(derives...)
+			derives = derives[:0]
+		}
+	}
+
 	loop := func() {
 	loop:
 		for {
 
 			trigger(scope, EvLoopBegin)
+			applyDerives()
 
 			var root Element
 			scope.Call(Root, &root)
 			renderAll(scope, root)
 			screen.Show()
+			applyDerives()
 
 			select {
 
@@ -98,15 +107,13 @@ func withEditor(fn any) {
 				break loop
 
 			}
+			applyDerives()
 
 			trigger(scope, EvLoopEnd)
-
-			if len(derives) > 0 {
-				scope = scope.Sub(derives...)
-				derives = derives[:0]
-			}
+			applyDerives()
 
 		}
+		applyDerives()
 	}
 
 	scope.Sub(

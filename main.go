@@ -99,9 +99,18 @@ func main() {
 		},
 	)
 
+	applyDerives := func() {
+		if len(derives) > 0 {
+			scope = scope.Sub(derives...)
+			derives = derives[:0]
+		}
+
+	}
+
 	for {
 
 		trigger(scope, li.EvLoopBegin)
+		applyDerives()
 
 		select {
 
@@ -124,13 +133,10 @@ func main() {
 			screen.Show()
 
 		}
-
-		if len(derives) > 0 {
-			scope = scope.Sub(derives...)
-			derives = derives[:0]
-		}
+		applyDerives()
 
 		trigger(scope, li.EvLoopEnd)
+		applyDerives()
 
 	}
 
