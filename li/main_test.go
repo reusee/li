@@ -19,17 +19,11 @@ func (_ SimScreen) SetCursorShape(shape CursorShape) {
 func withEditor(fn any) {
 	// scope
 	var scope Scope
-	funcCalls := make(chan any, 128)
 	var derives []any
 	scope = NewGlobal(
 		func() Derive {
 			return func(inits ...any) {
 				derives = append(derives, inits...)
-			}
-		},
-		func() RunInMainLoop {
-			return func(fn any) {
-				funcCalls <- fn
 			}
 		},
 	)
@@ -97,9 +91,6 @@ func withEditor(fn any) {
 
 			case ev := <-events:
 				scope.Sub(func() ScreenEvent { return ev }).Call(HandleScreenEvent)
-
-			case fn := <-funcCalls:
-				scope.Call(fn)
 
 			case <-renderTimer.C:
 

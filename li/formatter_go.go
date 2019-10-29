@@ -14,8 +14,8 @@ func (_ Provide) FormatterGo(
 	on On,
 	j AppendJournal,
 	scope Scope,
-	run RunInMainLoop,
 	config FormatterConfig,
+	onNext OnNext,
 ) Init2 {
 
 	type Job struct {
@@ -58,7 +58,7 @@ func (_ Provide) FormatterGo(
 
 				// delay update
 				time.AfterFunc(time.Second*time.Duration(config.DelaySeconds), func() {
-					run(func(
+					onNext(EvLoopBegin, func(
 						scope Scope,
 					) {
 						if job.view.GetMoment() != job.moment {

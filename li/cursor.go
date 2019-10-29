@@ -25,7 +25,6 @@ func MoveCursor(
 	cur CurrentView,
 	scope Scope,
 	withN WithContextNumber,
-	run RunInMainLoop,
 	trigger Trigger,
 ) {
 

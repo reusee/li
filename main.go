@@ -24,17 +24,11 @@ func main() {
 
 	// scope
 	var scope Scope
-	funcCalls := make(chan any, 128)
 	var derives []any
 	scope = li.NewGlobal(
 		func() li.Derive {
 			return func(inits ...any) {
 				derives = append(derives, inits...)
-			}
-		},
-		func() li.RunInMainLoop {
-			return func(fn any) {
-				funcCalls <- fn
 			}
 		},
 	)
@@ -120,10 +114,6 @@ func main() {
 
 		case <-sigExit:
 			return
-
-		case fn := <-funcCalls:
-			scope.Call(fn)
-			resetRenderTimer()
 
 		case <-renderTimer.C:
 			// render

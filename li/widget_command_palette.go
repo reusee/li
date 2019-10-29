@@ -11,7 +11,6 @@ func ShowCommandPalette(
 	scope Scope,
 	screen Screen,
 	commands Commands,
-	run RunInMainLoop,
 ) {
 
 	// initial candidates
@@ -115,6 +114,7 @@ func ShowCommandPalette(
 		OnKey: func(
 			ev KeyEvent,
 			scope Scope,
+			onNext OnNext,
 		) {
 			switch ev.Key() {
 
@@ -133,7 +133,7 @@ func ShowCommandPalette(
 				updateCandidates()
 
 			case tcell.KeyEnter:
-				run(func(scope Scope) {
+				onNext(EvLoopBegin, func(scope Scope) {
 					fn := candidates[index].Func
 					scope.Sub(&fn).Call(ExecuteCommandFunc)
 				})

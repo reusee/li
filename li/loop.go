@@ -3,7 +3,6 @@ package li
 import "time"
 
 type (
-	RunInMainLoop    func(fn any)
 	ContinueMainLoop func()
 
 	RenderTimer struct {

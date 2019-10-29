@@ -173,8 +173,8 @@ type ShouldShowViewList func() bool
 
 func (_ Provide) ShowViewListFlag(
 	on On,
+	onNext OnNext,
 	config UIConfig,
-	run RunInMainLoop,
 ) Init2 {
 
 	var p int64
@@ -182,7 +182,7 @@ func (_ Provide) ShowViewListFlag(
 	on(EvCurrentViewChanged, func() {
 		atomic.AddInt64(&p, 1)
 		time.AfterFunc(time.Second*time.Duration(config.ViewList.HideTimeoutSeconds), func() {
-			run(func() {
+			onNext(EvLoopBegin, func() {
 				atomic.AddInt64(&p, -1)
 			})
 		})

@@ -24,14 +24,14 @@ type ContinueCompletion *int64
 
 func (_ Provide) Completion(
 	on On,
-	run RunInMainLoop,
+	onNext OnNext,
 ) Init2 {
 
 	var completionOverlayID ID
 	closeOverlay := func() {
 		if completionOverlayID > 0 {
 			id := completionOverlayID
-			run(func(scope Scope) {
+			onNext(EvLoopBegin, func(scope Scope) {
 				scope.Sub(&id).Call(CloseOverlay)
 			})
 		}
@@ -184,9 +184,8 @@ func (_ Provide) Completion(
 				}
 
 				// update
-				run(func(
+				onNext(EvLoopBegin, func(
 					scope Scope,
-					j AppendJournal,
 				) {
 					// close
 					closeOverlay()
