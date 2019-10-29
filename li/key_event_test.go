@@ -1,6 +1,9 @@
 package li
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestStrokeSpecHints(t *testing.T) {
 	withHelloEditor(t, func(
@@ -8,7 +11,10 @@ func TestStrokeSpecHints(t *testing.T) {
 		emitRune EmitRune,
 		ctrl func(string),
 		moment *Moment,
+		getScreenString GetScreenString,
+		view *View,
 	) {
+
 		emitRune('f')
 		var height int
 		scope.Sub(
@@ -17,6 +23,19 @@ func TestStrokeSpecHints(t *testing.T) {
 		eq(t,
 			height, 2,
 		)
+		var info map[int]int
+		scope.Sub(
+			&moment, &[2]int{0, 1},
+		).Call(CalculateLineHeights, &info)
+		eq(t,
+			info[0], 2,
+		)
+
+		lines := getScreenString(view.ContentBox)
+		eq(t,
+			strings.HasPrefix(lines[1], "press any key"), true,
+		)
+
 		emitRune('e')
 		scope.Sub(
 			&moment, &[2]int{0, 1},
@@ -24,5 +43,19 @@ func TestStrokeSpecHints(t *testing.T) {
 		eq(t,
 			height, 1,
 		)
+		scope.Sub(
+			&moment, &[2]int{0, 1},
+		).Call(CalculateLineHeights, &info)
+		eq(t,
+			info[0], 1,
+		)
+
+		emitRune('j') // next line
+		emitRune('f')
+		lines = getScreenString(view.ContentBox)
+		eq(t,
+			strings.HasPrefix(lines[2], "press any key"), true,
+		)
+
 	})
 }

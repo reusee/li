@@ -66,6 +66,10 @@ Layouts = [
   [Style.CompletionSelected]
   BG = 0x336666
 
+  [Style.Hint]
+  Bold = true
+  FG = 0xDEAD01
+
 [ReadMode]
 
   [ReadMode.SequenceCommand]

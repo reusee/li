@@ -118,7 +118,7 @@ func CalculateLineHeights(
 	info map[int]int,
 ) {
 
-	hints := getHints()
+	hints, _ := getHints()
 	info = make(map[int]int)
 	for line := lineRange[0]; line < lineRange[1]; line++ {
 		n := sort.Search(len(hints), func(i int) bool {

@@ -3,14 +3,16 @@ package li
 import (
 	"fmt"
 	"math"
+	"sort"
 	"sync"
 )
 
 type ViewUIArgs struct {
-	MomentID MomentID
-	Width    int
-	Height   int
-	IsFocus  bool
+	MomentID     MomentID
+	Width        int
+	Height       int
+	IsFocus      bool
+	HintsVersion int
 	ViewMomentState
 }
 
@@ -29,6 +31,7 @@ func (view *View) RenderFunc() any {
 		scrollConfig ScrollConfig,
 		uiConfig UIConfig,
 		trigger Trigger,
+		getLineHints GetLineHints,
 	) Element {
 
 		moment := view.GetMoment()
@@ -67,17 +70,33 @@ func (view *View) RenderFunc() any {
 			}
 		}()
 
+		// line hints
+		hints, version := getLineHints()
+
 		// frame buffer cache
 		args := ViewUIArgs{
 			MomentID:        moment.ID,
 			Width:           view.Box.Width(),
 			Height:          view.Box.Height(),
 			IsFocus:         view == currentView,
+			HintsVersion:    version,
 			ViewMomentState: view.ViewMomentState,
 		}
 		if view.FrameBuffer != nil && args == view.FrameBufferArgs {
 			return view.FrameBuffer
 		}
+
+		// strip hints
+		n := sort.Search(len(hints), func(i int) bool {
+			return hints[i].Moment.ID >= moment.ID
+		})
+		hints = hints[n:]
+		n = sort.Search(len(hints), func(i int) bool {
+			return hints[i].Moment.ID > moment.ID
+		})
+		hints = hints[:n]
+
+		hintStyle := getStyle("Hint")
 
 		// line number box
 		lineNumBox := view.Box
@@ -202,14 +221,24 @@ func (view *View) RenderFunc() any {
 				}
 				blockStyle := baseStyle
 
+				var hintLines []string
+				n := sort.Search(len(hints), func(i int) bool {
+					return hints[i].Line >= lineNum
+				})
+				if n < len(hints) && hints[n].Line == lineNum {
+					hintLines = hints[n].Hints
+				}
+
 				for i := 0; i < lineHeight; i++ {
 					var line *Line
 					if i < len(lines) {
+						// moment line
 						line = &lines[i]
 					}
 
 					x := contentBox.Left
 					if line != nil {
+						// moment content
 
 						cells := line.Cells
 						skip := view.ViewportCol
@@ -306,6 +335,19 @@ func (view *View) RenderFunc() any {
 							}
 
 							x += cell.DisplayWidth
+						}
+
+					} else if i >= len(lines) && i < len(lines)+len(hintLines) {
+						// hint
+						content := hintLines[i-len(lines)]
+						runes := []rune(content)
+						for _, r := range runes {
+							set(
+								x, y,
+								r, nil,
+								hintStyle,
+							)
+							x += runeWidth(r)
 						}
 					}
 

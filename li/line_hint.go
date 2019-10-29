@@ -7,7 +7,7 @@ type (
 		Hints  []string
 		mark   int
 	}
-	GetLineHints func() []LineHint
+	GetLineHints func() ([]LineHint, int)
 	AddLineHint  func(*Moment, int, []string)
 )
 
@@ -91,6 +91,8 @@ func (_ Provide) LineHints(
 		)
 	})
 
+	version := mark
+
 	on(EvLoopBegin, func(
 		trigger Trigger,
 		scope Scope,
@@ -112,6 +114,7 @@ func (_ Provide) LineHints(
 			}
 		}
 		if changed {
+			version = mark
 			hints = hs
 			// mark re-render
 			cont()
@@ -119,8 +122,8 @@ func (_ Provide) LineHints(
 	})
 
 	return func() GetLineHints {
-		return func() []LineHint {
-			return hints
+		return func() ([]LineHint, int) {
+			return hints, version
 		}
 	}
 
