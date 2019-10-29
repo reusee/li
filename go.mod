@@ -15,3 +15,5 @@ require (
 	golang.org/x/sys v0.0.0-20191028164358-195ce5e7f934 // indirect
 	golang.org/x/text v0.3.2
 )
+
+exclude github.com/mattn/go-runewidth v0.0.5
