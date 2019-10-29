@@ -202,6 +202,9 @@ func (_ Command) ScrollAbsOrHome() (spec CommandSpec) {
 	spec.Func = func(scope Scope) {
 		scope.Call(ScrollAbsOrHome)
 	}
+	spec.Hints = []string{
+		"scroll to specified line or the beginnig",
+	}
 	return
 }
 

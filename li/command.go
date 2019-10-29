@@ -5,9 +5,10 @@ import "reflect"
 type Command struct{}
 
 type CommandSpec struct {
-	Name string
-	Desc string
-	Func Func
+	Name  string
+	Desc  string
+	Func  Func
+	Hints []string // will not show before the second stroke
 }
 
 type Commands = map[string]CommandSpec

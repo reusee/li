@@ -192,6 +192,9 @@ func (_ Command) ChangeToWordEnd() (spec CommandSpec) {
 func (_ Command) DeleteLine() (spec CommandSpec) {
 	spec.Desc = "delete current line"
 	spec.Func = DeleteLine
+	spec.Hints = []string{
+		"delete current line",
+	}
 	return
 }
 

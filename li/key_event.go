@@ -1,6 +1,7 @@
 package li
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gdamore/tcell"
@@ -15,6 +16,13 @@ type StrokeSpec struct {
 	Command     CommandSpec
 	CommandName string
 	Hints       []string
+}
+
+func (s StrokeSpec) Clone() StrokeSpec {
+	ret := s
+	ret.Sequence = append(s.Sequence[:0:0], s.Sequence...)
+	ret.Hints = append(s.Hints[:0:0], s.Hints...)
+	return ret
 }
 
 type KeyStrokeHandler interface {
@@ -37,7 +45,10 @@ func (_ Provide) StrokeSpecsAccessor() (
 		return cur, isInitial
 	}
 	set = func(s []StrokeSpec, b bool) {
-		cur = s
+		cur = cur[:0]
+		for _, spec := range s {
+			cur = append(cur, spec.Clone())
+		}
 		isInitial = b
 	}
 	return
@@ -172,6 +183,20 @@ func HandleKeyEvent(
 			// match sequence prefix
 			newSpec := spec
 			newSpec.Sequence = spec.Sequence[1:]
+			// show hints for commands bound to multiple strokes
+			if len(newSpec.Hints) == 0 &&
+				newSpec.CommandName != "" {
+				hints := NamedCommands[newSpec.CommandName].Hints
+				// copy, don't modify the command hints slice
+				hints = append(hints[:0:0], hints...)
+				if len(hints) > 0 {
+					hints[0] = fmt.Sprintf(
+						"press %s to ",
+						newSpec.Sequence[0],
+					) + hints[0]
+					newSpec.Hints = hints
+				}
+			}
 			nextSpecs = append(nextSpecs, newSpec)
 
 		} else if spec.Predict != nil { // assuming len(spec.Sequence) == 0
