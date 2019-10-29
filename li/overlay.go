@@ -18,7 +18,7 @@ type OverlayObject any
 
 func PushOverlay(
 	obj OverlayObject,
-	onNext OnNext,
+	run RunInMainLoop,
 ) (id ID) {
 	id = ID(atomic.AddInt64(&overlayID, 1))
 	overlay := Overlay{
@@ -30,7 +30,7 @@ func PushOverlay(
 	if handler, ok := obj.(KeyStrokeHandler); ok {
 		overlay.KeyStrokeHandler = handler
 	}
-	onNext(EvLoopBegin, func(
+	run(func(
 		scope Scope,
 		overlays []Overlay,
 		derive Derive,
@@ -47,9 +47,9 @@ func PushOverlay(
 
 func CloseOverlay(
 	id ID,
-	onNext OnNext,
+	run RunInMainLoop,
 ) {
-	onNext(EvLoopBegin, func(
+	run(func(
 		scope Scope,
 		overlays []Overlay,
 		derive Derive,
