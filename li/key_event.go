@@ -222,9 +222,8 @@ func (_ Provide) KeyEventHooks(
 		}
 	})
 
-	on(EvCollectLineHint, func(
+	on(EvCollectLineHints, func(
 		cur CurrentView,
-		lineRange [2]int,
 		add AddLineHint,
 		getSpecs GetStrokeSpecs,
 	) {
@@ -234,12 +233,10 @@ func (_ Provide) KeyEventHooks(
 		}
 		curLine := view.CursorLine
 		specs, _ := getSpecs()
+		moment := view.GetMoment()
 		for _, spec := range specs {
 			if len(spec.Hints) > 0 {
-				add(LineHint{
-					Line:  curLine,
-					Hints: spec.Hints,
-				})
+				add(moment, curLine, spec.Hints)
 			}
 		}
 	})
