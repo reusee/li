@@ -186,16 +186,14 @@ func HandleKeyEvent(
 			// show hints for commands bound to multiple strokes
 			if len(newSpec.Hints) == 0 &&
 				newSpec.CommandName != "" {
-				hints := NamedCommands[newSpec.CommandName].Hints
-				// copy, don't modify the command hints slice
-				hints = append(hints[:0:0], hints...)
-				if len(hints) > 0 {
-					hints[0] = fmt.Sprintf(
+				hints := []string{
+					fmt.Sprintf(
 						"press %s to ",
 						newSpec.Sequence[0],
-					) + hints[0]
-					newSpec.Hints = hints
+					) +
+						NamedCommands[newSpec.CommandName].Desc,
 				}
+				newSpec.Hints = hints
 			}
 			nextSpecs = append(nextSpecs, newSpec)
 

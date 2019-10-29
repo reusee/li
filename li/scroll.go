@@ -192,6 +192,7 @@ func ScrollAbsOrHome(
 }
 
 func (_ Command) ScrollAbsOrEnd() (spec CommandSpec) {
+	spec.Desc = "scroll to specified line or the end"
 	spec.Func = func(scope Scope) {
 		scope.Call(ScrollAbsOrEnd)
 	}
@@ -199,11 +200,9 @@ func (_ Command) ScrollAbsOrEnd() (spec CommandSpec) {
 }
 
 func (_ Command) ScrollAbsOrHome() (spec CommandSpec) {
+	spec.Desc = "scroll to specified line or the beginnig"
 	spec.Func = func(scope Scope) {
 		scope.Call(ScrollAbsOrHome)
-	}
-	spec.Hints = []string{
-		"scroll to specified line or the beginnig",
 	}
 	return
 }
