@@ -1,7 +1,5 @@
 package li
 
-import "unicode"
-
 // PositionFunc returns a Position value.
 // Assuming current view is not null and current cursor is valid
 type PositionFunc any
@@ -107,15 +105,6 @@ func PosNextRune(
 	}
 }
 
-func runeCategory(r rune) int {
-	if unicode.IsDigit(r) || unicode.IsLetter(r) || r == '_' {
-		return 0
-	} else if unicode.IsSpace(r) {
-		return 1
-	}
-	return 99
-}
-
 func PosWordEnd(
 	cur CurrentView,
 	scope Scope,
@@ -125,11 +114,11 @@ func PosWordEnd(
 	v := cur()
 	pos = v.cursorPosition(scope)
 	line := v.GetMoment().GetLine(scope, v.CursorLine)
-	lastCategory := -1
+	var lastCategory RuneCategory
 	for i := pos.Cell; i < len(line.Cells); i++ {
 		pos.Cell = i
 		category := runeCategory(line.Cells[i].Rune)
-		if lastCategory != -1 && lastCategory != category {
+		if lastCategory > 0 && lastCategory != category {
 			break
 		}
 		lastCategory = category

@@ -56,14 +56,14 @@ func (_ Provide) CollectWords(
 						wordSet := make(map[string]Word)
 						for _, line := range segment.lines {
 							beginIndex := 0
-							lastCategory := -1
+							var lastCategory RuneCategory
 
 							for i, r := range line.Runes {
 								category := runeCategory(r)
 								if i > 0 && category != lastCategory {
 									word := strings.TrimSpace(string(line.Runes[beginIndex:i]))
 									beginIndex = i
-									if word != "" {
+									if word != "" && lastCategory == RuneCategoryIdentifier {
 										if _, ok := wordSet[word]; !ok {
 											wordSet[word] = Word{
 												Text:       word,
