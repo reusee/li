@@ -1,6 +1,7 @@
 package li
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -54,6 +55,26 @@ func (_ Provide) ContextStatus(
 			if ok {
 				add("context", [][]any{
 					{"num: " + strconv.Itoa(m.Number), AlignRight, Padding(0, 2, 0, 0)},
+				})
+				break
+			}
+		}
+	})
+
+	on(EvCollectLineHints, func(
+		getModes CurrentModes,
+		curView CurrentView,
+		add AddLineHint,
+	) {
+		view := curView()
+		if view == nil {
+			return
+		}
+		for _, mode := range getModes() {
+			m, ok := mode.(*ContextMode)
+			if ok && m.Number > 0 {
+				add(view.GetMoment(), view.CursorLine, []string{
+					fmt.Sprintf("context number: %d", m.Number),
 				})
 				break
 			}
