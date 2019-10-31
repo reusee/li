@@ -382,7 +382,7 @@ func NextRune() []StrokeSpec {
 				return true
 			},
 			Hints: []string{
-				"press any key to jump...",
+				"press any key to jump",
 			},
 			Func: func(
 				ev KeyEvent,
@@ -448,6 +448,9 @@ func PrevRune() []StrokeSpec {
 			Predict: func() bool {
 				return true
 			},
+			Hints: []string{
+				"press any key to jump",
+			},
 			Func: func(
 				ev KeyEvent,
 			) (
@@ -502,7 +505,9 @@ func NextLineWithRune() []StrokeSpec {
 			Predict: func() bool {
 				return true
 			},
-
+			Hints: []string{
+				"press any key to jump",
+			},
 			Func: func(
 				ev KeyEvent,
 			) (
@@ -551,7 +556,9 @@ func PrevLineWithRune() []StrokeSpec {
 			Predict: func() bool {
 				return true
 			},
-
+			Hints: []string{
+				"press any key to jump",
+			},
 			Func: func(
 				ev KeyEvent,
 			) (
