@@ -11,13 +11,11 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 	"time"
 	"unsafe"
 
 	"github.com/reusee/dscope"
 	"github.com/reusee/e/v2"
-	textwidth "golang.org/x/text/width"
 )
 
 var (
@@ -36,43 +34,6 @@ type (
 	dyn   = interface{}
 	M     = map[string]any
 )
-
-var runeWidths sync.Map
-
-func runeWidth(r rune) int {
-	if v, ok := runeWidths.Load(r); ok {
-		return v.(int)
-	}
-	prop := textwidth.LookupRune(r)
-	kind := prop.Kind()
-	width := 1
-	if kind == textwidth.EastAsianAmbiguous ||
-		kind == textwidth.EastAsianWide ||
-		kind == textwidth.EastAsianFullwidth {
-		width = 2
-	}
-	runeWidths.Store(r, width)
-	return width
-}
-
-func displayWidth(s string) (l int) {
-	for _, r := range s {
-		l += runeWidth(r)
-	}
-	return
-}
-
-func runesDisplayWidth(runes []rune) (l int) {
-	for _, r := range runes {
-		l += runeWidth(r)
-	}
-	return
-}
-
-func rightPad(s string, pad rune, l int) string {
-	padLen := l - displayWidth(s)
-	return s + strings.Repeat(string(pad), padLen)
-}
 
 func split(i, n int) []int {
 	base := i / n

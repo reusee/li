@@ -287,7 +287,7 @@ func (t _Text) RenderFunc() any {
 			for left < box.Left && len(runes) > 0 {
 				r := runes[0]
 				runes = runes[1:]
-				left += runeWidth(r)
+				left += runeDisplayWidth(r)
 			}
 			y := box.Top + paddingTop + i
 			for runeIdx, r := range runes {
@@ -302,7 +302,7 @@ func (t _Text) RenderFunc() any {
 					s = offsetStyleFunc(runeIdx)(s)
 				}
 				setContent(left, y, r, nil, s)
-				left += runeWidth(r)
+				left += runeDisplayWidth(r)
 			}
 			//TODO not filling when AlignCenter, AlignRight
 			if fill {

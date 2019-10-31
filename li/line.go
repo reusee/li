@@ -41,7 +41,7 @@ func (l *Line) init(scope Scope) {
 		l.Runes = []rune(l.content)
 		var nonSpaceOffset *int
 		for i, r := range l.Runes {
-			width := runeWidth(r)
+			width := runeDisplayWidth(r)
 			var displayWidth int
 			if r == '\t' && l.config.ExpandTabs {
 				displayWidth = l.config.TabWidth

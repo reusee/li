@@ -348,7 +348,7 @@ func (view *View) RenderFunc() any {
 								r, nil,
 								hintStyle(blockStyle),
 							)
-							x += runeWidth(r)
+							x += runeDisplayWidth(r)
 						}
 					}
 
