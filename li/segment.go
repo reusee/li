@@ -1,7 +1,7 @@
 package li
 
 import (
-	"bytes/hash"
+	"hash/maphash"
 	"sync"
 )
 
@@ -69,9 +69,9 @@ func (s Segments) Sub(start int, end int) Segments {
 
 func (s *Segment) Sum() uint64 {
 	s.initSumOnce.Do(func() {
-		h := hash.New()
+		h := new(maphash.Hash)
 		for _, line := range s.lines {
-			h.AddString(line.content)
+			h.WriteString(line.content)
 		}
 		s.sum = h.Sum64()
 	})
