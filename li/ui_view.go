@@ -341,8 +341,7 @@ func (view *View) RenderFunc() any {
 					} else if i >= len(lines) && i < len(lines)+len(hintLines) {
 						// hint
 						content := hintLines[i-len(lines)]
-						runes := []rune(content)
-						for _, r := range runes {
+						for _, r := range content {
 							set(
 								x, y,
 								r, nil,

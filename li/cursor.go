@@ -655,10 +655,9 @@ func NextDedentLine(
 			break
 		}
 		if line.NonSpaceDisplayOffset == nil &&
-			nextLine != nil ||
 			line.NonSpaceDisplayOffset != nil &&
-				nextLine.NonSpaceDisplayOffset != nil &&
-				*line.NonSpaceDisplayOffset < *nextLine.NonSpaceDisplayOffset {
+			nextLine.NonSpaceDisplayOffset != nil &&
+			*line.NonSpaceDisplayOffset < *nextLine.NonSpaceDisplayOffset {
 			break
 		}
 		n++

@@ -255,7 +255,8 @@ func (l *LSPEndpoint) startHandler() {
 	var err error
 	var contentLen int
 	for {
-		header, err := r.ReadString('\n')
+		var header string
+		header, err = r.ReadString('\n')
 		if err != nil {
 			break
 		}
