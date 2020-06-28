@@ -71,6 +71,7 @@ func (s *Segment) Sum() uint64 {
 	s.initSumOnce.Do(func() {
 		h := new(maphash.Hash)
 		for _, line := range s.lines {
+			h.WriteString("\n")
 			h.WriteString(line.content)
 		}
 		s.sum = h.Sum64()
