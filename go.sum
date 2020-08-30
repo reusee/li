@@ -5,12 +5,16 @@ github.com/gdamore/encoding v1.0.0 h1:+7OoQ1Bc6eTm5niUzBa0Ctsh6JbMW6Ra+YNuAtDBdk
 github.com/gdamore/encoding v1.0.0/go.mod h1:alR0ol34c49FCSBLjhosxzcPHQbf2trDkoo5dl+VrEg=
 github.com/gdamore/tcell v1.3.0 h1:r35w0JBADPZCVQijYebl6YMWWtHRqVEGt7kL2eBADRM=
 github.com/gdamore/tcell v1.3.0/go.mod h1:Hjvr+Ofd+gLglo7RYKxxnzCBmev3BzsS67MebKS4zMM=
+github.com/gdamore/tcell v1.4.0 h1:vUnHwJRvcPQa3tzi+0QI4U9JINXYJlOz9yiaiPQ2wMU=
+github.com/gdamore/tcell v1.4.0/go.mod h1:vxEiSDZdW3L+Uhjii9c3375IlDmR05bzxY404ZVSMo0=
 github.com/junegunn/fzf v0.0.0-20200323235822-079046863c0a h1:7Ru1fQT0fOSndUEpXOZs5KhTWUsG9XXLpBA4YHOcGE0=
 github.com/junegunn/fzf v0.0.0-20200323235822-079046863c0a/go.mod h1:resNw+AKG+P/22pQ+3bC1nnPM4lHvWBit9Z7diHwmgk=
 github.com/junegunn/fzf v0.0.0-20200607015723-06d63a862e90 h1:oiGL42Dhf/LiDCnDvZVmn79gLDQMxEFpd1pd6SDXSfA=
 github.com/junegunn/fzf v0.0.0-20200607015723-06d63a862e90/go.mod h1:resNw+AKG+P/22pQ+3bC1nnPM4lHvWBit9Z7diHwmgk=
 github.com/junegunn/fzf v0.0.0-20200621081938-4ec144c969ef h1:/tRvitMHCLc3qCqkQ4422gHwiq5lfSh4C/agW8X0wWg=
 github.com/junegunn/fzf v0.0.0-20200621081938-4ec144c969ef/go.mod h1:resNw+AKG+P/22pQ+3bC1nnPM4lHvWBit9Z7diHwmgk=
+github.com/junegunn/fzf v0.0.0-20200823081757-f2d44ab5a793 h1:CUTn+/Ym6gj9VkecVSxumMF7pRew2xXvF4gVIlIZvoU=
+github.com/junegunn/fzf v0.0.0-20200823081757-f2d44ab5a793/go.mod h1:resNw+AKG+P/22pQ+3bC1nnPM4lHvWBit9Z7diHwmgk=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
@@ -20,6 +24,7 @@ github.com/lucasb-eyer/go-colorful v1.0.3/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i
 github.com/mattn/go-isatty v0.0.12 h1:wuysRhFDzyxgEmMf5xjvJ2M9dZoWAXNNr5LSBS7uHXY=
 github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Kysco4FUpU=
 github.com/mattn/go-runewidth v0.0.4/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
+github.com/mattn/go-runewidth v0.0.7/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m2gUSrubnMI=
 github.com/mattn/go-runewidth v0.0.8 h1:3tS41NlGYSmhhe/8fhGRzc+z3AYCw1Fe1WAyLuujKs0=
 github.com/mattn/go-runewidth v0.0.8/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m2gUSrubnMI=
 github.com/mattn/go-runewidth v0.0.9 h1:Lm995f3rfxdpd6TSmuVCHVb/QhupuXlYr8sCI/QdE+0=
@@ -30,6 +35,8 @@ github.com/reusee/dscope v0.0.0-20200308104333-145d25e52203 h1:yaI2M9J33wR0JBXGS
 github.com/reusee/dscope v0.0.0-20200308104333-145d25e52203/go.mod h1:3YStua5Cdi2FJixYwigqIUYhARAZ8fQSTSNZ2ZotVA8=
 github.com/reusee/dscope v0.0.0-20200418031158-6bff81142d6b h1:bPmG8cfPxVMY2DyIicnrN/wWO1p5VxyuVCgKcvBsju8=
 github.com/reusee/dscope v0.0.0-20200418031158-6bff81142d6b/go.mod h1:3YStua5Cdi2FJixYwigqIUYhARAZ8fQSTSNZ2ZotVA8=
+github.com/reusee/dscope v0.0.0-20200830134613-6624c9fb5ba6 h1:jwHmd+YmyTF+4TLiTfHSRaUMZ2NhYPV4REkoMJNVDCY=
+github.com/reusee/dscope v0.0.0-20200830134613-6624c9fb5ba6/go.mod h1:3YStua5Cdi2FJixYwigqIUYhARAZ8fQSTSNZ2ZotVA8=
 github.com/reusee/e/v2 v2.3.3 h1:/voLHd60okWZ1KEaY4Pln877sbxYQJR2qj48bpWyI0I=
 github.com/reusee/e/v2 v2.3.3/go.mod h1:kykJjxDURd5MAGzB+xkwN7WxfuZaotLjTssHtjpi5LQ=
 github.com/reusee/toml v0.4.0 h1:PXYMfykMkrPXp3BoTO8SFdAa+MZsfEFYzBToqeiybpY=
@@ -58,6 +65,8 @@ golang.org/x/sys v0.0.0-20200610111108-226ff32320da h1:bGb80FudwxpeucJUjPYJXuJ8H
 golang.org/x/sys v0.0.0-20200610111108-226ff32320da/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae h1:Ih9Yo4hSPImZOpfGuA4bR/ORKTAbhZo2AbWNRCnevdo=
 golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20200828194041-157a740278f4 h1:kCCpuwSAoYJPkNc6x0xT9yTtV4oKtARo4RGBQWOfg9E=
+golang.org/x/sys v0.0.0-20200828194041-157a740278f4/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.2 h1:tW2bmiBqwgJj/UpqtC8EpXEZVYOwU0yG4iWbprSVAcs=
 golang.org/x/text v0.3.2/go.mod h1:bEr9sfX3Q8Zfm5fL9x+3itogRgK3+ptLWKqgva+5dAk=
