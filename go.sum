@@ -37,6 +37,8 @@ github.com/reusee/dscope v0.0.0-20200418031158-6bff81142d6b h1:bPmG8cfPxVMY2DyIi
 github.com/reusee/dscope v0.0.0-20200418031158-6bff81142d6b/go.mod h1:3YStua5Cdi2FJixYwigqIUYhARAZ8fQSTSNZ2ZotVA8=
 github.com/reusee/dscope v0.0.0-20200830134613-6624c9fb5ba6 h1:jwHmd+YmyTF+4TLiTfHSRaUMZ2NhYPV4REkoMJNVDCY=
 github.com/reusee/dscope v0.0.0-20200830134613-6624c9fb5ba6/go.mod h1:3YStua5Cdi2FJixYwigqIUYhARAZ8fQSTSNZ2ZotVA8=
+github.com/reusee/dscope v0.0.0-20200830161133-a5d5cde87fa4 h1:trxFpaC8MNcGmkBLvJRXwXLXxhEvx+cBq89GSqhdKO4=
+github.com/reusee/dscope v0.0.0-20200830161133-a5d5cde87fa4/go.mod h1:3YStua5Cdi2FJixYwigqIUYhARAZ8fQSTSNZ2ZotVA8=
 github.com/reusee/e/v2 v2.3.3 h1:/voLHd60okWZ1KEaY4Pln877sbxYQJR2qj48bpWyI0I=
 github.com/reusee/e/v2 v2.3.3/go.mod h1:kykJjxDURd5MAGzB+xkwN7WxfuZaotLjTssHtjpi5LQ=
 github.com/reusee/toml v0.4.0 h1:PXYMfykMkrPXp3BoTO8SFdAa+MZsfEFYzBToqeiybpY=

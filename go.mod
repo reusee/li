@@ -6,7 +6,7 @@ require (
 	github.com/gdamore/tcell v1.4.0
 	github.com/junegunn/fzf v0.0.0-20200823081757-f2d44ab5a793
 	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/reusee/dscope v0.0.0-20200830134613-6624c9fb5ba6
+	github.com/reusee/dscope v0.0.0-20200830161133-a5d5cde87fa4
 	github.com/reusee/e/v2 v2.3.3
 	github.com/reusee/toml v0.4.0
 	github.com/sergi/go-diff v1.1.0
