@@ -58,6 +58,7 @@ func NewViewFromBuffer(
 	cur CurrentView,
 	linkedOne LinkedOne,
 	trigger Trigger,
+	languageStainers LanguageStainers,
 ) (
 	view *View,
 	err error,

@@ -8,12 +8,25 @@ import (
 
 type GoLexicalStainer struct {
 	//TODO eviction
-	cache sync.Map
+	cache        sync.Map
+	syntaxStyles SyntaxStyles
 }
 
 type GoLexicalStainerCacheKey struct {
 	MomentID
 	LineNumber
+}
+
+type NewGoLexicalStainer func() *GoLexicalStainer
+
+func (_ Provide) NewGoLexicalStainer(
+	syntaxStyles SyntaxStyles,
+) NewGoLexicalStainer {
+	return func() *GoLexicalStainer {
+		return &GoLexicalStainer{
+			syntaxStyles: syntaxStyles,
+		}
+	}
 }
 
 func (s *GoLexicalStainer) Line() any {
@@ -45,15 +58,15 @@ func (s *GoLexicalStainer) Line() any {
 
 func (s *GoLexicalStainer) AttrStyleFunc(attr string) StyleFunc {
 	if token.IsKeyword(attr) {
-		return KeywordStyleFunc
+		return s.syntaxStyles.Keyword
 	} else if strings.HasSuffix(attr, "_literal") {
-		return LiteralStyleFunc
+		return s.syntaxStyles.Literal
 	}
 	switch attr {
 	case "type_identifier":
-		return TypeStyleFunc
+		return s.syntaxStyles.Type
 	case "comment":
-		return CommentStyleFunc
+		return s.syntaxStyles.Comment
 	case "bool", "byte", "complex64", "complex128", "error", "float32", "float64",
 		"int", "int8", "int16", "int32", "int64", "rune", "string",
 		"uint", "uint8", "uint16", "uint32", "uint64", "uintptr",
@@ -61,9 +74,9 @@ func (s *GoLexicalStainer) AttrStyleFunc(attr string) StyleFunc {
 		"nil",
 		"append", "cap", "close", "complex", "copy", "delete", "imag", "len",
 		"make", "new", "panic", "print", "println", "real", "recover":
-		return BuiltInStyleFunc
+		return s.syntaxStyles.Builtin
 	case "escape_sequence":
-		return LiteralStyleFunc
+		return s.syntaxStyles.Literal
 	}
 	return nil
 }

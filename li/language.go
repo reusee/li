@@ -1,9 +1,11 @@
 package li
 
 import (
+	"reflect"
 	"strings"
 	"unsafe"
 
+	"github.com/reusee/dscope"
 	"github.com/reusee/li/treesitter"
 )
 
@@ -30,8 +32,20 @@ var languageParsers = map[Language]func(*Moment) *treesitter.Parser{
 	},
 }
 
-var languageStainers = map[Language]func() Stainer{
-	LanguageGo: func() Stainer {
-		return new(GoLexicalStainer)
-	},
+type LanguageStainers map[Language]func() Stainer
+
+var _ dscope.Reducer = LanguageStainers{}
+
+func (_ LanguageStainers) Reduce(_ dscope.Scope, vs []reflect.Value) reflect.Value {
+	return dscope.Reduce(vs)
+}
+
+func (_ Provide) DefaultLanguageStainers(
+	newGo NewGoLexicalStainer,
+) LanguageStainers {
+	return LanguageStainers{
+		LanguageGo: func() Stainer {
+			return newGo()
+		},
+	}
 }
