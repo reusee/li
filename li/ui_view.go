@@ -49,7 +49,9 @@ func (view *View) RenderFunc() any {
 		}
 		contentBox := view.Box
 		contentBox.Left += lineNumLength + 2
+		view.Lock()
 		view.ContentBox = contentBox
+		view.Unlock()
 
 		currentView := cur()
 

@@ -140,6 +140,8 @@ func (_ Provide) Completion(
 				if width > int(maxWidth)-10 {
 					width = int(maxWidth) - 10
 				}
+				view.RLock()
+				defer view.RUnlock()
 				cursorY := view.ContentBox.Top
 				var lineHeight int
 				scope.Sub(
