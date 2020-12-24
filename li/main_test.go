@@ -198,6 +198,7 @@ func withEditorBytes(t *testing.T, bs []byte, fn any) {
 	withEditor(func(
 		s Scope,
 		newBuf NewBufferFromBytes,
+		newView NewViewFromBuffer,
 	) {
 
 		buf, err := newBuf(bs)
@@ -208,10 +209,7 @@ func withEditorBytes(t *testing.T, bs []byte, fn any) {
 			t.Fatal()
 		}
 
-		var view *View
-		s.Sub(func() *Buffer {
-			return buf
-		}).Call(NewViewFromBuffer, &view, &err)
+		view, err := newView(buf)
 		if err != nil {
 			t.Fatal(err)
 		}

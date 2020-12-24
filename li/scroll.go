@@ -17,48 +17,53 @@ func (_ Provide) ScrollConfig(
 	return config.Scroll
 }
 
-func ScrollToCursor(
+type ScrollToCursor func()
+
+func (_ Provide) ScrollToCursor(
 	cur CurrentView,
 	scope Scope,
 	config ScrollConfig,
-) {
+) ScrollToCursor {
 
-	view := cur()
-	if view == nil {
-		return
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+
+		// move viewport column
+		col := view.CursorCol
+		viewportCol := view.ViewportCol
+		if col < viewportCol {
+			viewportCol = viewportCol - (viewportCol - col)
+		} else if col >= viewportCol+view.Box.Width() {
+			viewportCol -= viewportCol + view.Box.Width() - col - 1
+		}
+
+		// move viewport line
+		line := view.CursorLine
+		viewportLine := view.ViewportLine
+		min, max := view.calculateViewportLineRange(
+			scope,
+			view.GetMoment(), line,
+			config.PaddingTop,
+			config.PaddingBottom,
+		)
+		if viewportLine < min {
+			viewportLine = min
+		} else if viewportLine > max {
+			viewportLine = max
+		}
+
+		// no change
+		if view.ViewportLine == viewportLine && view.ViewportCol == viewportCol {
+			return
+		}
+
+		view.ViewportLine = viewportLine
+		view.ViewportCol = viewportCol
+
 	}
-
-	// move viewport column
-	col := view.CursorCol
-	viewportCol := view.ViewportCol
-	if col < viewportCol {
-		viewportCol = viewportCol - (viewportCol - col)
-	} else if col >= viewportCol+view.Box.Width() {
-		viewportCol -= viewportCol + view.Box.Width() - col - 1
-	}
-
-	// move viewport line
-	line := view.CursorLine
-	viewportLine := view.ViewportLine
-	min, max := view.calculateViewportLineRange(
-		scope,
-		view.GetMoment(), line,
-		config.PaddingTop,
-		config.PaddingBottom,
-	)
-	if viewportLine < min {
-		viewportLine = min
-	} else if viewportLine > max {
-		viewportLine = max
-	}
-
-	// no change
-	if view.ViewportLine == viewportLine && view.ViewportCol == viewportCol {
-		return
-	}
-
-	view.ViewportLine = viewportLine
-	view.ViewportCol = viewportCol
 
 }
 
@@ -137,7 +142,7 @@ func (v *View) calculateViewportLineRange(
 
 func ScrollEnd(
 	cur CurrentView,
-	scope Scope,
+	scrollToCursor ScrollToCursor,
 	moveCursor MoveCursor,
 ) {
 	view := cur()
@@ -146,16 +151,16 @@ func ScrollEnd(
 	}
 	line := view.GetMoment().NumLines() - 1
 	moveCursor(Move{AbsLine: &line})
-	scope.Call(ScrollToCursor)
+	scrollToCursor()
 }
 
 func ScrollHome(
-	scope Scope,
+	scrollToCursor ScrollToCursor,
 	moveCursor MoveCursor,
 ) {
 	zero := 0
 	moveCursor(Move{AbsLine: &zero, AbsCol: &zero})
-	scope.Call(ScrollToCursor)
+	scrollToCursor()
 }
 
 func (_ Command) ScrollHome() (spec CommandSpec) {

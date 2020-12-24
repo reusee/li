@@ -1,59 +1,66 @@
 package li
 
-func ShowMessage(
-	scope Scope,
+type ShowMessage func(
 	lines []string,
-) {
+)
 
-	length := 0
-	for _, line := range lines {
-		w := 0
-		for _, r := range line {
-			w += runeDisplayWidth(r)
-		}
-		if w > length {
-			length = w
-		}
-	}
-	paddingHorizontal := 5
-	paddingVertical := 2
+func (_ Provide) ShowMessage(
+	scope Scope,
+) ShowMessage {
+	return func(
+		lines []string,
+	) {
 
-	var id ID
-	msgBox := WidgetDialog{
-
-		OnKey: func(ev KeyEvent, scope Scope) {
-			switch ev.Name() {
-			case "Enter", "Esc":
-				// close
-				scope.Sub(&id).Call(CloseOverlay)
+		length := 0
+		for _, line := range lines {
+			w := 0
+			for _, r := range line {
+				w += runeDisplayWidth(r)
 			}
-		},
+			if w > length {
+				length = w
+			}
+		}
+		paddingHorizontal := 5
+		paddingVertical := 2
 
-		Element: ElementFrom(func(
-			box Box,
-			defaultStyle Style,
-		) Element {
+		var id ID
+		msgBox := WidgetDialog{
 
-			left := (box.Left+box.Right)/2 - paddingHorizontal - length/2
-			top := (box.Top+box.Bottom)/2 - paddingVertical - len(lines)/2
-			return Rect(
-				darkerOrLighterStyle(defaultStyle, -10),
-				Fill(true),
-				Box{
-					Left:   left,
-					Right:  left + paddingHorizontal*2 + length,
-					Top:    top,
-					Bottom: top + paddingVertical*2 + len(lines),
-				},
-				Padding(paddingVertical, paddingHorizontal),
-				Text(
-					lines,
-				),
-			)
+			OnKey: func(ev KeyEvent, scope Scope) {
+				switch ev.Name() {
+				case "Enter", "Esc":
+					// close
+					scope.Sub(&id).Call(CloseOverlay)
+				}
+			},
 
-		}),
+			Element: ElementFrom(func(
+				box Box,
+				defaultStyle Style,
+			) Element {
+
+				left := (box.Left+box.Right)/2 - paddingHorizontal - length/2
+				top := (box.Top+box.Bottom)/2 - paddingVertical - len(lines)/2
+				return Rect(
+					darkerOrLighterStyle(defaultStyle, -10),
+					Fill(true),
+					Box{
+						Left:   left,
+						Right:  left + paddingHorizontal*2 + length,
+						Top:    top,
+						Bottom: top + paddingVertical*2 + len(lines),
+					},
+					Padding(paddingVertical, paddingHorizontal),
+					Text(
+						lines,
+					),
+				)
+
+			}),
+		}
+
+		overlay := OverlayObject(msgBox)
+		scope.Sub(&overlay).Call(PushOverlay, &id)
 	}
-
-	overlay := OverlayObject(msgBox)
-	scope.Sub(&overlay).Call(PushOverlay, &id)
 }

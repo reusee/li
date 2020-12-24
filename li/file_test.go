@@ -10,6 +10,7 @@ func TestFileSync(t *testing.T) {
 	withEditor(func(
 		scope Scope,
 		linkedOne LinkedOne,
+		newNew NewViewFromBuffer,
 	) {
 
 		// temp file
@@ -38,10 +39,8 @@ func TestFileSync(t *testing.T) {
 		)
 
 		// view
-		var view *View
-		scope.Sub(func() *Buffer {
-			return buffer
-		}).Call(NewViewFromBuffer, &view)
+		view, err := newNew(buffer)
+		ce(err)
 		eq(t,
 			view != nil, true,
 			view.Buffer == buffer, true,

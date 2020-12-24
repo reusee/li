@@ -34,24 +34,23 @@ func main() {
 	// open files
 	views := make(li.Views)
 	scope = scope.Sub(func() li.Views { return views })
-	for _, path := range os.Args[1:] {
-		var buffers []*li.Buffer
-		var err error
-		scope.Call(func(
-			newBuffers li.NewBuffersFromPath,
-		) {
+	scope.Call(func(
+		newBuffers li.NewBuffersFromPath,
+		newView li.NewViewFromBuffer,
+	) {
+		for _, path := range os.Args[1:] {
+			var buffers []*li.Buffer
+			var err error
 			buffers, err = newBuffers(path)
-		})
-		if err != nil {
-			return
+			if err != nil {
+				return
+			}
+			for _, buffer := range buffers {
+				_, err := newView(buffer)
+				ce(err)
+			}
 		}
-		for _, buffer := range buffers {
-			scope.Sub(func() *li.Buffer {
-				return buffer
-			}).Call(li.NewViewFromBuffer, &err)
-			ce(err)
-		}
-	}
+	})
 
 	var screen li.Screen
 	defer func() {

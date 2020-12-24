@@ -30,6 +30,7 @@ func (_ Provide) MoveCursor(
 	withN WithContextNumber,
 	run RunInMainLoop,
 	trigger Trigger,
+	scrollToCursor ScrollToCursor,
 ) MoveCursor {
 
 	return func(move Move) {
@@ -211,7 +212,7 @@ func (_ Provide) MoveCursor(
 		view.CursorCol = col
 
 		// update
-		scope.Call(ScrollToCursor)
+		scrollToCursor()
 
 		trigger(scope.Sub(
 			&view, &moment, &[2]Position{currentPosition, view.cursorPosition()},
@@ -320,8 +321,8 @@ type NextEmptyLine func()
 
 func (_ Provide) NextEmptyLine(
 	cur CurrentView,
-	scope Scope,
 	moveCursor MoveCursor,
+	scrollToCursor ScrollToCursor,
 ) NextEmptyLine {
 	return func() {
 		view := cur()
@@ -339,7 +340,7 @@ func (_ Provide) NextEmptyLine(
 			n++
 		}
 		moveCursor(Move{AbsLine: &n, AbsCol: intP(0)})
-		scope.Call(ScrollToCursor)
+		scrollToCursor()
 	}
 }
 
@@ -347,8 +348,8 @@ type PrevEmptyLine func()
 
 func (_ Provide) PrevEmptyLine(
 	cur CurrentView,
-	scope Scope,
 	moveCursor MoveCursor,
+	scrollToCursor ScrollToCursor,
 ) PrevEmptyLine {
 	return func() {
 		view := cur()
@@ -364,7 +365,7 @@ func (_ Provide) PrevEmptyLine(
 			n--
 		}
 		moveCursor(Move{AbsLine: &n, AbsCol: intP(0)})
-		scope.Call(ScrollToCursor)
+		scrollToCursor()
 	}
 }
 
@@ -372,8 +373,8 @@ type LineBegin func()
 
 func (_ Provide) LineBegin(
 	cur CurrentView,
-	scope Scope,
 	moveCursor MoveCursor,
+	scrollToCursor ScrollToCursor,
 ) LineBegin {
 	return func() {
 		view := cur()
@@ -384,7 +385,7 @@ func (_ Provide) LineBegin(
 		moveCursor(Move{
 			AbsCol: &zero,
 		})
-		scope.Call(ScrollToCursor)
+		scrollToCursor()
 	}
 }
 
@@ -392,8 +393,8 @@ type LineEnd func()
 
 func (_ Provide) LineEnd(
 	cur CurrentView,
-	scope Scope,
 	moveCursor MoveCursor,
+	scrollToCursor ScrollToCursor,
 ) LineEnd {
 	return func() {
 		view := cur()
@@ -404,7 +405,7 @@ func (_ Provide) LineEnd(
 		moveCursor(Move{
 			AbsCol: &largeCol,
 		})
-		scope.Call(ScrollToCursor)
+		scrollToCursor()
 	}
 }
 
@@ -634,8 +635,8 @@ type PrevDedentLine func()
 
 func (_ Provide) PrevDedentLine(
 	cur CurrentView,
-	scope Scope,
 	moveCursor MoveCursor,
+	scrollToCursor ScrollToCursor,
 ) PrevDedentLine {
 	return func() {
 		view := cur()
@@ -667,7 +668,7 @@ func (_ Provide) PrevDedentLine(
 			AbsLine: &n,
 			AbsCol:  intP(col),
 		})
-		scope.Call(ScrollToCursor)
+		scrollToCursor()
 	}
 }
 
@@ -675,7 +676,7 @@ type NextDedentLine func()
 
 func (_ Provide) NextDedentLine(
 	cur CurrentView,
-	scope Scope,
+	scrollToCursor ScrollToCursor,
 	moveCursor MoveCursor,
 ) NextDedentLine {
 	return func() {
@@ -710,6 +711,6 @@ func (_ Provide) NextDedentLine(
 			AbsLine: &n,
 			AbsCol:  intP(col),
 		})
-		scope.Call(ScrollToCursor)
+		scrollToCursor()
 	}
 }
