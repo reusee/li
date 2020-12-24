@@ -62,7 +62,7 @@ func ShowSearchDialog(
 			initIndexSet := false
 			moment := view.GetMoment()
 			for i := 0; i < moment.NumLines(); i++ {
-				line := moment.GetLine(scope, i)
+				line := moment.GetLine(i)
 				loc := pattern.FindStringIndex(line.content)
 				if len(loc) == 0 {
 					continue

@@ -10,7 +10,7 @@ func (_ Command) InsertNewline() (spec CommandSpec) {
 		if view == nil {
 			return
 		}
-		indent := getAdjacentIndent(scope, view, view.CursorLine, view.CursorLine+1)
+		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
 		fn := PositionFunc(PosCursor)
 		str := "\n" + indent
 		scope.Sub(
@@ -77,7 +77,7 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 		if view == nil {
 			return
 		}
-		indent := getAdjacentIndent(scope, view, view.CursorLine, view.CursorLine+1)
+		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
 		fn := PositionFunc(PosLineEnd)
 		str := "\n" + indent
 		scope.Sub(
@@ -100,7 +100,7 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		if view == nil {
 			return
 		}
-		indent := getAdjacentIndent(scope, view, view.CursorLine-1, view.CursorLine)
+		indent := getAdjacentIndent(view, view.CursorLine-1, view.CursorLine)
 		fn := PositionFunc(PosLineBegin)
 		str := indent + "\n"
 		scope.Sub(
@@ -113,8 +113,8 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 	return
 }
 
-func getIndent(scope Scope, view *View, lineNum int) string {
-	line := view.GetMoment().GetLine(scope, lineNum)
+func getIndent(view *View, lineNum int) string {
+	line := view.GetMoment().GetLine(lineNum)
 	if line == nil {
 		return ""
 	}
@@ -131,11 +131,11 @@ func getIndent(scope Scope, view *View, lineNum int) string {
 	return string(runes)
 }
 
-func getAdjacentIndent(scope Scope, view *View, upwardLine int, downwardLine int) string {
+func getAdjacentIndent(view *View, upwardLine int, downwardLine int) string {
 	upwardIndent := 0
 	var upwardRunes []rune
 	for {
-		line := view.GetMoment().GetLine(scope, upwardLine)
+		line := view.GetMoment().GetLine(upwardLine)
 		if line == nil {
 			break
 		}
@@ -158,7 +158,7 @@ func getAdjacentIndent(scope Scope, view *View, upwardLine int, downwardLine int
 	downwardIndent := 0
 	var downwardRunes []rune
 	for {
-		line := view.GetMoment().GetLine(scope, downwardLine)
+		line := view.GetMoment().GetLine(downwardLine)
 		if line == nil {
 			break
 		}
@@ -215,7 +215,7 @@ func (_ Command) ChangeLine() (spec CommandSpec) {
 		if view == nil {
 			return
 		}
-		indent := getIndent(scope, view, view.CursorLine)
+		indent := getIndent(view, view.CursorLine)
 		var begin, end Position
 		scope.Call(PosLineBegin, &begin)
 		scope.Call(PosLineEnd, &end)

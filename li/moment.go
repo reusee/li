@@ -62,7 +62,7 @@ func NewMoment(prev *Moment) *Moment {
 	return m
 }
 
-func (m *Moment) GetLine(scope Scope, i int) *Line {
+func (m *Moment) GetLine(i int) *Line {
 	if i < 0 {
 		return nil
 	}
@@ -74,7 +74,7 @@ func (m *Moment) GetLine(scope Scope, i int) *Line {
 			i -= len(segment.lines)
 		} else {
 			line := segment.lines[i]
-			line.init(scope)
+			line.init()
 			return line
 		}
 	}
@@ -169,12 +169,12 @@ func (m *Moment) NumLines() int {
 	return m.segments.Len()
 }
 
-func (m *Moment) ByteOffsetToPosition(scope Scope, offset int) (pos Position) {
+func (m *Moment) ByteOffsetToPosition(offset int) (pos Position) {
 	i := 0
 	for _, segment := range m.segments {
 		for _, line := range segment.lines {
 			if offset < len(line.content) {
-				line.init(scope)
+				line.init()
 				for _, cell := range line.Cells {
 					if offset < cell.Len {
 						pos.Cell = cell.RuneOffset

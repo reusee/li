@@ -136,14 +136,14 @@ func (_ Command) CloseView() (spec CommandSpec) {
 	return
 }
 
-func (v *View) cursorPosition(scope Scope) Position {
+func (v *View) cursorPosition() Position {
 	if v.CursorLine >= v.GetMoment().NumLines() {
 		return Position{
 			Line: -1,
 			Cell: -1,
 		}
 	}
-	line := v.GetMoment().GetLine(scope, v.CursorLine)
+	line := v.GetMoment().GetLine(v.CursorLine)
 	if line == nil {
 		return Position{
 			Line: -1,

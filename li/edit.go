@@ -27,7 +27,6 @@ func ApplyChange(
 	config BufferConfig,
 	link Link,
 	linkedOne LinkedOne,
-	scope Scope,
 ) (
 	newMoment *Moment,
 	numRunesInserted int,
@@ -41,7 +40,7 @@ func ApplyChange(
 		// bad line
 		return
 	}
-	if line := moment.GetLine(scope, change.Begin.Line); change.Begin.Cell > len(line.Cells) {
+	if line := moment.GetLine(change.Begin.Line); change.Begin.Cell > len(line.Cells) {
 		// bad rune offset
 		return
 	}
@@ -52,7 +51,7 @@ func ApplyChange(
 
 	case OpInsert:
 		newSegments = moment.segments.Sub(-1, change.Begin.Line)
-		line := moment.GetLine(scope, change.Begin.Line)
+		line := moment.GetLine(change.Begin.Line)
 		offset := 0
 		for _, cell := range line.Cells[:change.Begin.Cell] {
 			offset += cell.Len
@@ -85,11 +84,11 @@ func ApplyChange(
 			change.End = change.Begin
 			// iterate
 			for change.Number > 0 {
-				line := moment.GetLine(scope, change.End.Line)
+				line := moment.GetLine(change.End.Line)
 				if line == nil {
 					change.Number = 0
 					change.End.Line--
-					change.End.Cell = len(moment.GetLine(scope, change.End.Line).Cells) - 1
+					change.End.Cell = len(moment.GetLine(change.End.Line).Cells) - 1
 				} else {
 					if change.End.Cell+change.Number >= len(line.Cells) {
 						// next line
@@ -117,7 +116,7 @@ func ApplyChange(
 				break
 			}
 			if lineNum == change.Begin.Line {
-				for _, cell := range moment.GetLine(scope, lineNum).Cells {
+				for _, cell := range moment.GetLine(lineNum).Cells {
 					if cell.RuneOffset >= change.Begin.Cell {
 						break
 					}
@@ -125,7 +124,7 @@ func ApplyChange(
 				}
 			}
 			if lineNum == change.End.Line {
-				for _, cell := range moment.GetLine(scope, lineNum).Cells {
+				for _, cell := range moment.GetLine(lineNum).Cells {
 					if cell.RuneOffset < change.End.Cell {
 						continue
 					}
@@ -197,7 +196,7 @@ func InsertAtPositionFunc(
 
 	view.switchMoment(scope, newMoment)
 
-	col := newMoment.GetLine(scope, position.Line).Cells[position.Cell].DisplayOffset
+	col := newMoment.GetLine(position.Line).Cells[position.Cell].DisplayOffset
 	moveCursor(Move{AbsLine: intP(position.Line), AbsCol: &col})
 	moveCursor(Move{RelRune: nRunesInserted})
 
@@ -225,7 +224,7 @@ func DeleteWithinRange(
 		&moment, &change,
 	).Call(ApplyChange, &newMoment)
 	view.switchMoment(scope, newMoment)
-	col := newMoment.GetLine(scope, r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
+	col := newMoment.GetLine(r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
 	moveCursor(Move{AbsLine: intP(r.Begin.Line), AbsCol: &col})
 }
 
@@ -291,7 +290,7 @@ func ReplaceWithinRange(
 
 	view.switchMoment(scope, moment)
 
-	col := moment.GetLine(scope, r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
+	col := moment.GetLine(r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
 	moveCursor(Move{AbsLine: intP(r.Begin.Line), AbsCol: &col})
 	moveCursor(Move{RelRune: nRunesInserted})
 
@@ -332,7 +331,7 @@ func _Delete(
 	}
 
 	// delete selected
-	if r := view.selectedRange(scope); r != nil {
+	if r := view.selectedRange(); r != nil {
 		scope.Sub(r).Call(DeleteWithinRange)
 		view.SelectionAnchor = nil
 	}
@@ -350,7 +349,7 @@ func Delete(
 	abort Abort,
 ) {
 	view := cur()
-	if view != nil && view.selectedRange(scope) != nil {
+	if view != nil && view.selectedRange() != nil {
 		after := AfterFunc(func() {})
 		scope.Sub(
 			&after,
@@ -368,7 +367,7 @@ func ChangeText(
 	abort Abort,
 ) {
 
-	if view := cur(); view != nil && view.selectedRange(scope) != nil {
+	if view := cur(); view != nil && view.selectedRange() != nil {
 		// if selected
 		after := AfterFunc(func(scope Scope) {
 			scope.Call(EnableEditMode)

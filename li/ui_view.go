@@ -117,7 +117,7 @@ func (view *View) RenderFunc() any {
 		// indent-based background
 		indentStyle := func(style Style, lineNum int, offset int) Style {
 			for lineNum >= 0 {
-				line := moment.GetLine(scope, lineNum)
+				line := moment.GetLine(lineNum)
 				if line == nil {
 					break
 				}
@@ -139,7 +139,7 @@ func (view *View) RenderFunc() any {
 		}
 
 		// lines
-		selectedRange := view.selectedRange(scope)
+		selectedRange := view.selectedRange()
 		wg := new(sync.WaitGroup)
 		loopLineNum := view.ViewportLine
 		loopY := contentBox.Top
@@ -163,7 +163,7 @@ func (view *View) RenderFunc() any {
 				isCurrentLine := lineNum == view.CursorLine
 				var lines []Line
 				if lineNum < moment.NumLines() {
-					lines = append(lines, *moment.GetLine(scope, lineNum))
+					lines = append(lines, *moment.GetLine(lineNum))
 				}
 
 				// line number

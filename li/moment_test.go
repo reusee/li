@@ -7,7 +7,6 @@ import (
 func TestMomentFromBytes(t *testing.T) {
 	withEditorBytes(t, []byte("abc"), func(
 		view *View,
-		scope Scope,
 		move MoveCursor,
 	) {
 		eq(t,
@@ -92,9 +91,8 @@ func TestDerivedMomentLanguage(t *testing.T) {
 func TestCellUTF16Offset(t *testing.T) {
 	withHelloEditor(t, func(
 		m *Moment,
-		scope Scope,
 	) {
-		line := m.GetLine(scope, 0)
+		line := m.GetLine(0)
 		eq(t,
 			line.Cells[0].UTF16Offset, 0,
 			line.Cells[1].UTF16Offset, 2,
@@ -106,39 +104,38 @@ func TestCellUTF16Offset(t *testing.T) {
 func TestMomentByteOffsetToPosition(t *testing.T) {
 	withHelloEditor(t, func(
 		m *Moment,
-		scope Scope,
 	) {
-		pos := m.ByteOffsetToPosition(scope, 0)
+		pos := m.ByteOffsetToPosition(0)
 		eq(t,
 			pos.Line, 0,
 			pos.Cell, 0,
 		)
-		pos = m.ByteOffsetToPosition(scope, 1)
+		pos = m.ByteOffsetToPosition(1)
 		eq(t,
 			pos.Line, 0,
 			pos.Cell, 1,
 		)
-		pos = m.ByteOffsetToPosition(scope, 13)
+		pos = m.ByteOffsetToPosition(13)
 		eq(t,
 			pos.Line, 0,
 			pos.Cell, 13,
 		)
-		pos = m.ByteOffsetToPosition(scope, 14)
+		pos = m.ByteOffsetToPosition(14)
 		eq(t,
 			pos.Line, 1,
 			pos.Cell, 0,
 		)
-		pos = m.ByteOffsetToPosition(scope, 15)
+		pos = m.ByteOffsetToPosition(15)
 		eq(t,
 			pos.Line, 1,
 			pos.Cell, 0,
 		)
-		pos = m.ByteOffsetToPosition(scope, 17)
+		pos = m.ByteOffsetToPosition(17)
 		eq(t,
 			pos.Line, 1,
 			pos.Cell, 1,
 		)
-		pos = m.ByteOffsetToPosition(scope, 33)
+		pos = m.ByteOffsetToPosition(33)
 		eq(t,
 			pos.Line, 2,
 			pos.Cell, 0,

@@ -31,7 +31,7 @@ type Cell struct {
 	UTF16Offset   int // byte offset in utf16 encoding in line
 }
 
-func (l *Line) init(scope Scope) {
+func (l *Line) init() {
 	l.initOnce.Do(func() {
 		var cells []Cell
 		allSpace := true
@@ -75,31 +75,19 @@ func (l *Line) init(scope Scope) {
 		l.NonSpaceDisplayOffset = nonSpaceOffset
 		l.Cells = cells
 		l.AllSpace = allSpace
-
-		var trigger Trigger
-		scope.Assign(&trigger)
-		trigger(scope.Sub(
-			&l,
-		), EvLineInitialized)
 	})
 }
 
-type evLineInitialized struct{}
-
-var EvLineInitialized = new(evLineInitialized)
-
 type LineInitProcs chan []*Line
 
-func (_ Provide) LineInitProcs(
-	scope Scope,
-) LineInitProcs {
+func (_ Provide) LineInitProcs() LineInitProcs {
 	c := make(chan []*Line, 512)
 	for i := 0; i < numCPU; i++ {
 		go func() {
 			for {
 				lines := <-c
 				for i := len(lines) - 1; i >= 0; i-- {
-					lines[i].init(scope)
+					lines[i].init()
 				}
 			}
 		}()

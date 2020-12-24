@@ -4,7 +4,6 @@ type Selections []Range
 
 func ToggleSelection(
 	cur CurrentView,
-	scope Scope,
 ) {
 	view := cur()
 	if view == nil {
@@ -14,7 +13,7 @@ func ToggleSelection(
 		view.SelectionAnchor = nil
 		return
 	}
-	position := view.cursorPosition(scope)
+	position := view.cursorPosition()
 	view.SelectionAnchor = &position
 }
 
@@ -24,12 +23,12 @@ func (_ Command) ToggleSelection() (spec CommandSpec) {
 	return
 }
 
-func (v *View) selectedRange(scope Scope) *Range {
+func (v *View) selectedRange() *Range {
 	if v.SelectionAnchor == nil {
 		return nil
 	}
 	anchor := *v.SelectionAnchor
-	cursor := v.cursorPosition(scope)
+	cursor := v.cursorPosition()
 	if cursor.Before(anchor) {
 		return &Range{
 			Begin: cursor,
@@ -37,7 +36,7 @@ func (v *View) selectedRange(scope Scope) *Range {
 		}
 	}
 	moment := v.GetMoment()
-	line := moment.GetLine(scope, cursor.Line)
+	line := moment.GetLine(cursor.Line)
 	var end Position
 	if cursor.Cell == len(line.Cells)-1 {
 		// at line end

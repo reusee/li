@@ -8,7 +8,7 @@ type Clip struct {
 	str    *string
 }
 
-func (c *Clip) String(scope Scope) string {
+func (c *Clip) String() string {
 	if c.str == nil {
 		if c.Range.End.Before(c.Range.Begin) {
 			c.Range.End, c.Range.Begin = c.Range.Begin, c.Range.End
@@ -17,7 +17,7 @@ func (c *Clip) String(scope Scope) string {
 		buf := new(strings.Builder)
 		lineNum := c.Range.Begin.Line
 
-		line := c.Moment.GetLine(scope, lineNum)
+		line := c.Moment.GetLine(lineNum)
 		if line == nil {
 			return ""
 		}
@@ -34,7 +34,7 @@ func (c *Clip) String(scope Scope) string {
 				lineNum > c.Range.End.Line {
 				break
 			}
-			line = c.Moment.GetLine(scope, lineNum)
+			line = c.Moment.GetLine(lineNum)
 			if lineNum == c.Range.End.Line {
 				buf.WriteString(
 					line.content[:line.Cells[c.Range.End.Cell].ByteOffset],
@@ -56,14 +56,13 @@ type NewClipFromSelection func()
 func (_ Provide) NewClipFromSelection(
 	cur CurrentView,
 	link Link,
-	scope Scope,
 ) NewClipFromSelection {
 	return func() {
 		view := cur()
 		if view == nil {
 			return
 		}
-		r := view.selectedRange(scope)
+		r := view.selectedRange()
 		if r == nil {
 			return
 		}
@@ -103,7 +102,7 @@ func (_ Provide) InsertLastClip(
 		if linkedOne(view.Buffer, &clip) == 0 {
 			return
 		}
-		str := clip.String(scope)
+		str := clip.String()
 		fn := PositionFunc(PosCursor)
 		scope.Sub(&str, &fn).Call(InsertAtPositionFunc)
 	}

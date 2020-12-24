@@ -12,15 +12,15 @@ func TestUndoRedo(t *testing.T) {
 	) {
 		scope.Call(DeleteRune)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "ello, world!\n",
+			view.GetMoment().GetLine(0).content, "ello, world!\n",
 		)
 		scope.Call(Undo)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "Hello, world!\n",
+			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 		scope.Call(RedoLatest)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "ello, world!\n",
+			view.GetMoment().GetLine(0).content, "ello, world!\n",
 		)
 	})
 }
@@ -42,11 +42,11 @@ func TestUndoRedo3(t *testing.T) {
 	) {
 		scope.Call(Undo)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "Hello, world!\n",
+			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 		scope.Call(RedoLatest)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "Hello, world!\n",
+			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 	})
 }
@@ -58,25 +58,25 @@ func TestUndoRedo4(t *testing.T) {
 	) {
 		scope.Call(DeleteRune)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "ello, world!\n",
+			view.GetMoment().GetLine(0).content, "ello, world!\n",
 		)
 		scope.Call(Undo)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "Hello, world!\n",
+			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 		scope.Sub(func() (PositionFunc, string) {
 			return PosCursor, "foo"
 		}).Call(InsertAtPositionFunc)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "fooHello, world!\n",
+			view.GetMoment().GetLine(0).content, "fooHello, world!\n",
 		)
 		scope.Call(Undo)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "Hello, world!\n",
+			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 		scope.Call(RedoLatest)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "fooHello, world!\n",
+			view.GetMoment().GetLine(0).content, "fooHello, world!\n",
 		)
 	})
 }

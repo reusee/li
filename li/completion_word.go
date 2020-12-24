@@ -154,7 +154,7 @@ func (_ Provide) CollectWords(
 	) {
 
 		// get pattern
-		line := moment.GetLine(scope, state.CursorLine)
+		line := moment.GetLine(state.CursorLine)
 		var cell int
 		col := 0
 		for i := 0; i < len(line.Cells); i++ {

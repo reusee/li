@@ -35,7 +35,7 @@ func TestApplyChange(t *testing.T) {
 			m2.Previous == moment, true,
 			m2.Change == change, true,
 			m2.NumLines(), 1,
-			m2.GetLine(scope, 0).content, "foo\n",
+			m2.GetLine(0).content, "foo\n",
 		)
 
 		var m3 *Moment
@@ -56,9 +56,9 @@ func TestApplyChange(t *testing.T) {
 			m3.Previous == m2, true,
 			m3.Change == change, true,
 			m3.NumLines(), 3,
-			m3.GetLine(scope, 0).content, "foo\n",
-			m3.GetLine(scope, 1).content, "foo\n",
-			m3.GetLine(scope, 2).content, "foofoo\n",
+			m3.GetLine(0).content, "foo\n",
+			m3.GetLine(1).content, "foo\n",
+			m3.GetLine(2).content, "foofoo\n",
 		)
 
 		var m4 *Moment
@@ -80,10 +80,10 @@ func TestApplyChange(t *testing.T) {
 			m4.Change == change, true,
 			m4.NumLines(), 4,
 
-			m4.GetLine(scope, 0).content, "foo\n",
-			m4.GetLine(scope, 1).content, "foo\n",
-			m4.GetLine(scope, 2).content, "foofoo\n",
-			m4.GetLine(scope, 3).content, "bar\n",
+			m4.GetLine(0).content, "foo\n",
+			m4.GetLine(1).content, "foo\n",
+			m4.GetLine(2).content, "foofoo\n",
+			m4.GetLine(3).content, "bar\n",
 		)
 
 		var m5 *Moment
@@ -105,10 +105,10 @@ func TestApplyChange(t *testing.T) {
 			m5.Change == change, true,
 			m5.NumLines(), 4,
 
-			m5.GetLine(scope, 0).content, "foo\n",
-			m5.GetLine(scope, 1).content, "fquuxoo\n",
-			m5.GetLine(scope, 2).content, "foofoo\n",
-			m5.GetLine(scope, 3).content, "bar\n",
+			m5.GetLine(0).content, "foo\n",
+			m5.GetLine(1).content, "fquuxoo\n",
+			m5.GetLine(2).content, "foofoo\n",
+			m5.GetLine(3).content, "bar\n",
 		)
 
 		var m6 *Moment
@@ -130,12 +130,12 @@ func TestApplyChange(t *testing.T) {
 			m6.Change == change, true,
 			m6.NumLines(), 6,
 
-			m6.GetLine(scope, 0).content, "foo你好\n",
-			m6.GetLine(scope, 1).content, "世界\n",
-			m6.GetLine(scope, 2).content, "\n",
-			m6.GetLine(scope, 3).content, "fquuxoo\n",
-			m6.GetLine(scope, 4).content, "foofoo\n",
-			m6.GetLine(scope, 5).content, "bar\n",
+			m6.GetLine(0).content, "foo你好\n",
+			m6.GetLine(1).content, "世界\n",
+			m6.GetLine(2).content, "\n",
+			m6.GetLine(3).content, "fquuxoo\n",
+			m6.GetLine(4).content, "foofoo\n",
+			m6.GetLine(5).content, "bar\n",
 		)
 
 		var m7 *Moment
@@ -157,13 +157,13 @@ func TestApplyChange(t *testing.T) {
 			m7.Change == change, true,
 			m7.NumLines(), 6,
 
-			m7.GetLine(scope, 0).content, "你好\n",
-			m7.GetLine(scope, 1).content, "世界\n",
-			m7.GetLine(scope, 2).content, "\n",
-			m7.GetLine(scope, 3).content, "fquuxoo\n",
-			m7.GetLine(scope, 4).content, "foofoo\n",
+			m7.GetLine(0).content, "你好\n",
+			m7.GetLine(1).content, "世界\n",
+			m7.GetLine(2).content, "\n",
+			m7.GetLine(3).content, "fquuxoo\n",
+			m7.GetLine(4).content, "foofoo\n",
 
-			m7.GetLine(scope, 5).content, "bar\n",
+			m7.GetLine(5).content, "bar\n",
 		)
 
 		var m8 *Moment
@@ -185,11 +185,11 @@ func TestApplyChange(t *testing.T) {
 			m8.Change == change, true,
 			m8.NumLines(), 5,
 
-			m8.GetLine(scope, 0).content, "世界\n",
-			m8.GetLine(scope, 1).content, "\n",
-			m8.GetLine(scope, 2).content, "fquuxoo\n",
-			m8.GetLine(scope, 3).content, "foofoo\n",
-			m8.GetLine(scope, 4).content, "bar\n",
+			m8.GetLine(0).content, "世界\n",
+			m8.GetLine(1).content, "\n",
+			m8.GetLine(2).content, "fquuxoo\n",
+			m8.GetLine(3).content, "foofoo\n",
+			m8.GetLine(4).content, "bar\n",
 		)
 
 		var m9 *Moment
@@ -275,8 +275,8 @@ func TestDelete(t *testing.T) {
 			m2.Previous == moment, true,
 			m2.Change == change, true,
 			m2.NumLines(), 2,
-			m2.GetLine(scope, 0).content, "\n",
-			m2.GetLine(scope, 1).content, "b",
+			m2.GetLine(0).content, "\n",
+			m2.GetLine(1).content, "b",
 		)
 
 		change = Change{
@@ -423,15 +423,15 @@ func TestDeletePrevRune(t *testing.T) {
 		scope.Call(DeletePrevRune)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
-			view.GetMoment().GetLine(scope, 0).content, "fo\n",
+			view.GetMoment().GetLine(0).content, "fo\n",
 		)
 
 		move(Move{RelLine: 0, RelRune: 2})
 		scope.Call(NamedCommands["InsertNewline"].Func)
 		eq(t,
 			view.GetMoment().NumLines(), 2,
-			view.GetMoment().GetLine(scope, 0).content, "fo\n",
-			view.GetMoment().GetLine(scope, 1).content, "\n",
+			view.GetMoment().GetLine(0).content, "fo\n",
+			view.GetMoment().GetLine(1).content, "\n",
 		)
 	})
 }
@@ -443,7 +443,7 @@ func TestInsertTab(t *testing.T) {
 	) {
 		scope.Call(NamedCommands["InsertTab"].Func)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "\tHello, world!\n",
+			view.GetMoment().GetLine(0).content, "\tHello, world!\n",
 		)
 	})
 }
@@ -472,7 +472,7 @@ func TestDeleteMultiline(t *testing.T) {
 		scope.Call(Delete)
 		eq(t,
 			view.GetMoment().NumLines(), 2,
-			view.GetMoment().GetLine(scope, 0).content, "世界！\n",
+			view.GetMoment().GetLine(0).content, "世界！\n",
 		)
 	})
 }
@@ -489,7 +489,7 @@ func TestDeleteMultiline2(t *testing.T) {
 		scope.Call(Delete)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
-			view.GetMoment().GetLine(scope, 0).content, "ちは、世界！\n",
+			view.GetMoment().GetLine(0).content, "ちは、世界！\n",
 		)
 	})
 }
@@ -507,7 +507,7 @@ func TestChangeText(t *testing.T) {
 		scope.Call(ChangeText)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
-			view.GetMoment().GetLine(scope, 0).content, "ちは、世界！\n",
+			view.GetMoment().GetLine(0).content, "ちは、世界！\n",
 		)
 		modes := curModes()
 		_, ok := modes[0].(*EditMode)
@@ -541,13 +541,13 @@ func TestEditNewLineBelowAndAbove(t *testing.T) {
 		scope.Call(NamedCommands["EditNewLineBelow"].Func)
 		eq(t,
 			view.GetMoment().NumLines(), 4,
-			view.GetMoment().GetLine(scope, 1).content, "\n",
+			view.GetMoment().GetLine(1).content, "\n",
 		)
 		scope.Call(NamedCommands["EditNewLineAbove"].Func)
 		eq(t,
 			view.GetMoment().NumLines(), 5,
-			view.GetMoment().GetLine(scope, 1).content, "\n",
-			view.GetMoment().GetLine(scope, 2).content, "\n",
+			view.GetMoment().GetLine(1).content, "\n",
+			view.GetMoment().GetLine(2).content, "\n",
 		)
 	})
 }
@@ -560,38 +560,38 @@ func TestChangeToWordEnd(t *testing.T) {
 	) {
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, ", world!\n",
+			view.GetMoment().GetLine(0).content, ", world!\n",
 		)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, " world!\n",
+			view.GetMoment().GetLine(0).content, " world!\n",
 		)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "world!\n",
+			view.GetMoment().GetLine(0).content, "world!\n",
 		)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "!\n",
+			view.GetMoment().GetLine(0).content, "!\n",
 		)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "\n",
+			view.GetMoment().GetLine(0).content, "\n",
 		)
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.GetMoment().GetLine(scope, 0).content, "\n",
+			view.GetMoment().GetLine(0).content, "\n",
 		)
 
 		move(Move{RelLine: 1})
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.GetMoment().GetLine(scope, 1).content, "，世界！\n",
+			view.GetMoment().GetLine(1).content, "，世界！\n",
 		)
 		move(Move{RelRune: 2})
 		scope.Call(ChangeToWordEnd)
 		eq(t,
-			view.GetMoment().GetLine(scope, 1).content, "，世！\n",
+			view.GetMoment().GetLine(1).content, "，世！\n",
 		)
 	})
 }
@@ -611,7 +611,7 @@ func TestReplace(t *testing.T) {
 		}).Call(ReplaceWithinRange, &moment)
 		eq(t,
 			moment.NumLines(), 2,
-			moment.GetLine(scope, 0).content, "fooa\n",
+			moment.GetLine(0).content, "fooa\n",
 		)
 
 		scope.Sub(func() (Range, string) {
@@ -622,7 +622,7 @@ func TestReplace(t *testing.T) {
 		}).Call(ReplaceWithinRange, &moment)
 		eq(t,
 			moment.NumLines(), 2,
-			moment.GetLine(scope, 0).content, "fooooa\n",
+			moment.GetLine(0).content, "fooooa\n",
 		)
 
 		scope.Sub(func() (Range, string) {
@@ -633,7 +633,7 @@ func TestReplace(t *testing.T) {
 		}).Call(ReplaceWithinRange, &moment)
 		eq(t,
 			moment.NumLines(), 1,
-			moment.GetLine(scope, 0).content, "foob\n",
+			moment.GetLine(0).content, "foob\n",
 		)
 
 	})

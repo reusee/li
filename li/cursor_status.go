@@ -23,7 +23,7 @@ func (_ Provide) CursorStatus(
 		}
 		moment := focusing.GetMoment()
 		if parser := moment.GetParser(scope); parser != nil {
-			pos := focusing.cursorPosition(scope)
+			pos := focusing.cursorPosition()
 			lines = append(lines, []any{
 				moment.GetSyntaxAttr(scope, pos.Line, pos.Cell),
 				AlignRight, Padding(0, 2, 0, 0),
