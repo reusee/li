@@ -138,21 +138,23 @@ func (v *View) calculateViewportLineRange(
 func ScrollEnd(
 	cur CurrentView,
 	scope Scope,
+	moveCursor MoveCursor,
 ) {
 	view := cur()
 	if view == nil {
 		return
 	}
 	line := view.GetMoment().NumLines() - 1
-	scope.Sub(&Move{AbsLine: &line}).Call(MoveCursor)
+	moveCursor(Move{AbsLine: &line})
 	scope.Call(ScrollToCursor)
 }
 
 func ScrollHome(
 	scope Scope,
+	moveCursor MoveCursor,
 ) {
 	zero := 0
-	scope.Sub(&Move{AbsLine: &zero, AbsCol: &zero}).Call(MoveCursor)
+	moveCursor(Move{AbsLine: &zero, AbsCol: &zero})
 	scope.Call(ScrollToCursor)
 }
 
@@ -166,11 +168,12 @@ func (_ Command) ScrollHome() (spec CommandSpec) {
 func ScrollAbsOrEnd(
 	withN WithContextNumber,
 	scope Scope,
+	moveCursor MoveCursor,
 ) {
 	withN(func(n int) {
 		if n > 0 {
 			n--
-			scope.Sub(&Move{AbsLine: &n}).Call(MoveCursor)
+			moveCursor(Move{AbsLine: &n})
 		} else {
 			scope.Call(ScrollEnd)
 		}
@@ -180,11 +183,12 @@ func ScrollAbsOrEnd(
 func ScrollAbsOrHome(
 	withN WithContextNumber,
 	scope Scope,
+	moveCursor MoveCursor,
 ) {
 	withN(func(n int) {
 		if n > 0 {
 			n--
-			scope.Sub(&Move{AbsLine: &n}).Call(MoveCursor)
+			moveCursor(Move{AbsLine: &n})
 		} else {
 			scope.Call(ScrollHome)
 		}

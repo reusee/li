@@ -60,6 +60,7 @@ func (_ Provide) FormatterGo(
 				time.AfterFunc(time.Second*time.Duration(config.DelaySeconds), func() {
 					run(func(
 						scope Scope,
+						moveCursor MoveCursor,
 					) {
 						if job.view.GetMoment() != job.moment {
 							return
@@ -104,11 +105,8 @@ func (_ Provide) FormatterGo(
 
 							job.view.switchMoment(scope, moment)
 							col := moment.GetLine(scope, position.Line).Cells[position.Cell].DisplayOffset
-							scope.Sub(
-								&Move{AbsLine: intP(position.Line), AbsCol: &col},
-							).Call(MoveCursor)
-							scope.Sub(&Move{RelRune: numRunesInserted}).
-								Call(MoveCursor)
+							moveCursor(Move{AbsLine: intP(position.Line), AbsCol: &col})
+							moveCursor(Move{RelRune: numRunesInserted})
 
 						}
 

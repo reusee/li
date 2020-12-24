@@ -96,6 +96,7 @@ func TestClipFromSelection(t *testing.T) {
 		buffer *Buffer,
 		linkedOne LinkedOne,
 		newClip NewClipFromSelection,
+		moveCursor MoveCursor,
 	) {
 		scope.Call(ToggleSelection)
 		newClip()
@@ -105,7 +106,7 @@ func TestClipFromSelection(t *testing.T) {
 			clip.String(scope), "H",
 		)
 
-		scope.Sub(&Move{RelLine: 1}).Call(MoveCursor)
+		moveCursor(Move{RelLine: 1})
 		newClip()
 		linkedOne(buffer, &clip)
 		eq(t,

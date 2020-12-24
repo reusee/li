@@ -412,22 +412,21 @@ func TestDeletePrevRune(t *testing.T) {
 	withEditorBytes(t, []byte("foo"), func(
 		scope Scope,
 		view *View,
+		move MoveCursor,
 	) {
 		scope.Call(DeletePrevRune)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 		)
 
-		scope.Sub(&Move{RelRune: 3}).
-			Call(MoveCursor)
+		move(Move{RelRune: 3})
 		scope.Call(DeletePrevRune)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 			view.GetMoment().GetLine(scope, 0).content, "fo\n",
 		)
 
-		scope.Sub(&Move{RelLine: 0, RelRune: 2}).
-			Call(MoveCursor)
+		move(Move{RelLine: 0, RelRune: 2})
 		scope.Call(NamedCommands["InsertNewline"].Func)
 		eq(t,
 			view.GetMoment().NumLines(), 2,
@@ -465,12 +464,11 @@ func TestDeleteMultiline(t *testing.T) {
 	withHelloEditor(t, func(
 		view *View,
 		scope Scope,
+		move MoveCursor,
 	) {
 		scope.Call(ToggleSelection)
-		scope.Sub(&Move{RelLine: 1}).
-			Call(MoveCursor)
-		scope.Sub(&Move{RelRune: 2}).
-			Call(MoveCursor)
+		move(Move{RelLine: 1})
+		move(Move{RelRune: 2})
 		scope.Call(Delete)
 		eq(t,
 			view.GetMoment().NumLines(), 2,
@@ -483,12 +481,11 @@ func TestDeleteMultiline2(t *testing.T) {
 	withHelloEditor(t, func(
 		view *View,
 		scope Scope,
+		move MoveCursor,
 	) {
 		scope.Call(ToggleSelection)
-		scope.Sub(&Move{RelLine: 2}).
-			Call(MoveCursor)
-		scope.Sub(&Move{RelRune: 2}).
-			Call(MoveCursor)
+		move(Move{RelLine: 2})
+		move(Move{RelRune: 2})
 		scope.Call(Delete)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
@@ -502,12 +499,11 @@ func TestChangeText(t *testing.T) {
 		view *View,
 		scope Scope,
 		curModes CurrentModes,
+		move MoveCursor,
 	) {
 		scope.Call(ToggleSelection)
-		scope.Sub(&Move{RelLine: 2}).
-			Call(MoveCursor)
-		scope.Sub(&Move{RelRune: 2}).
-			Call(MoveCursor)
+		move(Move{RelLine: 2})
+		move(Move{RelRune: 2})
 		scope.Call(ChangeText)
 		eq(t,
 			view.GetMoment().NumLines(), 1,
@@ -560,6 +556,7 @@ func TestChangeToWordEnd(t *testing.T) {
 	withHelloEditor(t, func(
 		scope Scope,
 		view *View,
+		move MoveCursor,
 	) {
 		scope.Call(ChangeToWordEnd)
 		eq(t,
@@ -586,14 +583,12 @@ func TestChangeToWordEnd(t *testing.T) {
 			view.GetMoment().GetLine(scope, 0).content, "\n",
 		)
 
-		scope.Sub(&Move{RelLine: 1}).
-			Call(MoveCursor)
+		move(Move{RelLine: 1})
 		scope.Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 1).content, "，世界！\n",
 		)
-		scope.Sub(&Move{RelRune: 2}).
-			Call(MoveCursor)
+		move(Move{RelRune: 2})
 		scope.Call(ChangeToWordEnd)
 		eq(t,
 			view.GetMoment().GetLine(scope, 1).content, "，世！\n",

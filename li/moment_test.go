@@ -8,12 +8,12 @@ func TestMomentFromBytes(t *testing.T) {
 	withEditorBytes(t, []byte("abc"), func(
 		view *View,
 		scope Scope,
+		move MoveCursor,
 	) {
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 		)
-		scope.Sub(&Move{AbsLine: intP(999)}).
-			Call(MoveCursor)
+		move(Move{AbsLine: intP(999)})
 		eq(t,
 			view.CursorLine, 0,
 		)

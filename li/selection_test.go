@@ -6,13 +6,11 @@ func TestSelection(t *testing.T) {
 	withHelloEditor(t, func(
 		scope Scope,
 		view *View,
+		move MoveCursor,
 	) {
 
 		scope.Call(ToggleSelection)
-		scope.Sub(&Move{
-			RelLine: 1,
-		}).
-			Call(MoveCursor)
+		move(Move{RelLine: 1})
 		r := view.selectedRange(scope)
 		eq(t,
 			r.Begin.Line, 0,
@@ -27,10 +25,7 @@ func TestSelection(t *testing.T) {
 		)
 
 		scope.Call(ToggleSelection)
-		scope.Sub(&Move{
-			RelLine: -1,
-		}).
-			Call(MoveCursor)
+		move(Move{RelLine: -1})
 		r = view.selectedRange(scope)
 		eq(t,
 			r.Begin.Line, 0,

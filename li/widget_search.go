@@ -6,7 +6,10 @@ import (
 	"strconv"
 )
 
-func ShowSearchDialog(scope Scope) {
+func ShowSearchDialog(
+	scope Scope,
+	moveCursor MoveCursor,
+) {
 
 	type Result struct {
 		LineNumber      int
@@ -27,8 +30,7 @@ func ShowSearchDialog(scope Scope) {
 
 		OnSelect: func(_ Scope, id ID) {
 			scope.Sub(&id).Call(CloseOverlay)
-			scope.Sub(&Move{AbsLine: intP(results[id].LineNumber - 1)}).
-				Call(MoveCursor)
+			moveCursor(Move{AbsLine: intP(results[id].LineNumber - 1)})
 		},
 
 		OnUpdate: func(scope Scope, runes []rune) (ids []ID, maxLen int, initIndex int) {

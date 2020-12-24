@@ -28,19 +28,18 @@ func HandleMouseEvent(
 	ev MouseEvent,
 	mouseConfig MouseConfig,
 	scope Scope,
+	moveCursor MoveCursor,
 ) {
 
 	mask := ev.Buttons()
 
 	if mask&tcell.WheelDown > 0 {
 		// scroll down
-		scope.Sub(&Move{RelLine: mouseConfig.ScrollLines}).
-			Call(MoveCursor)
+		moveCursor(Move{RelLine: mouseConfig.ScrollLines})
 
 	} else if mask&tcell.WheelUp > 0 {
 		// scroll up
-		scope.Sub(&Move{RelLine: -mouseConfig.ScrollLines}).
-			Call(MoveCursor)
+		moveCursor(Move{RelLine: -mouseConfig.ScrollLines})
 
 	}
 
