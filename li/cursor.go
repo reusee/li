@@ -232,6 +232,7 @@ func (_ Provide) PageDown(
 	scope Scope,
 	config ScrollConfig,
 	moveCursor MoveCursor,
+	calLineHeights CalculateLineHeights,
 ) PageDown {
 	return func() {
 		view := cur()
@@ -242,9 +243,7 @@ func (_ Provide) PageDown(
 
 		scrollHeight := view.Box.Height() - config.PaddingBottom
 		line := view.ViewportLine
-		var lineHeights map[int]int
-		scope.Sub(&moment, &[2]int{line, line + scrollHeight}).
-			Call(CalculateLineHeights, &lineHeights)
+		lineHeights := calLineHeights(moment, [2]int{line, line + scrollHeight})
 		scrollLines := 0
 		for {
 			if h, ok := lineHeights[line]; ok {
@@ -276,6 +275,7 @@ func (_ Provide) PageUp(
 	scope Scope,
 	config ScrollConfig,
 	moveCursor MoveCursor,
+	calLineHeights CalculateLineHeights,
 ) PageUp {
 	return func() {
 		view := cur()
@@ -286,9 +286,7 @@ func (_ Provide) PageUp(
 
 		scrollHeight := view.Box.Height() - config.PaddingTop
 		line := view.ViewportLine
-		var lineHeights map[int]int
-		scope.Sub(&moment, &[2]int{line - scrollHeight - 1, line}).
-			Call(CalculateLineHeights, &lineHeights)
+		lineHeights := calLineHeights(moment, [2]int{line - scrollHeight - 1, line})
 		for {
 			l := line - 1
 			if l < 0 {

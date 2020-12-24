@@ -166,40 +166,48 @@ func ApplyChange(
 	return
 }
 
-func InsertAtPositionFunc(
-	fn PositionFunc,
+type InsertAtPositionFunc func(
 	str string,
+	fn PositionFunc,
+)
+
+func (_ Provide) InsertAtPositionFunc(
 	v CurrentView,
 	m CurrentMoment,
 	scope Scope,
 	moveCursor MoveCursor,
-) {
+) InsertAtPositionFunc {
+	return func(
+		str string,
+		fn PositionFunc,
+	) {
 
-	view := v()
-	if view == nil {
-		return
+		view := v()
+		if view == nil {
+			return
+		}
+
+		var position Position
+		scope.Call(fn, &position)
+		change := Change{
+			Op:     OpInsert,
+			Begin:  position,
+			String: str,
+		}
+		var newMoment *Moment
+		var nRunesInserted int
+		moment := m()
+		scope.Sub(
+			&moment, &change,
+		).Call(ApplyChange, &newMoment, &nRunesInserted)
+
+		view.switchMoment(scope, newMoment)
+
+		col := newMoment.GetLine(position.Line).Cells[position.Cell].DisplayOffset
+		moveCursor(Move{AbsLine: intP(position.Line), AbsCol: &col})
+		moveCursor(Move{RelRune: nRunesInserted})
+
 	}
-
-	var position Position
-	scope.Call(fn, &position)
-	change := Change{
-		Op:     OpInsert,
-		Begin:  position,
-		String: str,
-	}
-	var newMoment *Moment
-	var nRunesInserted int
-	moment := m()
-	scope.Sub(
-		&moment, &change,
-	).Call(ApplyChange, &newMoment, &nRunesInserted)
-
-	view.switchMoment(scope, newMoment)
-
-	col := newMoment.GetLine(position.Line).Cells[position.Cell].DisplayOffset
-	moveCursor(Move{AbsLine: intP(position.Line), AbsCol: &col})
-	moveCursor(Move{RelRune: nRunesInserted})
-
 }
 
 func DeleteWithinRange(

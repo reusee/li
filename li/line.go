@@ -100,35 +100,45 @@ func (_ Provide) LineInitProcs() LineInitProcs {
 	return c
 }
 
-func CalculateLineHeights(
+type CalculateLineHeights func(
 	moment *Moment,
 	lineRange [2]int,
+) (
+	info map[int]int,
+)
 
+func (_ Provide) CalculateLineHeights(
 	scope Scope,
 	trigger Trigger,
 	getHints GetLineHints,
-) (
-	info map[int]int,
-) {
+) CalculateLineHeights {
 
-	hints, _ := getHints()
-	info = make(map[int]int)
-	for line := lineRange[0]; line < lineRange[1]; line++ {
-		info[line] = 1
-		n := sort.Search(len(hints), func(i int) bool {
-			return hints[i].Moment.ID >= moment.ID &&
-				hints[i].Line >= line
-		})
-		for ; n < len(hints); n++ {
-			hint := hints[n]
-			if hint.Moment.ID == moment.ID && hint.Line == line {
-				// found
-				info[line] += len(hint.Hints)
+	return func(
+		moment *Moment,
+		lineRange [2]int,
+	) (
+		info map[int]int,
+	) {
+		hints, _ := getHints()
+		info = make(map[int]int)
+		for line := lineRange[0]; line < lineRange[1]; line++ {
+			info[line] = 1
+			n := sort.Search(len(hints), func(i int) bool {
+				return hints[i].Moment.ID >= moment.ID &&
+					hints[i].Line >= line
+			})
+			for ; n < len(hints); n++ {
+				hint := hints[n]
+				if hint.Moment.ID == moment.ID && hint.Line == line {
+					// found
+					info[line] += len(hint.Hints)
+				}
 			}
 		}
+
+		return
 	}
 
-	return
 }
 
 func CalculateSumLineHeight(
@@ -136,9 +146,9 @@ func CalculateSumLineHeight(
 	lineRange [2]int,
 
 	scope Scope,
+	calculate CalculateLineHeights,
 ) int {
-	var info map[int]int
-	scope.Sub(&moment, &lineRange).Call(CalculateLineHeights, &info)
+	info := calculate(moment, lineRange)
 	if info == nil {
 		return int(lineRange[1] - lineRange[0])
 	}

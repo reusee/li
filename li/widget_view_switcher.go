@@ -6,7 +6,11 @@ import (
 	"github.com/junegunn/fzf/src/util"
 )
 
-func ShowViewSwitcher(scope Scope) {
+func ShowViewSwitcher(
+	scope Scope,
+	pushOverlay PushOverlay,
+	closeOverlay CloseOverlay,
+) {
 
 	// states
 	type Candidate struct {
@@ -62,13 +66,13 @@ func ShowViewSwitcher(scope Scope) {
 		Title: "Switch View",
 
 		OnClose: func(_ Scope) {
-			scope.Sub(&id).Call(CloseOverlay)
+			closeOverlay(id)
 		},
 
 		OnSelect: func(scope Scope, id ID) {
 			var cur CurrentView
 			scope.Assign(&cur)
-			scope.Sub(&id).Call(CloseOverlay)
+			closeOverlay(id)
 			if int(id) < len(candidates) {
 				view := candidates[id].View
 				cur(view)
@@ -115,7 +119,7 @@ func ShowViewSwitcher(scope Scope) {
 	}
 
 	overlay := OverlayObject(dialog)
-	scope.Sub(&overlay).Call(PushOverlay, &id)
+	id = pushOverlay(overlay)
 }
 
 func (_ Command) ShowViewSwitcher() (spec CommandSpec) {

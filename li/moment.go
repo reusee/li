@@ -269,68 +269,81 @@ func NewMomentFromBytes(
 	return
 }
 
-func NewMomentsFromPath(
+type NewMomentsFromPath func(
 	path string,
-	scope Scope,
 ) (
 	moments []*Moment,
 	linebreaks []Linebreak,
 	paths []string,
 	err error,
-) {
+)
 
-	stat, err := os.Stat(path)
-	if err != nil {
+func (_ Provide) NewMomentsFromPath(
+	scope Scope,
+) NewMomentsFromPath {
+	return func(
+		path string,
+	) (
+		moments []*Moment,
+		linebreaks []Linebreak,
+		paths []string,
+		err error,
+	) {
+
+		stat, err := os.Stat(path)
+		if err != nil {
+			return
+		}
+
+		if stat.IsDir() {
+			var f *os.File
+			f, err = os.Open(path)
+			if err != nil {
+				return
+			}
+			defer f.Close()
+			for {
+				infos, err := f.Readdir(256)
+				for _, info := range infos {
+					if info.IsDir() {
+						continue
+					}
+					name := info.Name()
+					p := filepath.Join(path, name)
+					var moment *Moment
+					var linebreak Linebreak
+					scope.Sub(
+						&p,
+					).Call(NewMomentFromFile, &moment, &linebreak, &err)
+					if err != nil {
+						continue
+					}
+					moments = append(moments, moment)
+					linebreaks = append(linebreaks, linebreak)
+					paths = append(paths, p)
+				}
+				if err == nil {
+					break
+				}
+			}
+
+		} else {
+			var moment *Moment
+			var linebreak Linebreak
+			scope.Sub(
+				&path,
+			).Call(NewMomentFromFile, &moment, &linebreak, &err)
+			if err != nil {
+				return
+			}
+			moments = append(moments, moment)
+			linebreaks = append(linebreaks, linebreak)
+			paths = append(paths, path)
+		}
+
 		return
 	}
 
-	if stat.IsDir() {
-		var f *os.File
-		f, err = os.Open(path)
-		if err != nil {
-			return
-		}
-		defer f.Close()
-		for {
-			infos, err := f.Readdir(256)
-			for _, info := range infos {
-				if info.IsDir() {
-					continue
-				}
-				name := info.Name()
-				p := filepath.Join(path, name)
-				var moment *Moment
-				var linebreak Linebreak
-				scope.Sub(
-					&p,
-				).Call(NewMomentFromFile, &moment, &linebreak, &err)
-				if err != nil {
-					continue
-				}
-				moments = append(moments, moment)
-				linebreaks = append(linebreaks, linebreak)
-				paths = append(paths, p)
-			}
-			if err == nil {
-				break
-			}
-		}
-
-	} else {
-		var moment *Moment
-		var linebreak Linebreak
-		scope.Sub(
-			&path,
-		).Call(NewMomentFromFile, &moment, &linebreak, &err)
-		if err != nil {
-			return
-		}
-		moments = append(moments, moment)
-		linebreaks = append(linebreaks, linebreak)
-		paths = append(paths, path)
-	}
-
-	return
 }
 
 func splitLines(s string) (ret []string) {

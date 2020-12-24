@@ -16,53 +16,73 @@ var overlayID int64
 
 type OverlayObject any
 
-func PushOverlay(
+type PushOverlay func(
 	obj OverlayObject,
+) (
+	id ID,
+)
+
+func (_ Provide) PushOverlay(
 	run RunInMainLoop,
-) (id ID) {
-	id = ID(atomic.AddInt64(&overlayID, 1))
-	overlay := Overlay{
-		ID: id,
-	}
-	if elem, ok := obj.(Element); ok {
-		overlay.Element = elem
-	}
-	if handler, ok := obj.(KeyStrokeHandler); ok {
-		overlay.KeyStrokeHandler = handler
-	}
-	run(func(
-		scope Scope,
-		overlays []Overlay,
-		derive Derive,
+) PushOverlay {
+	return func(
+		obj OverlayObject,
+	) (
+		id ID,
 	) {
-		overlays = append(overlays, overlay)
-		derive(
-			func() []Overlay {
-				return overlays
-			},
-		)
-	})
-	return
+
+		id = ID(atomic.AddInt64(&overlayID, 1))
+		overlay := Overlay{
+			ID: id,
+		}
+		if elem, ok := obj.(Element); ok {
+			overlay.Element = elem
+		}
+		if handler, ok := obj.(KeyStrokeHandler); ok {
+			overlay.KeyStrokeHandler = handler
+		}
+		run(func(
+			scope Scope,
+			overlays []Overlay,
+			derive Derive,
+		) {
+			overlays = append(overlays, overlay)
+			derive(
+				func() []Overlay {
+					return overlays
+				},
+			)
+		})
+		return
+	}
+
 }
 
-func CloseOverlay(
+type CloseOverlay func(
 	id ID,
+)
+
+func (_ Provide) CloseOverlay(
 	run RunInMainLoop,
-) {
-	run(func(
-		scope Scope,
-		overlays []Overlay,
-		derive Derive,
+) CloseOverlay {
+	return func(
+		id ID,
 	) {
-		for i := 0; i < len(overlays); i++ {
-			if overlays[i].ID == id {
-				overlays = append(overlays[:i], overlays[i+1:]...)
+		run(func(
+			scope Scope,
+			overlays []Overlay,
+			derive Derive,
+		) {
+			for i := 0; i < len(overlays); i++ {
+				if overlays[i].ID == id {
+					overlays = append(overlays[:i], overlays[i+1:]...)
+				}
 			}
-		}
-		derive(
-			func() []Overlay {
-				return overlays
-			},
-		)
-	})
+			derive(
+				func() []Overlay {
+					return overlays
+				},
+			)
+		})
+	}
 }

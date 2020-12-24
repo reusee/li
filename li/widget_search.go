@@ -9,6 +9,8 @@ import (
 func ShowSearchDialog(
 	scope Scope,
 	moveCursor MoveCursor,
+	pushOverlay PushOverlay,
+	closeOverlay CloseOverlay,
 ) {
 
 	type Result struct {
@@ -25,11 +27,11 @@ func ShowSearchDialog(
 		Title: "Search",
 
 		OnClose: func(_ Scope) {
-			scope.Sub(&id).Call(CloseOverlay)
+			closeOverlay(id)
 		},
 
 		OnSelect: func(_ Scope, id ID) {
-			scope.Sub(&id).Call(CloseOverlay)
+			closeOverlay(id)
 			moveCursor(Move{AbsLine: intP(results[id].LineNumber - 1)})
 		},
 
@@ -155,7 +157,7 @@ func ShowSearchDialog(
 	}
 
 	overlay := OverlayObject(dialog)
-	scope.Sub(&overlay).Call(PushOverlay, &id)
+	id = pushOverlay(overlay)
 }
 
 func (_ Command) ShowSearchDialog() (spec CommandSpec) {

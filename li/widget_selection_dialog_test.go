@@ -7,7 +7,11 @@ import (
 )
 
 func TestWidgetSelectionDialog(t *testing.T) {
-	withEditor(func(scope Scope) {
+	withEditor(func(
+		scope Scope,
+		pushOverlay PushOverlay,
+		closeOverlay CloseOverlay,
+	) {
 
 		var id ID
 		dialog := &SelectionDialog{
@@ -15,7 +19,7 @@ func TestWidgetSelectionDialog(t *testing.T) {
 			Title: "foo",
 
 			OnClose: func(_ Scope) {
-				scope.Sub(func() ID { return id }).Call(CloseOverlay)
+				closeOverlay(id)
 			},
 
 			OnSelect: func(_ Scope, id ID) {
@@ -60,9 +64,7 @@ func TestWidgetSelectionDialog(t *testing.T) {
 				)
 			},
 		}
-		scope.Sub(func() OverlayObject {
-			return dialog
-		}).Call(PushOverlay, &id)
+		id = pushOverlay(dialog)
 
 	})
 }

@@ -3,7 +3,7 @@ package li
 func (_ Command) InsertNewline() (spec CommandSpec) {
 	spec.Desc = "insert newline at cursor"
 	spec.Func = func(
-		scope Scope,
+		insert InsertAtPositionFunc,
 		cur CurrentView,
 	) {
 		view := cur()
@@ -13,9 +13,7 @@ func (_ Command) InsertNewline() (spec CommandSpec) {
 		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
 		fn := PositionFunc(PosCursor)
 		str := "\n" + indent
-		scope.Sub(
-			&fn, &str,
-		).Call(InsertAtPositionFunc)
+		insert(str, fn)
 	}
 	return
 }
@@ -23,13 +21,11 @@ func (_ Command) InsertNewline() (spec CommandSpec) {
 func (_ Command) InsertTab() (spec CommandSpec) {
 	spec.Desc = "insert tab at cursor"
 	spec.Func = func(
-		scope Scope,
+		insert InsertAtPositionFunc,
 	) {
 		fn := PositionFunc(PosCursor)
 		str := "\t"
-		scope.Sub(
-			&fn, &str,
-		).Call(InsertAtPositionFunc)
+		insert(str, fn)
 	}
 	return
 }
@@ -73,6 +69,7 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 		scope Scope,
 		cur CurrentView,
 		lineEnd LineEnd,
+		insert InsertAtPositionFunc,
 	) {
 		view := cur()
 		if view == nil {
@@ -81,9 +78,7 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
 		fn := PositionFunc(PosLineEnd)
 		str := "\n" + indent
-		scope.Sub(
-			&fn, &str, &view,
-		).Call(InsertAtPositionFunc)
+		insert(str, fn)
 		lineEnd()
 		scope.Call(EnableEditMode)
 	}
@@ -97,6 +92,7 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		cur CurrentView,
 		moveCursor MoveCursor,
 		lineEnd LineEnd,
+		insert InsertAtPositionFunc,
 	) {
 		view := cur()
 		if view == nil {
@@ -105,9 +101,7 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		indent := getAdjacentIndent(view, view.CursorLine-1, view.CursorLine)
 		fn := PositionFunc(PosLineBegin)
 		str := indent + "\n"
-		scope.Sub(
-			&fn, &str, &view,
-		).Call(InsertAtPositionFunc)
+		insert(str, fn)
 		moveCursor(Move{RelLine: -1})
 		lineEnd()
 		scope.Call(EnableEditMode)
@@ -212,6 +206,7 @@ func (_ Command) ChangeLine() (spec CommandSpec) {
 	spec.Func = func(
 		scope Scope,
 		v CurrentView,
+		insert InsertAtPositionFunc,
 	) {
 		view := v()
 		if view == nil {
@@ -226,9 +221,7 @@ func (_ Command) ChangeLine() (spec CommandSpec) {
 			&Range{begin, end}, &str,
 		).Call(ReplaceWithinRange)
 		fn := PositionFunc(PosCursor)
-		scope.Sub(
-			&fn, &indent,
-		).Call(InsertAtPositionFunc)
+		insert(indent, fn)
 		scope.Call(EnableEditMode)
 	}
 	return

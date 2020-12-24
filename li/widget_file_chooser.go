@@ -13,7 +13,11 @@ type ShowFileChooser func(
 	cb func(string),
 )
 
-func (_ Provide) ShowFileChooser(scope Scope) ShowFileChooser {
+func (_ Provide) ShowFileChooser(
+	scope Scope,
+	pushOverlay PushOverlay,
+	closeOverlay CloseOverlay,
+) ShowFileChooser {
 	return func(cb func(string)) {
 
 		// states
@@ -197,11 +201,11 @@ func (_ Provide) ShowFileChooser(scope Scope) ShowFileChooser {
 			Title: "Choose File",
 
 			OnClose: func(_ Scope) {
-				scope.Sub(&id).Call(CloseOverlay)
+				closeOverlay(id)
 			},
 
 			OnSelect: func(_ Scope, id ID) {
-				scope.Sub(&id).Call(CloseOverlay)
+				closeOverlay(id)
 				if int(id) < len(candidates) {
 					cb(candidates[id].Path)
 				}
@@ -247,6 +251,6 @@ func (_ Provide) ShowFileChooser(scope Scope) ShowFileChooser {
 		}
 
 		overlay := OverlayObject(dialog)
-		scope.Sub(&overlay).Call(PushOverlay, &id)
+		id = pushOverlay(overlay)
 	}
 }

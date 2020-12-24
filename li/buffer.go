@@ -138,16 +138,12 @@ type NewBuffersFromPath func(
 func (_ Provide) NewBuffersFromPath(
 	scope Scope,
 	link Link,
+	newMoment NewMomentsFromPath,
 ) NewBuffersFromPath {
 	return func(path string) (buffers []*Buffer, err error) {
 		defer he(&err)
 
-		var moments []*Moment
-		var linebreaks []Linebreak
-		var paths []string
-		scope.Sub(
-			&path,
-		).Call(NewMomentsFromPath, &moments, &linebreaks, &paths, &err)
+		moments, linebreaks, paths, err := newMoment(path)
 		ce(err)
 
 		for i, moment := range moments {

@@ -55,6 +55,7 @@ func TestUndoRedo4(t *testing.T) {
 	withHelloEditor(t, func(
 		view *View,
 		scope Scope,
+		insert InsertAtPositionFunc,
 	) {
 		scope.Call(DeleteRune)
 		eq(t,
@@ -64,9 +65,7 @@ func TestUndoRedo4(t *testing.T) {
 		eq(t,
 			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
-		scope.Sub(func() (PositionFunc, string) {
-			return PosCursor, "foo"
-		}).Call(InsertAtPositionFunc)
+		insert("foo", PosCursor)
 		eq(t,
 			view.GetMoment().GetLine(0).content, "fooHello, world!\n",
 		)
@@ -85,6 +84,7 @@ func TestTimedUndo(t *testing.T) {
 	withHelloEditor(t, func(
 		scope Scope,
 		view *View,
+		insert InsertAtPositionFunc,
 	) {
 		var config UndoConfig
 		scope.Assign(&config)
@@ -97,7 +97,7 @@ func TestTimedUndo(t *testing.T) {
 			if time.Since(t0) > time.Millisecond*50 {
 				break
 			}
-			scope.Sub(func() (string, PositionFunc) { return "foo", PosCursor }).Call(InsertAtPositionFunc)
+			insert("foo", PosCursor)
 		}
 
 		scope.Call(UndoDuration1)

@@ -13,6 +13,7 @@ func TestStrokeSpecHints(t *testing.T) {
 		moment *Moment,
 		getScreenString GetScreenString,
 		view *View,
+		calLineHeights CalculateLineHeights,
 	) {
 
 		emitRune('f')
@@ -23,10 +24,7 @@ func TestStrokeSpecHints(t *testing.T) {
 		eq(t,
 			height, 2,
 		)
-		var info map[int]int
-		scope.Sub(
-			&moment, &[2]int{0, 1},
-		).Call(CalculateLineHeights, &info)
+		info := calLineHeights(moment, [2]int{0, 1})
 		eq(t,
 			info[0], 2,
 		)
@@ -42,9 +40,7 @@ func TestStrokeSpecHints(t *testing.T) {
 		eq(t,
 			height, 1,
 		)
-		scope.Sub(
-			&moment, &[2]int{0, 1},
-		).Call(CalculateLineHeights, &info)
+		info = calLineHeights(moment, [2]int{0, 1})
 		eq(t,
 			info[0], 1,
 		)

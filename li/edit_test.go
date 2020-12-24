@@ -322,23 +322,20 @@ func TestDeleteSelection(t *testing.T) {
 func TestNoViewEditCommands(t *testing.T) {
 	withEditor(func(
 		scope Scope,
+		insert InsertAtPositionFunc,
 	) {
-		scope.Sub(func() (PositionFunc, string) {
-			return PosCursor, "foo"
-		}).Call(InsertAtPositionFunc)
+		insert("foo", PosCursor)
 		scope.Call(DeletePrevRune)
 	})
 }
 
 func TestInsertToEmptyBuffer(t *testing.T) {
 	withEditorBytes(t, []byte(``), func(
-		scope Scope,
 		view *View,
 		moment *Moment,
+		insert InsertAtPositionFunc,
 	) {
-		scope.Sub(func() (PositionFunc, string) {
-			return PosCursor, "a"
-		}).Call(InsertAtPositionFunc)
+		insert("a", PosCursor)
 		eq(t,
 			view.CursorCol, 1,
 		)

@@ -31,8 +31,11 @@ func (_ Provide) Completion(
 	closeOverlay := func() {
 		if completionOverlayID > 0 {
 			id := completionOverlayID
-			run(func(scope Scope) {
-				scope.Sub(&id).Call(CloseOverlay)
+			run(func(
+				scope Scope,
+				closeOverlay CloseOverlay,
+			) {
+				closeOverlay(id)
 			})
 		}
 	}
@@ -189,6 +192,7 @@ func (_ Provide) Completion(
 				run(func(
 					scope Scope,
 					j AppendJournal,
+					pushOverlay PushOverlay,
 				) {
 					// close
 					closeOverlay()
@@ -204,9 +208,7 @@ func (_ Provide) Completion(
 						Moment:     moment,
 						View:       view,
 					})
-					scope.Sub(
-						&overlay,
-					).Call(PushOverlay, &completionOverlayID)
+					completionOverlayID = pushOverlay(overlay)
 
 				})
 

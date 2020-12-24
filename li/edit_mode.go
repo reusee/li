@@ -134,6 +134,7 @@ func (e *EditMode) StrokeSpecs() any {
 					scope Scope,
 					cur CurrentView,
 					ev KeyEvent,
+					insert InsertAtPositionFunc,
 				) {
 
 					// match disable sequence
@@ -158,9 +159,7 @@ func (e *EditMode) StrokeSpecs() any {
 					// insert
 					fn := PositionFunc(PosCursor)
 					str := string(ev.Rune())
-					scope.Sub(
-						&fn, &str,
-					).Call(InsertAtPositionFunc)
+					insert(str, fn)
 
 				},
 			},

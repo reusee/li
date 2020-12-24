@@ -6,6 +6,7 @@ type ShowMessage func(
 
 func (_ Provide) ShowMessage(
 	scope Scope,
+	pushOverlay PushOverlay,
 ) ShowMessage {
 	return func(
 		lines []string,
@@ -27,11 +28,15 @@ func (_ Provide) ShowMessage(
 		var id ID
 		msgBox := WidgetDialog{
 
-			OnKey: func(ev KeyEvent, scope Scope) {
+			OnKey: func(
+				ev KeyEvent,
+				scope Scope,
+				closeOverlay CloseOverlay,
+			) {
 				switch ev.Name() {
 				case "Enter", "Esc":
 					// close
-					scope.Sub(&id).Call(CloseOverlay)
+					closeOverlay(id)
 				}
 			},
 
@@ -61,6 +66,6 @@ func (_ Provide) ShowMessage(
 		}
 
 		overlay := OverlayObject(msgBox)
-		scope.Sub(&overlay).Call(PushOverlay, &id)
+		id = pushOverlay(overlay)
 	}
 }

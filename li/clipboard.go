@@ -91,7 +91,7 @@ type InsertLastClip func()
 func (_ Provide) InsertLastClip(
 	cur CurrentView,
 	linkedOne LinkedOne,
-	scope Scope,
+	insert InsertAtPositionFunc,
 ) InsertLastClip {
 	return func() {
 		view := cur()
@@ -104,7 +104,7 @@ func (_ Provide) InsertLastClip(
 		}
 		str := clip.String()
 		fn := PositionFunc(PosCursor)
-		scope.Sub(&str, &fn).Call(InsertAtPositionFunc)
+		insert(str, fn)
 	}
 }
 

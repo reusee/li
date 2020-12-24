@@ -32,6 +32,7 @@ func (view *View) RenderFunc() any {
 		uiConfig UIConfig,
 		trigger Trigger,
 		getLineHints GetLineHints,
+		calLineHeights CalculateLineHeights,
 	) Element {
 
 		moment := view.GetMoment()
@@ -145,10 +146,9 @@ func (view *View) RenderFunc() any {
 		wg := new(sync.WaitGroup)
 		loopLineNum := view.ViewportLine
 		loopY := contentBox.Top
-		var lineHeights map[int]int
-		scope.Sub(&moment, &[2]int{
+		lineHeights := calLineHeights(moment, [2]int{
 			view.ViewportLine, view.ViewportLine + view.Box.Height(),
-		}).Call(CalculateLineHeights, &lineHeights)
+		})
 		for loopY < contentBox.Bottom {
 			y := loopY
 			lineNum := loopLineNum

@@ -7,6 +7,7 @@ func TestLineHeight(t *testing.T) {
 		moment *Moment,
 		on On,
 		scope Scope,
+		calLineHeights CalculateLineHeights,
 		ctrl func(string),
 	) {
 		on(EvCollectLineHints, func(
@@ -16,10 +17,7 @@ func TestLineHeight(t *testing.T) {
 		})
 		ctrl("loop")
 
-		var info map[int]int
-		scope.Sub(
-			&moment, &[2]int{0, 1},
-		).Call(CalculateLineHeights, &info)
+		info := calLineHeights(moment, [2]int{0, 1})
 		eq(t,
 			info[0], 2,
 		)

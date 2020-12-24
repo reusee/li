@@ -15,6 +15,10 @@ type evCollectLineHints struct{}
 
 var EvCollectLineHints = new(evCollectLineHints)
 
+func (_ Provide) GetLineHints() GetLineHints {
+	panic("impossible")
+}
+
 func (_ Provide) LineHints(
 	on On,
 ) Init2 {

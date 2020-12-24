@@ -83,10 +83,11 @@ func (v *View) calculateViewportLineRange(
 		paddingBottom = 0
 	}
 
-	var lineHeights map[int]int
-	scope.Sub(&moment, &[2]int{
+	var calLineHeights CalculateLineHeights
+	scope.Assign(&calLineHeights)
+	lineHeights := calLineHeights(moment, [2]int{
 		line - v.Box.Height() - 1, line,
-	}).Call(CalculateLineHeights, &lineHeights)
+	})
 
 	min = line
 	height := v.Box.Height() - paddingBottom

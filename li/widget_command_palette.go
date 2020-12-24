@@ -12,6 +12,7 @@ func ShowCommandPalette(
 	screen Screen,
 	commands Commands,
 	run RunInMainLoop,
+	pushOverlay PushOverlay,
 ) {
 
 	// initial candidates
@@ -115,12 +116,13 @@ func ShowCommandPalette(
 		OnKey: func(
 			ev KeyEvent,
 			scope Scope,
+			closeOverlay CloseOverlay,
 		) {
 			switch ev.Key() {
 
 			case tcell.KeyEscape:
 				// close
-				scope.Sub(&id).Call(CloseOverlay)
+				closeOverlay(id)
 
 			case tcell.KeyBackspace2, tcell.KeyBackspace:
 				if len(runes) > 0 {
@@ -137,7 +139,7 @@ func ShowCommandPalette(
 					fn := candidates[index].Func
 					scope.Sub(&fn).Call(ExecuteCommandFunc)
 				})
-				scope.Sub(&id).Call(CloseOverlay)
+				closeOverlay(id)
 
 			case tcell.KeyUp, tcell.KeyCtrlP:
 				index--
@@ -262,7 +264,7 @@ func ShowCommandPalette(
 	}
 
 	overlay := OverlayObject(palette)
-	scope.Sub(&overlay).Call(PushOverlay, &id)
+	id = pushOverlay(overlay)
 }
 
 func (_ Command) ShowCommandPalette() (spec CommandSpec) {
