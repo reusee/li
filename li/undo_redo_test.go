@@ -9,8 +9,9 @@ func TestUndoRedo(t *testing.T) {
 	withHelloEditor(t, func(
 		view *View,
 		scope Scope,
+		delRune DeleteRune,
 	) {
-		scope.Call(DeleteRune)
+		delRune()
 		eq(t,
 			view.GetMoment().GetLine(0).content, "ello, world!\n",
 		)
@@ -56,8 +57,9 @@ func TestUndoRedo4(t *testing.T) {
 		view *View,
 		scope Scope,
 		insert InsertAtPositionFunc,
+		delRune DeleteRune,
 	) {
-		scope.Call(DeleteRune)
+		delRune()
 		eq(t,
 			view.GetMoment().GetLine(0).content, "ello, world!\n",
 		)

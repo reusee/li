@@ -11,6 +11,7 @@ func TestFileSync(t *testing.T) {
 		scope Scope,
 		linkedOne LinkedOne,
 		newNew NewViewFromBuffer,
+		delRune DeleteRune,
 	) {
 
 		// temp file
@@ -48,7 +49,7 @@ func TestFileSync(t *testing.T) {
 		)
 
 		// sync
-		scope.Call(DeleteRune)
+		delRune()
 		scope.Call(SyncViewToFile, &err)
 		ce(err)
 

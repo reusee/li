@@ -290,15 +290,16 @@ func TestDeleteSelection(t *testing.T) {
 		scope Scope,
 		toggle ToggleSelection,
 		lineEnd LineEnd,
+		del Delete,
 	) {
 		toggle()
 		lineEnd()
-		scope.Call(Delete)
+		del()
 
 		// select and delete empty line
 		toggle()
 		lineEnd()
-		scope.Call(Delete)
+		del()
 	})
 }
 
@@ -306,9 +307,10 @@ func TestNoViewEditCommands(t *testing.T) {
 	withEditor(func(
 		scope Scope,
 		insert InsertAtPositionFunc,
+		del DeletePrevRune,
 	) {
 		insert("foo", PosCursor)
-		scope.Call(DeletePrevRune)
+		del()
 	})
 }
 
@@ -392,14 +394,15 @@ func TestDeletePrevRune(t *testing.T) {
 		scope Scope,
 		view *View,
 		move MoveCursor,
+		del DeletePrevRune,
 	) {
-		scope.Call(DeletePrevRune)
+		del()
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 		)
 
 		move(Move{RelRune: 3})
-		scope.Call(DeletePrevRune)
+		del()
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 			view.GetMoment().GetLine(0).content, "fo\n",
@@ -428,14 +431,14 @@ func TestInsertTab(t *testing.T) {
 }
 
 func TestCallDeleteRuneNoView(t *testing.T) {
-	withEditor(func(scope Scope) {
-		scope.Call(DeleteRune)
+	withEditor(func(del DeleteRune) {
+		del()
 	})
 }
 
 func TestCallDeleteNoView(t *testing.T) {
-	withEditor(func(scope Scope) {
-		scope.Call(Delete)
+	withEditor(func(del Delete) {
+		del()
 	})
 }
 
@@ -445,11 +448,12 @@ func TestDeleteMultiline(t *testing.T) {
 		scope Scope,
 		move MoveCursor,
 		toggle ToggleSelection,
+		del Delete,
 	) {
 		toggle()
 		move(Move{RelLine: 1})
 		move(Move{RelRune: 2})
-		scope.Call(Delete)
+		del()
 		eq(t,
 			view.GetMoment().NumLines(), 2,
 			view.GetMoment().GetLine(0).content, "世界！\n",
@@ -463,11 +467,12 @@ func TestDeleteMultiline2(t *testing.T) {
 		scope Scope,
 		move MoveCursor,
 		toggle ToggleSelection,
+		del Delete,
 	) {
 		toggle()
 		move(Move{RelLine: 2})
 		move(Move{RelRune: 2})
-		scope.Call(Delete)
+		del()
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 			view.GetMoment().GetLine(0).content, "ちは、世界！\n",
@@ -482,11 +487,12 @@ func TestChangeText(t *testing.T) {
 		curModes CurrentModes,
 		move MoveCursor,
 		toggle ToggleSelection,
+		chagne ChangeText,
 	) {
 		toggle()
 		move(Move{RelLine: 2})
 		move(Move{RelRune: 2})
-		scope.Call(ChangeText)
+		chagne()
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 			view.GetMoment().GetLine(0).content, "ちは、世界！\n",
@@ -539,39 +545,40 @@ func TestChangeToWordEnd(t *testing.T) {
 		scope Scope,
 		view *View,
 		move MoveCursor,
+		change ChangeToWordEnd,
 	) {
-		scope.Call(ChangeToWordEnd)
+		change()
 		eq(t,
 			view.GetMoment().GetLine(0).content, ", world!\n",
 		)
-		scope.Call(ChangeToWordEnd)
+		change()
 		eq(t,
 			view.GetMoment().GetLine(0).content, " world!\n",
 		)
-		scope.Call(ChangeToWordEnd)
+		change()
 		eq(t,
 			view.GetMoment().GetLine(0).content, "world!\n",
 		)
-		scope.Call(ChangeToWordEnd)
+		change()
 		eq(t,
 			view.GetMoment().GetLine(0).content, "!\n",
 		)
-		scope.Call(ChangeToWordEnd)
+		change()
 		eq(t,
 			view.GetMoment().GetLine(0).content, "\n",
 		)
-		scope.Call(ChangeToWordEnd)
+		change()
 		eq(t,
 			view.GetMoment().GetLine(0).content, "\n",
 		)
 
 		move(Move{RelLine: 1})
-		scope.Call(ChangeToWordEnd)
+		change()
 		eq(t,
 			view.GetMoment().GetLine(1).content, "，世界！\n",
 		)
 		move(Move{RelRune: 2})
-		scope.Call(ChangeToWordEnd)
+		change()
 		eq(t,
 			view.GetMoment().GetLine(1).content, "，世！\n",
 		)
@@ -620,20 +627,21 @@ func TestDeleteLine(t *testing.T) {
 	withHelloEditor(t, func(
 		scope Scope,
 		view *View,
+		del DeleteLine,
 	) {
-		scope.Call(DeleteLine)
+		del()
 		eq(t,
 			view.GetMoment().NumLines(), 2,
 		)
-		scope.Call(DeleteLine)
+		del()
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 		)
-		scope.Call(DeleteLine)
+		del()
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 		)
-		scope.Call(DeleteLine)
+		del()
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 		)

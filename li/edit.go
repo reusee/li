@@ -340,123 +340,154 @@ func (_ Provide) ReplaceWithinRange(
 
 }
 
-func DeletePrevRune(
+type DeletePrevRune func()
+
+func (_ Provide) DeletePrevRune(
 	del DeleteWithinPositionFuncs,
-) {
-	del(
-		PosPrevRune,
-		PosCursor,
-	)
+) DeletePrevRune {
+	return func() {
+		del(
+			PosPrevRune,
+			PosCursor,
+		)
+	}
 }
 
-func DeleteRune(
+type DeleteRune func()
+
+func (_ Provide) DeleteRune(
 	del DeleteWithinPositionFuncs,
-) {
-	del(
-		PosCursor,
-		PosNextRune,
-	)
+) DeleteRune {
+	return func() {
+		del(
+			PosCursor,
+			PosNextRune,
+		)
+	}
 }
 
-func _Delete(
+type DeleteSelected func(
+	afterFunc AfterFunc,
+)
+
+func (_ Provide) DeleteSelected(
 	cur CurrentView,
 	scope Scope,
-	afterFunc AfterFunc,
 	deleteRagne DeleteWithinRange,
-) {
-	view := cur()
-	if view == nil {
+) DeleteSelected {
+	return func(
+		afterFunc AfterFunc,
+	) {
+		view := cur()
+		if view == nil {
+			return
+		}
+
+		// delete selected
+		if r := view.selectedRange(); r != nil {
+			deleteRagne(*r)
+			view.SelectionAnchor = nil
+		}
+
+		if afterFunc != nil {
+			scope.Call(afterFunc)
+		}
+
+	}
+}
+
+type Delete func() (
+	abort Abort,
+)
+
+func (_ Provide) Delete(
+	cur CurrentView,
+	deleteSelected DeleteSelected,
+) Delete {
+	return func() (
+		abort Abort,
+	) {
+		view := cur()
+		if view != nil && view.selectedRange() != nil {
+			after := AfterFunc(func() {})
+			deleteSelected(after)
+		} else {
+			abort = true
+		}
 		return
 	}
-
-	// delete selected
-	if r := view.selectedRange(); r != nil {
-		deleteRagne(*r)
-		view.SelectionAnchor = nil
-	}
-
-	if afterFunc != nil {
-		scope.Call(afterFunc)
-	}
-
 }
 
-func Delete(
-	cur CurrentView,
-	scope Scope,
-) (
+type ChangeText func() (
 	abort Abort,
-) {
-	view := cur()
-	if view != nil && view.selectedRange() != nil {
-		after := AfterFunc(func() {})
-		scope.Sub(
-			&after,
-		).Call(_Delete)
-	} else {
-		abort = true
-	}
-	return
-}
+)
 
-func ChangeText(
-	scope Scope,
+func (_ Provide) ChangeText(
 	cur CurrentView,
-) (
-	abort Abort,
-) {
+	deleteSelected DeleteSelected,
+) ChangeText {
+	return func() (
+		abort Abort,
+	) {
 
-	if view := cur(); view != nil && view.selectedRange() != nil {
-		// if selected
-		after := AfterFunc(func(enable EnableEditMode) {
-			enable()
-		})
-		scope.Sub(
-			&after,
-		).Call(_Delete)
+		if view := cur(); view != nil && view.selectedRange() != nil {
+			// if selected
+			after := AfterFunc(func(enable EnableEditMode) {
+				enable()
+			})
+			deleteSelected(after)
 
-	} else {
-		abort = true
+		} else {
+			abort = true
+		}
+
+		return
 	}
-
-	return
 }
 
-func ChangeToWordEnd(
+type ChangeToWordEnd func()
+
+func (_ Provide) ChangeToWordEnd(
 	cur CurrentView,
 	enable EnableEditMode,
 	del DeleteWithinPositionFuncs,
-) {
-	if cur() == nil {
-		return
+) ChangeToWordEnd {
+	return func() {
+		if cur() == nil {
+			return
+		}
+		del(
+			PosCursor,
+			PosWordEnd,
+		)
+		enable()
 	}
-	del(
-		PosCursor,
-		PosWordEnd,
-	)
-	enable()
 }
 
-func DeleteLine(
+type DeleteLine func()
+
+func (_ Provide) DeleteLine(
 	v CurrentView,
 	m CurrentMoment,
 	del DeleteWithinPositionFuncs,
 	lineBegin LineBegin,
-) {
-	view := v()
-	if view == nil {
-		return
-	}
-	if view.CursorLine == m().NumLines()-1 {
-		del(
-			PosPrevLineEnd,
-			PosLineEnd,
-		)
-		lineBegin()
-	} else {
-		del(
-			PosLineBegin,
-			PosNextLineBegin,
-		)
+) DeleteLine {
+	return func() {
+		view := v()
+		if view == nil {
+			return
+		}
+		if view.CursorLine == m().NumLines()-1 {
+			del(
+				PosPrevLineEnd,
+				PosLineEnd,
+			)
+			lineBegin()
+		} else {
+			del(
+				PosLineBegin,
+				PosNextLineBegin,
+			)
+		}
 	}
 }

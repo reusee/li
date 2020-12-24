@@ -41,25 +41,33 @@ func (_ Command) Append() (spec CommandSpec) {
 
 func (_ Command) DeletePrevRune() (spec CommandSpec) {
 	spec.Desc = "delete previous rune at cursor"
-	spec.Func = DeletePrevRune
+	spec.Func = func(del DeletePrevRune) {
+		del()
+	}
 	return
 }
 
 func (_ Command) DeleteRune() (spec CommandSpec) {
 	spec.Desc = "delete one rune at cursor"
-	spec.Func = DeleteRune
+	spec.Func = func(del DeleteRune) {
+		del()
+	}
 	return
 }
 
 func (_ Command) Delete() (spec CommandSpec) {
 	spec.Desc = "delete selected or text object"
-	spec.Func = Delete
+	spec.Func = func(del Delete) Abort {
+		return del()
+	}
 	return
 }
 
 func (_ Command) Change() (spec CommandSpec) {
 	spec.Desc = "change selected or text object"
-	spec.Func = ChangeText
+	spec.Func = func(change ChangeText) Abort {
+		return change()
+	}
 	return
 }
 
@@ -182,13 +190,17 @@ func getAdjacentIndent(view *View, upwardLine int, downwardLine int) string {
 
 func (_ Command) ChangeToWordEnd() (spec CommandSpec) {
 	spec.Desc = "change text from current cursor position to end of word"
-	spec.Func = ChangeToWordEnd
+	spec.Func = func(change ChangeToWordEnd) {
+		change()
+	}
 	return
 }
 
 func (_ Command) DeleteLine() (spec CommandSpec) {
 	spec.Desc = "delete current line"
-	spec.Func = DeleteLine
+	spec.Func = func(del DeleteLine) {
+		del()
+	}
 	return
 }
 
