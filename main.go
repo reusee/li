@@ -108,7 +108,11 @@ func main() {
 		select {
 
 		case ev := <-screenEvents:
-			scope.Sub(func() li.ScreenEvent { return ev }).Call(li.HandleScreenEvent)
+			scope.Call(func(
+				handle li.HandleScreenEvent,
+			) {
+				handle(ev)
+			})
 			resetRenderTimer()
 
 		case <-sigExit:
