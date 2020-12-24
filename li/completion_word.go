@@ -183,7 +183,8 @@ func (_ Provide) CollectWords(
 			return
 		}
 		runes := line.Runes()
-		patternRunes := runes[cell:endCell]
+		patternRunes := make([]rune, endCell-cell)
+		copy(patternRunes, runes[cell:endCell])
 		pattern := string(patternRunes)
 		for i, r := range patternRunes {
 			patternRunes[i] = unicode.ToLower(r)
