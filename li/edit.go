@@ -200,8 +200,7 @@ func (_ Provide) InsertAtPositionFunc(
 			return
 		}
 
-		var position Position
-		scope.Call(fn, &position)
+		position := fn()
 		change := Change{
 			Op:     OpInsert,
 			Begin:  position,
@@ -271,10 +270,8 @@ func (_ Provide) DeleteWithinPositionFuncs(
 		if view == nil {
 			return
 		}
-		var begin Position
-		scope.Call(beginFn, &begin)
-		var end Position
-		scope.Call(endFn, &end)
+		begin := beginFn()
+		end := endFn()
 		deleteRange(Range{
 			Begin: begin,
 			End:   end,
