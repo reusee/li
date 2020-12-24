@@ -95,9 +95,10 @@ func TestClipFromSelection(t *testing.T) {
 		scope Scope,
 		buffer *Buffer,
 		linkedOne LinkedOne,
+		newClip NewClipFromSelection,
 	) {
 		scope.Call(ToggleSelection)
-		scope.Call(NewClipFromSelection)
+		newClip()
 		var clip Clip
 		linkedOne(buffer, &clip)
 		eq(t,
@@ -105,7 +106,7 @@ func TestClipFromSelection(t *testing.T) {
 		)
 
 		scope.Sub(&Move{RelLine: 1}).Call(MoveCursor)
-		scope.Call(NewClipFromSelection)
+		newClip()
 		linkedOne(buffer, &clip)
 		eq(t,
 			clip.String(scope), "Hello, world!\n你",
@@ -113,7 +114,7 @@ func TestClipFromSelection(t *testing.T) {
 
 		// no selection
 		scope.Call(ToggleSelection)
-		scope.Call(NewClipFromSelection)
+		newClip()
 		linkedOne(buffer, &clip)
 		eq(t,
 			clip.String(scope), "Hello, world!\n你",
@@ -125,17 +126,19 @@ func TestInsertLastClip(t *testing.T) {
 	withHelloEditor(t, func(
 		scope Scope,
 		cur CurrentView,
+		insert InsertLastClip,
+		newClip NewClipFromSelection,
 	) {
 		view := cur()
 
-		scope.Call(InsertLastClip)
+		insert()
 		eq(t,
 			view.GetMoment().GetLine(scope, 0).content, "Hello, world!\n",
 		)
 
 		scope.Call(ToggleSelection)
-		scope.Call(NewClipFromSelection)
-		scope.Call(InsertLastClip)
+		newClip()
+		insert()
 		eq(t,
 			view.GetMoment().GetLine(scope, 0).content, "HHello, world!\n",
 		)

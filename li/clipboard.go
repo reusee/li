@@ -51,57 +51,70 @@ func (c *Clip) String(scope Scope) string {
 	return *c.str
 }
 
-func NewClipFromSelection(
+type NewClipFromSelection func()
+
+func (_ Provide) NewClipFromSelection(
 	cur CurrentView,
 	link Link,
 	scope Scope,
-) {
-	view := cur()
-	if view == nil {
-		return
+) NewClipFromSelection {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		r := view.selectedRange(scope)
+		if r == nil {
+			return
+		}
+		clip := Clip{
+			Moment: view.GetMoment(),
+			Range:  *r,
+		}
+		link(view.Buffer, clip)
 	}
-	r := view.selectedRange(scope)
-	if r == nil {
-		return
-	}
-	clip := Clip{
-		Moment: view.GetMoment(),
-		Range:  *r,
-	}
-	link(view.Buffer, clip)
 }
 
 func (_ Command) NewClipFromSelection() (spec CommandSpec) {
 	spec.Desc = "create new clip from current selection (copy)"
 	spec.Func = func(
 		scope Scope,
+		newClip NewClipFromSelection,
 	) {
-		scope.Call(NewClipFromSelection)
+		newClip()
 		scope.Call(ToggleSelection)
 	}
 	return
 }
 
-func InsertLastClip(
+type InsertLastClip func()
+
+func (_ Provide) InsertLastClip(
 	cur CurrentView,
 	linkedOne LinkedOne,
 	scope Scope,
-) {
-	view := cur()
-	if view == nil {
-		return
+) InsertLastClip {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		var clip Clip
+		if linkedOne(view.Buffer, &clip) == 0 {
+			return
+		}
+		str := clip.String(scope)
+		fn := PositionFunc(PosCursor)
+		scope.Sub(&str, &fn).Call(InsertAtPositionFunc)
 	}
-	var clip Clip
-	if linkedOne(view.Buffer, &clip) == 0 {
-		return
-	}
-	str := clip.String(scope)
-	fn := PositionFunc(PosCursor)
-	scope.Sub(&str, &fn).Call(InsertAtPositionFunc)
 }
 
 func (_ Command) InsertLastClip() (spec CommandSpec) {
 	spec.Desc = "insert contents of last created clip (paste)"
-	spec.Func = InsertLastClip
+	spec.Func = func(
+		insert InsertLastClip,
+	) {
+		insert()
+	}
 	return
 }
