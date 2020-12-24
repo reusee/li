@@ -2,24 +2,32 @@ package li
 
 type Selections []Range
 
-func ToggleSelection(
+type ToggleSelection func()
+
+func (_ Provide) ToggleSelection(
 	cur CurrentView,
-) {
-	view := cur()
-	if view == nil {
-		return
+) ToggleSelection {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		if view.SelectionAnchor != nil {
+			view.SelectionAnchor = nil
+			return
+		}
+		position := view.cursorPosition()
+		view.SelectionAnchor = &position
 	}
-	if view.SelectionAnchor != nil {
-		view.SelectionAnchor = nil
-		return
-	}
-	position := view.cursorPosition()
-	view.SelectionAnchor = &position
 }
 
 func (_ Command) ToggleSelection() (spec CommandSpec) {
 	spec.Desc = "toggle selection"
-	spec.Func = ToggleSelection
+	spec.Func = func(
+		toggle ToggleSelection,
+	) {
+		toggle()
+	}
 	return
 }
 

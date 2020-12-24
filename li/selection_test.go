@@ -4,12 +4,12 @@ import "testing"
 
 func TestSelection(t *testing.T) {
 	withHelloEditor(t, func(
-		scope Scope,
 		view *View,
 		move MoveCursor,
+		toggle ToggleSelection,
 	) {
 
-		scope.Call(ToggleSelection)
+		toggle()
 		move(Move{RelLine: 1})
 		r := view.selectedRange()
 		eq(t,
@@ -18,13 +18,13 @@ func TestSelection(t *testing.T) {
 			r.End.Line, 1,
 			r.End.Cell, 1,
 		)
-		scope.Call(ToggleSelection)
+		toggle()
 		r = view.selectedRange()
 		eq(t,
 			r == nil, true,
 		)
 
-		scope.Call(ToggleSelection)
+		toggle()
 		move(Move{RelLine: -1})
 		r = view.selectedRange()
 		eq(t,
@@ -33,16 +33,6 @@ func TestSelection(t *testing.T) {
 			r.End.Line, 1,
 			r.End.Cell, 0,
 		)
-
-	})
-}
-
-func TestSelection2(t *testing.T) {
-	withEditor(func(
-		scope Scope,
-	) {
-
-		scope.Call(ToggleSelection)
 
 	})
 }

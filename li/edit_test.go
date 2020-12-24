@@ -305,13 +305,14 @@ func TestDelete(t *testing.T) {
 func TestDeleteSelection(t *testing.T) {
 	withEditorBytes(t, []byte("foo"), func(
 		scope Scope,
+		toggle ToggleSelection,
 	) {
-		scope.Call(ToggleSelection)
+		toggle()
 		scope.Call(LineEnd)
 		scope.Call(Delete)
 
 		// select and delete empty line
-		scope.Call(ToggleSelection)
+		toggle()
 		scope.Call(LineEnd)
 		scope.Call(Delete)
 	})
@@ -465,8 +466,9 @@ func TestDeleteMultiline(t *testing.T) {
 		view *View,
 		scope Scope,
 		move MoveCursor,
+		toggle ToggleSelection,
 	) {
-		scope.Call(ToggleSelection)
+		toggle()
 		move(Move{RelLine: 1})
 		move(Move{RelRune: 2})
 		scope.Call(Delete)
@@ -482,8 +484,9 @@ func TestDeleteMultiline2(t *testing.T) {
 		view *View,
 		scope Scope,
 		move MoveCursor,
+		toggle ToggleSelection,
 	) {
-		scope.Call(ToggleSelection)
+		toggle()
 		move(Move{RelLine: 2})
 		move(Move{RelRune: 2})
 		scope.Call(Delete)
@@ -500,8 +503,9 @@ func TestChangeText(t *testing.T) {
 		scope Scope,
 		curModes CurrentModes,
 		move MoveCursor,
+		toggle ToggleSelection,
 	) {
-		scope.Call(ToggleSelection)
+		toggle()
 		move(Move{RelLine: 2})
 		move(Move{RelRune: 2})
 		scope.Call(ChangeText)

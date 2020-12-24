@@ -96,8 +96,9 @@ func TestClipFromSelection(t *testing.T) {
 		linkedOne LinkedOne,
 		newClip NewClipFromSelection,
 		moveCursor MoveCursor,
+		toggle ToggleSelection,
 	) {
-		scope.Call(ToggleSelection)
+		toggle()
 		newClip()
 		var clip Clip
 		linkedOne(buffer, &clip)
@@ -113,7 +114,7 @@ func TestClipFromSelection(t *testing.T) {
 		)
 
 		// no selection
-		scope.Call(ToggleSelection)
+		toggle()
 		newClip()
 		linkedOne(buffer, &clip)
 		eq(t,
@@ -124,10 +125,10 @@ func TestClipFromSelection(t *testing.T) {
 
 func TestInsertLastClip(t *testing.T) {
 	withHelloEditor(t, func(
-		scope Scope,
 		cur CurrentView,
 		insert InsertLastClip,
 		newClip NewClipFromSelection,
+		toggle ToggleSelection,
 	) {
 		view := cur()
 
@@ -136,7 +137,7 @@ func TestInsertLastClip(t *testing.T) {
 			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
 
-		scope.Call(ToggleSelection)
+		toggle()
 		newClip()
 		insert()
 		eq(t,

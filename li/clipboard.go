@@ -77,11 +77,11 @@ func (_ Provide) NewClipFromSelection(
 func (_ Command) NewClipFromSelection() (spec CommandSpec) {
 	spec.Desc = "create new clip from current selection (copy)"
 	spec.Func = func(
-		scope Scope,
 		newClip NewClipFromSelection,
+		toggle ToggleSelection,
 	) {
 		newClip()
-		scope.Call(ToggleSelection)
+		toggle()
 	}
 	return
 }
