@@ -12,29 +12,35 @@ type (
 	EmitEvent func(ScreenEvent)
 )
 
-func HandleScreenEvent(
+type HandleScreenEvent func(
 	ev ScreenEvent,
+)
+
+func (_ Provide) HandleScreenEvent(
 	derive Derive,
 	handleMouse HandleMouseEvent,
 	handleKey HandleKeyEvent,
-) {
+) HandleScreenEvent {
+	return func(
+		ev ScreenEvent,
+	) {
+		switch ev := ev.(type) {
 
-	switch ev := ev.(type) {
+		case *tcell.EventKey:
+			handleKey(ev)
 
-	case *tcell.EventKey:
-		handleKey(ev)
+		case *tcell.EventMouse:
+			handleMouse(ev)
 
-	case *tcell.EventMouse:
-		handleMouse(ev)
+		case *tcell.EventResize:
+			width, height := ev.Size()
+			derive(
+				func() (Width, Height) {
+					return Width(width), Height(height)
+				},
+			)
 
-	case *tcell.EventResize:
-		width, height := ev.Size()
-		derive(
-			func() (Width, Height) {
-				return Width(width), Height(height)
-			},
-		)
+		}
 
 	}
-
 }

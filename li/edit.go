@@ -258,7 +258,6 @@ type DeleteWithinPositionFuncs func(
 )
 
 func (_ Provide) DeleteWithinPositionFuncs(
-	scope Scope,
 	cur CurrentView,
 	deleteRange DeleteWithinRange,
 ) DeleteWithinPositionFuncs {

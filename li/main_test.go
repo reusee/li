@@ -102,7 +102,11 @@ func withEditor(fn any) {
 			select {
 
 			case ev := <-events:
-				scope.Sub(func() ScreenEvent { return ev }).Call(HandleScreenEvent)
+				scope.Call(func(
+					handle HandleScreenEvent,
+				) {
+					handle(ev)
+				})
 
 			case fn := <-funcCalls:
 				scope.Call(fn)
