@@ -140,6 +140,7 @@ func (e *EditMode) StrokeSpecs() any {
 					cur CurrentView,
 					ev KeyEvent,
 					insert InsertAtPositionFunc,
+					posCursor PosCursor,
 				) {
 
 					// match disable sequence
@@ -162,7 +163,7 @@ func (e *EditMode) StrokeSpecs() any {
 					e.matchStates = ts
 
 					// insert
-					fn := PositionFunc(PosCursor)
+					fn := PositionFunc(posCursor)
 					str := string(ev.Rune())
 					insert(str, fn)
 

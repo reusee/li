@@ -344,11 +344,13 @@ type DeletePrevRune func()
 
 func (_ Provide) DeletePrevRune(
 	del DeleteWithinPositionFuncs,
+	begin PosPrevRune,
+	end PosCursor,
 ) DeletePrevRune {
 	return func() {
 		del(
-			PosPrevRune,
-			PosCursor,
+			PositionFunc(begin),
+			PositionFunc(end),
 		)
 	}
 }
@@ -357,11 +359,13 @@ type DeleteRune func()
 
 func (_ Provide) DeleteRune(
 	del DeleteWithinPositionFuncs,
+	begin PosCursor,
+	end PosNextRune,
 ) DeleteRune {
 	return func() {
 		del(
-			PosCursor,
-			PosNextRune,
+			PositionFunc(begin),
+			PositionFunc(end),
 		)
 	}
 }
@@ -451,14 +455,16 @@ func (_ Provide) ChangeToWordEnd(
 	cur CurrentView,
 	enable EnableEditMode,
 	del DeleteWithinPositionFuncs,
+	begin PosCursor,
+	end PosWordEnd,
 ) ChangeToWordEnd {
 	return func() {
 		if cur() == nil {
 			return
 		}
 		del(
-			PosCursor,
-			PosWordEnd,
+			PositionFunc(begin),
+			PositionFunc(end),
 		)
 		enable()
 	}
@@ -471,6 +477,10 @@ func (_ Provide) DeleteLine(
 	m CurrentMoment,
 	del DeleteWithinPositionFuncs,
 	lineBegin LineBegin,
+	posPrevLineEnd PosPrevLineEnd,
+	posLineEnd PosLineEnd,
+	posLineBegin PosLineBegin,
+	posNextLineBegin PosNextLineBegin,
 ) DeleteLine {
 	return func() {
 		view := v()
@@ -479,14 +489,14 @@ func (_ Provide) DeleteLine(
 		}
 		if view.CursorLine == m().NumLines()-1 {
 			del(
-				PosPrevLineEnd,
-				PosLineEnd,
+				PositionFunc(posPrevLineEnd),
+				PositionFunc(posLineEnd),
 			)
 			lineBegin()
 		} else {
 			del(
-				PosLineBegin,
-				PosNextLineBegin,
+				PositionFunc(posLineBegin),
+				PositionFunc(posNextLineBegin),
 			)
 		}
 	}

@@ -308,8 +308,9 @@ func TestNoViewEditCommands(t *testing.T) {
 		scope Scope,
 		insert InsertAtPositionFunc,
 		del DeletePrevRune,
+		posCursor PosCursor,
 	) {
-		insert("foo", PosCursor)
+		insert("foo", PositionFunc(posCursor))
 		del()
 	})
 }
@@ -319,8 +320,9 @@ func TestInsertToEmptyBuffer(t *testing.T) {
 		view *View,
 		moment *Moment,
 		insert InsertAtPositionFunc,
+		posCursor PosCursor,
 	) {
-		insert("a", PosCursor)
+		insert("a", PositionFunc(posCursor))
 		eq(t,
 			view.CursorCol, 1,
 		)

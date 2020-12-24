@@ -5,13 +5,14 @@ func (_ Command) InsertNewline() (spec CommandSpec) {
 	spec.Func = func(
 		insert InsertAtPositionFunc,
 		cur CurrentView,
+		posCursor PosCursor,
 	) {
 		view := cur()
 		if view == nil {
 			return
 		}
 		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
-		fn := PositionFunc(PosCursor)
+		fn := PositionFunc(posCursor)
 		str := "\n" + indent
 		insert(str, fn)
 	}
@@ -22,8 +23,9 @@ func (_ Command) InsertTab() (spec CommandSpec) {
 	spec.Desc = "insert tab at cursor"
 	spec.Func = func(
 		insert InsertAtPositionFunc,
+		posCursor PosCursor,
 	) {
-		fn := PositionFunc(PosCursor)
+		fn := PositionFunc(posCursor)
 		str := "\t"
 		insert(str, fn)
 	}
@@ -78,13 +80,14 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 		lineEnd LineEnd,
 		insert InsertAtPositionFunc,
 		enable EnableEditMode,
+		posLineEnd PosLineEnd,
 	) {
 		view := cur()
 		if view == nil {
 			return
 		}
 		indent := getAdjacentIndent(view, view.CursorLine, view.CursorLine+1)
-		fn := PositionFunc(PosLineEnd)
+		fn := PositionFunc(posLineEnd)
 		str := "\n" + indent
 		insert(str, fn)
 		lineEnd()
@@ -101,13 +104,14 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		moveCursor MoveCursor,
 		lineEnd LineEnd,
 		insert InsertAtPositionFunc,
+		posLineBegin PosLineBegin,
 	) {
 		view := cur()
 		if view == nil {
 			return
 		}
 		indent := getAdjacentIndent(view, view.CursorLine-1, view.CursorLine)
-		fn := PositionFunc(PosLineBegin)
+		fn := PositionFunc(posLineBegin)
 		str := indent + "\n"
 		insert(str, fn)
 		moveCursor(Move{RelLine: -1})
@@ -221,18 +225,20 @@ func (_ Command) ChangeLine() (spec CommandSpec) {
 		insert InsertAtPositionFunc,
 		enable EnableEditMode,
 		replace ReplaceWithinRange,
+		posLineBegin PosLineBegin,
+		posLineEnd PosLineEnd,
+		posCursor PosCursor,
 	) {
 		view := v()
 		if view == nil {
 			return
 		}
 		indent := getIndent(view, view.CursorLine)
-		var begin, end Position
-		scope.Call(PosLineBegin, &begin)
-		scope.Call(PosLineEnd, &end)
+		begin := posLineBegin()
+		end := posLineEnd()
 		str := ""
 		replace(Range{begin, end}, str)
-		fn := PositionFunc(PosCursor)
+		fn := PositionFunc(posCursor)
 		insert(indent, fn)
 		enable()
 	}

@@ -58,6 +58,7 @@ func TestUndoRedo4(t *testing.T) {
 		scope Scope,
 		insert InsertAtPositionFunc,
 		delRune DeleteRune,
+		posCursor PosCursor,
 	) {
 		delRune()
 		eq(t,
@@ -67,7 +68,7 @@ func TestUndoRedo4(t *testing.T) {
 		eq(t,
 			view.GetMoment().GetLine(0).content, "Hello, world!\n",
 		)
-		insert("foo", PosCursor)
+		insert("foo", PositionFunc(posCursor))
 		eq(t,
 			view.GetMoment().GetLine(0).content, "fooHello, world!\n",
 		)
@@ -87,6 +88,7 @@ func TestTimedUndo(t *testing.T) {
 		scope Scope,
 		view *View,
 		insert InsertAtPositionFunc,
+		posCursor PosCursor,
 	) {
 		var config UndoConfig
 		scope.Assign(&config)
@@ -99,7 +101,7 @@ func TestTimedUndo(t *testing.T) {
 			if time.Since(t0) > time.Millisecond*50 {
 				break
 			}
-			insert("foo", PosCursor)
+			insert("foo", PositionFunc(posCursor))
 		}
 
 		scope.Call(UndoDuration1)

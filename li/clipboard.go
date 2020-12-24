@@ -92,6 +92,7 @@ func (_ Provide) InsertLastClip(
 	cur CurrentView,
 	linkedOne LinkedOne,
 	insert InsertAtPositionFunc,
+	posCursor PosCursor,
 ) InsertLastClip {
 	return func() {
 		view := cur()
@@ -103,7 +104,7 @@ func (_ Provide) InsertLastClip(
 			return
 		}
 		str := clip.String()
-		fn := PositionFunc(PosCursor)
+		fn := PositionFunc(posCursor)
 		insert(str, fn)
 	}
 }
