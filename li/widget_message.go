@@ -5,7 +5,6 @@ type ShowMessage func(
 )
 
 func (_ Provide) ShowMessage(
-	scope Scope,
 	pushOverlay PushOverlay,
 ) ShowMessage {
 	return func(

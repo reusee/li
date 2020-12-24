@@ -30,7 +30,6 @@ type HandleMouseEvent func(
 
 func (_ Provide) HandleMouseEvent(
 	mouseConfig MouseConfig,
-	scope Scope,
 	moveCursor MoveCursor,
 ) HandleMouseEvent {
 

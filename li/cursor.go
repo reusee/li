@@ -28,7 +28,6 @@ func (_ Provide) MoveCursor(
 	cur CurrentView,
 	scope Scope,
 	withN WithContextNumber,
-	run RunInMainLoop,
 	trigger Trigger,
 	scrollToCursor ScrollToCursor,
 ) MoveCursor {
@@ -229,7 +228,6 @@ type PageDown func()
 
 func (_ Provide) PageDown(
 	cur CurrentView,
-	scope Scope,
 	config ScrollConfig,
 	moveCursor MoveCursor,
 	calLineHeights CalculateLineHeights,
@@ -272,7 +270,6 @@ type PageUp func()
 
 func (_ Provide) PageUp(
 	cur CurrentView,
-	scope Scope,
 	config ScrollConfig,
 	moveCursor MoveCursor,
 	calLineHeights CalculateLineHeights,

@@ -10,7 +10,6 @@ import (
 type ShowCommandPalette func()
 
 func (_ Provide) ShowCommandPalette(
-	scope Scope,
 	screen Screen,
 	commands Commands,
 	run RunInMainLoop,

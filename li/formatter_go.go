@@ -13,7 +13,6 @@ import (
 func (_ Provide) FormatterGo(
 	on On,
 	j AppendJournal,
-	scope Scope,
 	run RunInMainLoop,
 	config FormatterConfig,
 ) Init2 {

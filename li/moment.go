@@ -203,7 +203,6 @@ type NewMomentFromFile func(
 )
 
 func (_ Provide) NewMomentFromFile(
-	scope Scope,
 	newMoment NewMomentFromBytes,
 ) NewMomentFromFile {
 	return func(
@@ -241,7 +240,6 @@ type NewMomentFromBytes func(
 )
 
 func (_ Provide) NewMomentFromBytes(
-	scope Scope,
 	config BufferConfig,
 	initProcs LineInitProcs,
 ) NewMomentFromBytes {

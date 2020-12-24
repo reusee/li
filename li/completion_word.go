@@ -9,8 +9,6 @@ import (
 
 func (_ Provide) CollectWords(
 	on On,
-	cur CurrentView,
-	scope Scope,
 ) Init2 {
 
 	type Word struct {

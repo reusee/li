@@ -108,8 +108,6 @@ type CalculateLineHeights func(
 )
 
 func (_ Provide) CalculateLineHeights(
-	scope Scope,
-	trigger Trigger,
 	getHints GetLineHints,
 ) CalculateLineHeights {
 
@@ -147,7 +145,6 @@ type CalculateSumLineHeight func(
 ) int
 
 func (_ Provide) CalculateSumLineHeight(
-	scope Scope,
 	calculate CalculateLineHeights,
 ) CalculateSumLineHeight {
 	return func(
