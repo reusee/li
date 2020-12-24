@@ -8,11 +8,12 @@ import (
 func TestApplyChange(t *testing.T) {
 	withEditor(func(
 		scope Scope,
+		newMoment NewMomentFromBytes,
 	) {
-		var moment *Moment
-		scope.Sub(func() []byte {
-			return []byte(``)
-		}).Call(NewMomentFromBytes, &moment)
+		moment, _, err := newMoment([]byte(``))
+		if err != nil {
+			t.Fatal(err)
+		}
 		eq(t,
 			moment != nil, true,
 		)
@@ -218,17 +219,19 @@ func TestApplyChange(t *testing.T) {
 func BenchmarkLargeBuf(b *testing.B) {
 	withEditor(func(
 		scope Scope,
+		newMoment NewMomentFromBytes,
 	) {
 
-		var moment *Moment
-		scope.Sub(func() []byte {
-			buf := new(bytes.Buffer)
-			for i := 0; i < 1000000; i++ {
-				buf.Write(bytes.Repeat([]byte("a"), 4096))
-				buf.Write([]byte("\n"))
-			}
-			return buf.Bytes()
-		}).Call(NewMomentFromBytes, &moment)
+		buf := new(bytes.Buffer)
+		for i := 0; i < 1000000; i++ {
+			buf.Write(bytes.Repeat([]byte("a"), 4096))
+			buf.Write([]byte("\n"))
+		}
+		bs := buf.Bytes()
+		moment, _, err := newMoment(bs)
+		if err != nil {
+			b.Fatal(err)
+		}
 
 		b.ResetTimer()
 

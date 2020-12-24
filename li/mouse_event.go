@@ -24,23 +24,27 @@ func (_ Provide) MouseConfig(
 	return ret
 }
 
-func HandleMouseEvent(
+type HandleMouseEvent func(
 	ev MouseEvent,
+)
+
+func (_ Provide) HandleMouseEvent(
 	mouseConfig MouseConfig,
 	scope Scope,
 	moveCursor MoveCursor,
-) {
+) HandleMouseEvent {
 
-	mask := ev.Buttons()
-
-	if mask&tcell.WheelDown > 0 {
-		// scroll down
-		moveCursor(Move{RelLine: mouseConfig.ScrollLines})
-
-	} else if mask&tcell.WheelUp > 0 {
-		// scroll up
-		moveCursor(Move{RelLine: -mouseConfig.ScrollLines})
-
+	return func(
+		ev MouseEvent,
+	) {
+		mask := ev.Buttons()
+		if mask&tcell.WheelDown > 0 {
+			// scroll down
+			moveCursor(Move{RelLine: mouseConfig.ScrollLines})
+		} else if mask&tcell.WheelUp > 0 {
+			// scroll up
+			moveCursor(Move{RelLine: -mouseConfig.ScrollLines})
+		}
 	}
 
 }

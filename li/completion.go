@@ -49,6 +49,7 @@ func (_ Provide) Completion(
 		maxWidth Width,
 		maxHeight Height,
 		cont ContinueCompletion,
+		calLineHeight CalculateSumLineHeight,
 	) {
 
 		// continue, dont update
@@ -146,11 +147,7 @@ func (_ Provide) Completion(
 				view.RLock()
 				defer view.RUnlock()
 				cursorY := view.ContentBox.Top
-				var lineHeight int
-				scope.Sub(
-					&moment,
-					&[2]int{view.ViewportLine, view.CursorLine},
-				).Call(CalculateSumLineHeight, &lineHeight)
+				lineHeight := calLineHeight(moment, [2]int{view.ViewportLine, view.CursorLine})
 				cursorY += lineHeight
 				height := len(candidates)
 				below := true

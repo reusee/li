@@ -38,16 +38,13 @@ func (_ Provide) NewBufferFromFile(
 	scope Scope,
 	link Link,
 	trigger Trigger,
+	newMoment NewMomentFromFile,
 ) NewBufferFromFile {
 	return func(path string) (buffer *Buffer, err error) {
 		defer he(&err)
 
 		id := BufferID(atomic.AddInt64(&nextBufferID, 1))
-		var moment *Moment
-		var linebreak Linebreak
-		scope.Sub(
-			&path,
-		).Call(NewMomentFromFile, &moment, &linebreak, &err)
+		moment, linebreak, err := newMoment(path)
 		ce(err)
 
 		absPath, err := filepath.Abs(path)
@@ -82,6 +79,7 @@ func (_ Provide) NewBufferFromBytes(
 	scope Scope,
 	link Link,
 	trigger Trigger,
+	newMoment NewMomentFromBytes,
 ) NewBufferFromBytes {
 	return func(bs []byte) (buffer *Buffer, err error) {
 		defer he(&err)
@@ -89,9 +87,7 @@ func (_ Provide) NewBufferFromBytes(
 		id := BufferID(atomic.AddInt64(&nextBufferID, 1))
 		var moment *Moment
 		var linebreak Linebreak
-		scope.Sub(
-			&bs,
-		).Call(NewMomentFromBytes, &moment, &linebreak, &err)
+		moment, linebreak, err = newMoment(bs)
 		ce(err)
 
 		buffer = &Buffer{

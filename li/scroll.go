@@ -141,153 +141,187 @@ func (v *View) calculateViewportLineRange(
 	return
 }
 
-func ScrollEnd(
+type ScrollEnd func()
+
+func (_ Provide) ScrollEnd(
 	cur CurrentView,
 	scrollToCursor ScrollToCursor,
 	moveCursor MoveCursor,
-) {
-	view := cur()
-	if view == nil {
-		return
+) ScrollEnd {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		line := view.GetMoment().NumLines() - 1
+		moveCursor(Move{AbsLine: &line})
+		scrollToCursor()
 	}
-	line := view.GetMoment().NumLines() - 1
-	moveCursor(Move{AbsLine: &line})
-	scrollToCursor()
 }
 
-func ScrollHome(
+type ScrollHome func()
+
+func (_ Provide) ScrollHome(
 	scrollToCursor ScrollToCursor,
 	moveCursor MoveCursor,
-) {
-	zero := 0
-	moveCursor(Move{AbsLine: &zero, AbsCol: &zero})
-	scrollToCursor()
+) ScrollHome {
+	return func() {
+		zero := 0
+		moveCursor(Move{AbsLine: &zero, AbsCol: &zero})
+		scrollToCursor()
+	}
 }
 
 func (_ Command) ScrollHome() (spec CommandSpec) {
-	spec.Func = func(scope Scope) {
-		scope.Call(ScrollHome)
+	spec.Func = func(home ScrollHome) {
+		home()
 	}
 	return
 }
 
-func ScrollAbsOrEnd(
+type ScrollAbsOrEnd func()
+
+func (_ Provide) ScrollAbsOrEnd(
 	withN WithContextNumber,
-	scope Scope,
 	moveCursor MoveCursor,
-) {
-	withN(func(n int) {
-		if n > 0 {
-			n--
-			moveCursor(Move{AbsLine: &n})
-		} else {
-			scope.Call(ScrollEnd)
-		}
-	})
+	end ScrollEnd,
+) ScrollAbsOrEnd {
+	return func() {
+		withN(func(n int) {
+			if n > 0 {
+				n--
+				moveCursor(Move{AbsLine: &n})
+			} else {
+				end()
+			}
+		})
+	}
 }
 
-func ScrollAbsOrHome(
+type ScrollAbsOrHome func()
+
+func (_ Provide) ScrollAbsOrHome(
 	withN WithContextNumber,
-	scope Scope,
 	moveCursor MoveCursor,
-) {
-	withN(func(n int) {
-		if n > 0 {
-			n--
-			moveCursor(Move{AbsLine: &n})
-		} else {
-			scope.Call(ScrollHome)
-		}
-	})
+	home ScrollHome,
+) ScrollAbsOrHome {
+	return func() {
+		withN(func(n int) {
+			if n > 0 {
+				n--
+				moveCursor(Move{AbsLine: &n})
+			} else {
+				home()
+			}
+		})
+	}
 }
 
 func (_ Command) ScrollAbsOrEnd() (spec CommandSpec) {
 	spec.Desc = "scroll to specified line or the end"
-	spec.Func = func(scope Scope) {
-		scope.Call(ScrollAbsOrEnd)
+	spec.Func = func(end ScrollAbsOrEnd) {
+		end()
 	}
 	return
 }
 
 func (_ Command) ScrollAbsOrHome() (spec CommandSpec) {
 	spec.Desc = "scroll to specified line or the beginnig"
-	spec.Func = func(scope Scope) {
-		scope.Call(ScrollAbsOrHome)
+	spec.Func = func(home ScrollAbsOrHome) {
+		home()
 	}
 	return
 }
 
-func ScrollCursorToUpper(
+type ScrollCursorToUpper func()
+
+func (_ Provide) ScrollCursorToUpper(
 	cur CurrentView,
 	config ScrollConfig,
 	scope Scope,
-) {
-	view := cur()
-	if view == nil {
-		return
+) ScrollCursorToUpper {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		_, max := view.calculateViewportLineRange(
+			scope,
+			view.GetMoment(),
+			view.CursorLine,
+			config.PaddingTop,
+			config.PaddingBottom,
+		)
+		view.ViewportLine = max
 	}
-	_, max := view.calculateViewportLineRange(
-		scope,
-		view.GetMoment(),
-		view.CursorLine,
-		config.PaddingTop,
-		config.PaddingBottom,
-	)
-	view.ViewportLine = max
 }
 
 func (_ Command) ScrollCursorToUpper() (spec CommandSpec) {
 	spec.Desc = "scroll to make cursor position at upper half of current view"
-	spec.Func = ScrollCursorToUpper
+	spec.Func = func(scroll ScrollCursorToUpper) {
+		scroll()
+	}
 	return
 }
 
-func ScrollCursorToMiddle(
+type ScrollCursorToMiddle func()
+
+func (_ Provide) ScrollCursorToMiddle(
 	cur CurrentView,
 	config ScrollConfig,
 	scope Scope,
-) {
-	view := cur()
-	if view == nil {
-		return
+) ScrollCursorToMiddle {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		min, max := view.calculateViewportLineRange(
+			scope,
+			view.GetMoment(),
+			view.CursorLine,
+			config.PaddingTop,
+			config.PaddingBottom,
+		)
+		view.ViewportLine = (max + min) / 2
 	}
-	min, max := view.calculateViewportLineRange(
-		scope,
-		view.GetMoment(),
-		view.CursorLine,
-		config.PaddingTop,
-		config.PaddingBottom,
-	)
-	view.ViewportLine = (max + min) / 2
 }
 
 func (_ Command) ScrollCursorToMiddle() (spec CommandSpec) {
 	spec.Desc = "scroll to make cursor position at the middle of current view"
-	spec.Func = ScrollCursorToMiddle
+	spec.Func = func(scroll ScrollCursorToMiddle) {
+		scroll()
+	}
 	return
 }
 
-func ScrollCursorToLower(
+type ScrollCursorToLower func()
+
+func (_ Provide) ScrollCursorToLower(
 	cur CurrentView,
 	config ScrollConfig,
 	scope Scope,
-) {
-	view := cur()
-	if view == nil {
-		return
+) ScrollCursorToLower {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		min, _ := view.calculateViewportLineRange(
+			scope,
+			view.GetMoment(),
+			view.CursorLine,
+			config.PaddingTop,
+			config.PaddingBottom,
+		)
+		view.ViewportLine = min
 	}
-	min, _ := view.calculateViewportLineRange(
-		scope,
-		view.GetMoment(),
-		view.CursorLine,
-		config.PaddingTop,
-		config.PaddingBottom,
-	)
-	view.ViewportLine = min
 }
 
 func (_ Command) ScrollCursorToLower() (spec CommandSpec) {
 	spec.Desc = "scroll to make cursor position at lower half of current view"
-	spec.Func = ScrollCursorToLower
+	spec.Func = func(scroll ScrollCursorToLower) {
+		scroll()
+	}
 	return
 }

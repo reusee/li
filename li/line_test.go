@@ -6,9 +6,9 @@ func TestLineHeight(t *testing.T) {
 	withHelloEditor(t, func(
 		moment *Moment,
 		on On,
-		scope Scope,
 		calLineHeights CalculateLineHeights,
 		ctrl func(string),
+		calLineHeight CalculateSumLineHeight,
 	) {
 		on(EvCollectLineHints, func(
 			add AddLineHint,
@@ -22,10 +22,7 @@ func TestLineHeight(t *testing.T) {
 			info[0], 2,
 		)
 
-		var height int
-		scope.Sub(
-			&moment, &[2]int{0, 1},
-		).Call(CalculateSumLineHeight, &height)
+		height := calLineHeight(moment, [2]int{0, 1})
 		eq(t,
 			height, 2,
 		)

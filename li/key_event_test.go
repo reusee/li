@@ -7,20 +7,17 @@ import (
 
 func TestStrokeSpecHints(t *testing.T) {
 	withHelloEditor(t, func(
-		scope Scope,
 		emitRune EmitRune,
 		ctrl func(string),
 		moment *Moment,
 		getScreenString GetScreenString,
 		view *View,
 		calLineHeights CalculateLineHeights,
+		calLineHeight CalculateSumLineHeight,
 	) {
 
 		emitRune('f')
-		var height int
-		scope.Sub(
-			&moment, &[2]int{0, 1},
-		).Call(CalculateSumLineHeight, &height)
+		height := calLineHeight(moment, [2]int{0, 1})
 		eq(t,
 			height, 2,
 		)
@@ -34,9 +31,7 @@ func TestStrokeSpecHints(t *testing.T) {
 		)
 
 		emitRune('e')
-		scope.Sub(
-			&moment, &[2]int{0, 1},
-		).Call(CalculateSumLineHeight, &height)
+		height = calLineHeight(moment, [2]int{0, 1})
 		eq(t,
 			height, 1,
 		)

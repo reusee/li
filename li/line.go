@@ -141,25 +141,32 @@ func (_ Provide) CalculateLineHeights(
 
 }
 
-func CalculateSumLineHeight(
+type CalculateSumLineHeight func(
 	moment *Moment,
 	lineRange [2]int,
+) int
 
+func (_ Provide) CalculateSumLineHeight(
 	scope Scope,
 	calculate CalculateLineHeights,
-) int {
-	info := calculate(moment, lineRange)
-	if info == nil {
-		return int(lineRange[1] - lineRange[0])
-	}
-	sum := 0
-	for i := lineRange[0]; i < lineRange[1]; i++ {
-		h, ok := info[i]
-		if !ok {
-			sum += 1
-		} else {
-			sum += h
+) CalculateSumLineHeight {
+	return func(
+		moment *Moment,
+		lineRange [2]int,
+	) int {
+		info := calculate(moment, lineRange)
+		if info == nil {
+			return int(lineRange[1] - lineRange[0])
 		}
+		sum := 0
+		for i := lineRange[0]; i < lineRange[1]; i++ {
+			h, ok := info[i]
+			if !ok {
+				sum += 1
+			} else {
+				sum += h
+			}
+		}
+		return sum
 	}
-	return sum
 }

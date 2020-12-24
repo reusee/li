@@ -33,6 +33,7 @@ func (view *View) RenderFunc() any {
 		trigger Trigger,
 		getLineHints GetLineHints,
 		calLineHeights CalculateLineHeights,
+		calLineHeight CalculateSumLineHeight,
 	) Element {
 
 		moment := view.GetMoment()
@@ -61,10 +62,9 @@ func (view *View) RenderFunc() any {
 			if view == currentView {
 				y := contentBox.Top
 				moment := view.GetMoment()
-				var lineHeight int
-				scope.Sub(&moment, &[2]int{
+				lineHeight := calLineHeight(moment, [2]int{
 					view.ViewportLine, view.CursorLine,
-				}).Call(CalculateSumLineHeight, &lineHeight)
+				})
 				y += lineHeight
 				screen.ShowCursor(
 					contentBox.Left+(view.CursorCol-view.ViewportCol),

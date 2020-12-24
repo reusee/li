@@ -194,79 +194,105 @@ func (m *Moment) ByteOffsetToPosition(offset int) (pos Position) {
 
 var nextMomentID int64
 
-func NewMomentFromFile(
+type NewMomentFromFile func(
 	path string,
-	scope Scope,
 ) (
 	moment *Moment,
 	linebreak Linebreak,
 	err error,
-) {
-	defer he(&err)
+)
 
-	// read
-	contentBytes, err := ioutil.ReadFile(path)
-	ce(err, fe("read %s", path))
+func (_ Provide) NewMomentFromFile(
+	scope Scope,
+	newMoment NewMomentFromBytes,
+) NewMomentFromFile {
+	return func(
+		path string,
+	) (
+		moment *Moment,
+		linebreak Linebreak,
+		err error,
+	) {
+		defer he(&err)
 
-	scope.Sub(
-		&contentBytes,
-	).Call(NewMomentFromBytes, &moment, &linebreak)
+		// read
+		contentBytes, err := ioutil.ReadFile(path)
+		ce(err, fe("read %s", path))
 
-	info, err := getFileInfo(path)
-	ce(err)
-	moment.FileInfo = info
+		moment, linebreak, err = newMoment(contentBytes)
+		if err != nil {
+			return
+		}
 
-	return
+		info, err := getFileInfo(path)
+		ce(err)
+		moment.FileInfo = info
+
+		return
+	}
 }
 
-func NewMomentFromBytes(
+type NewMomentFromBytes func(
 	bs []byte,
-	scope Scope,
-	config BufferConfig,
-	initProcs LineInitProcs,
 ) (
 	moment *Moment,
 	linebreak Linebreak,
-) {
+	err error,
+)
 
-	linebreak = "\n" // default
+func (_ Provide) NewMomentFromBytes(
+	scope Scope,
+	config BufferConfig,
+	initProcs LineInitProcs,
+) NewMomentFromBytes {
+	return func(
+		bs []byte,
+	) (
+		moment *Moment,
+		linebreak Linebreak,
+		err error,
+	) {
 
-	content := string(bs)
+		linebreak = "\n" // default
 
-	// split
-	lineContents := splitLines(content)
-	n := 0
-	for i, lineContent := range lineContents {
-		noCR := strings.TrimSuffix(lineContent, "\r")
-		if len(noCR) != len(lineContent) {
-			lineContents[i] = noCR
-			n++
+		content := string(bs)
+
+		// split
+		lineContents := splitLines(content)
+		n := 0
+		for i, lineContent := range lineContents {
+			noCR := strings.TrimSuffix(lineContent, "\r")
+			if len(noCR) != len(lineContent) {
+				lineContents[i] = noCR
+				n++
+			}
 		}
-	}
-	if float64(n)/float64(len(lineContents)) > 0.4 {
-		linebreak = "\r\n"
-	}
-
-	// lines
-	var lines []*Line
-	for _, content := range lineContents {
-		line := &Line{
-			content:  content,
-			initOnce: new(sync.Once),
-			config:   &config,
+		if float64(n)/float64(len(lineContents)) > 0.4 {
+			linebreak = "\r\n"
 		}
-		lines = append(lines, line)
-	}
-	initProcs <- lines
 
-	moment = NewMoment(nil)
-	moment.segments = []*Segment{
-		{
-			lines: lines,
-		},
+		// lines
+		var lines []*Line
+		for _, content := range lineContents {
+			line := &Line{
+				content:  content,
+				initOnce: new(sync.Once),
+				config:   &config,
+			}
+			lines = append(lines, line)
+		}
+		initProcs <- lines
+
+		moment = NewMoment(nil)
+		moment.segments = []*Segment{
+			{
+				lines: lines,
+			},
+		}
+
+		return
 	}
 
-	return
 }
 
 type NewMomentsFromPath func(
@@ -279,7 +305,7 @@ type NewMomentsFromPath func(
 )
 
 func (_ Provide) NewMomentsFromPath(
-	scope Scope,
+	newMoment NewMomentFromFile,
 ) NewMomentsFromPath {
 	return func(
 		path string,
@@ -310,11 +336,7 @@ func (_ Provide) NewMomentsFromPath(
 					}
 					name := info.Name()
 					p := filepath.Join(path, name)
-					var moment *Moment
-					var linebreak Linebreak
-					scope.Sub(
-						&p,
-					).Call(NewMomentFromFile, &moment, &linebreak, &err)
+					moment, linebreak, err := newMoment(p)
 					if err != nil {
 						continue
 					}
@@ -330,9 +352,7 @@ func (_ Provide) NewMomentsFromPath(
 		} else {
 			var moment *Moment
 			var linebreak Linebreak
-			scope.Sub(
-				&path,
-			).Call(NewMomentFromFile, &moment, &linebreak, &err)
+			moment, linebreak, err = newMoment(path)
 			if err != nil {
 				return
 			}
