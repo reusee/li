@@ -23,9 +23,11 @@ func TestFileSync(t *testing.T) {
 
 		// buffer
 		var buffer *Buffer
-		scope.Sub(func() string {
-			return path
-		}).Call(NewBufferFromFile, &buffer, &err)
+		scope.Call(func(
+			newBuf NewBufferFromFile,
+		) {
+			buffer, err = newBuf(path)
+		})
 		ce(err)
 
 		// moment

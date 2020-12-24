@@ -27,75 +27,85 @@ type evBufferCreated struct{}
 
 var EvBufferCreated = new(evBufferCreated)
 
-func NewBufferFromFile(
+type NewBufferFromFile func(
 	path string,
-	scope Scope,
-	link Link,
-	trigger Trigger,
 ) (
 	buffer *Buffer,
 	err error,
-) {
-	defer he(&err)
+)
 
-	id := BufferID(atomic.AddInt64(&nextBufferID, 1))
-	var moment *Moment
-	var linebreak Linebreak
-	scope.Sub(
-		&path,
-	).Call(NewMomentFromFile, &moment, &linebreak, &err)
-	ce(err)
+func (_ Provide) NewBufferFromFile(
+	scope Scope,
+	link Link,
+	trigger Trigger,
+) NewBufferFromFile {
+	return func(path string) (buffer *Buffer, err error) {
+		defer he(&err)
 
-	absPath, err := filepath.Abs(path)
-	ce(err)
-	buffer = &Buffer{
-		ID:               id,
-		Path:             path,
-		AbsPath:          absPath,
-		AbsDir:           filepath.Dir(absPath),
-		LastSyncFileInfo: moment.FileInfo,
-		Linebreak:        linebreak,
+		id := BufferID(atomic.AddInt64(&nextBufferID, 1))
+		var moment *Moment
+		var linebreak Linebreak
+		scope.Sub(
+			&path,
+		).Call(NewMomentFromFile, &moment, &linebreak, &err)
+		ce(err)
+
+		absPath, err := filepath.Abs(path)
+		ce(err)
+		buffer = &Buffer{
+			ID:               id,
+			Path:             path,
+			AbsPath:          absPath,
+			AbsDir:           filepath.Dir(absPath),
+			LastSyncFileInfo: moment.FileInfo,
+			Linebreak:        linebreak,
+		}
+		link(buffer, moment)
+		buffer.SetLanguage(scope, LanguageFromPath(path))
+
+		trigger(scope.Sub(
+			&buffer, &moment,
+		), EvBufferCreated)
+
+		return
 	}
-	link(buffer, moment)
-	buffer.SetLanguage(scope, LanguageFromPath(path))
-
-	trigger(scope.Sub(
-		&buffer, &moment,
-	), EvBufferCreated)
-
-	return
 }
 
-func NewBufferFromBytes(
+type NewBufferFromBytes func(
 	bs []byte,
-	scope Scope,
-	link Link,
-	trigger Trigger,
 ) (
 	buffer *Buffer,
 	err error,
-) {
-	defer he(&err)
+)
 
-	id := BufferID(atomic.AddInt64(&nextBufferID, 1))
-	var moment *Moment
-	var linebreak Linebreak
-	scope.Sub(
-		&bs,
-	).Call(NewMomentFromBytes, &moment, &linebreak, &err)
-	ce(err)
+func (_ Provide) NewBufferFromBytes(
+	scope Scope,
+	link Link,
+	trigger Trigger,
+) NewBufferFromBytes {
+	return func(bs []byte) (buffer *Buffer, err error) {
+		defer he(&err)
 
-	buffer = &Buffer{
-		ID:        id,
-		Linebreak: linebreak,
+		id := BufferID(atomic.AddInt64(&nextBufferID, 1))
+		var moment *Moment
+		var linebreak Linebreak
+		scope.Sub(
+			&bs,
+		).Call(NewMomentFromBytes, &moment, &linebreak, &err)
+		ce(err)
+
+		buffer = &Buffer{
+			ID:        id,
+			Linebreak: linebreak,
+		}
+		link(buffer, moment)
+
+		trigger(scope.Sub(
+			&buffer, &moment,
+		), EvBufferCreated)
+
+		return
 	}
-	link(buffer, moment)
-
-	trigger(scope.Sub(
-		&buffer, &moment,
-	), EvBufferCreated)
-
-	return
 }
 
 type BufferConfig struct {
@@ -118,43 +128,48 @@ func (_ Provide) BufferConfig(
 	return config.Buffer
 }
 
-func NewBuffersFromPath(
+type NewBuffersFromPath func(
 	path string,
-	scope Scope,
-	link Link,
 ) (
 	buffers []*Buffer,
 	err error,
-) {
-	defer he(&err)
+)
 
-	var moments []*Moment
-	var linebreaks []Linebreak
-	var paths []string
-	scope.Sub(
-		&path,
-	).Call(NewMomentsFromPath, &moments, &linebreaks, &paths, &err)
-	ce(err)
+func (_ Provide) NewBuffersFromPath(
+	scope Scope,
+	link Link,
+) NewBuffersFromPath {
+	return func(path string) (buffers []*Buffer, err error) {
+		defer he(&err)
 
-	for i, moment := range moments {
-		linebreak := linebreaks[i]
-		id := BufferID(atomic.AddInt64(&nextBufferID, 1))
-		absPath, err := filepath.Abs(paths[i])
+		var moments []*Moment
+		var linebreaks []Linebreak
+		var paths []string
+		scope.Sub(
+			&path,
+		).Call(NewMomentsFromPath, &moments, &linebreaks, &paths, &err)
 		ce(err)
-		buffer := &Buffer{
-			ID:               id,
-			Path:             paths[i],
-			AbsPath:          absPath,
-			AbsDir:           filepath.Dir(absPath),
-			LastSyncFileInfo: moment.FileInfo,
-			Linebreak:        linebreak,
-		}
-		link(buffer, moment)
-		buffer.SetLanguage(scope, LanguageFromPath(paths[i]))
-		buffers = append(buffers, buffer)
-	}
 
-	return
+		for i, moment := range moments {
+			linebreak := linebreaks[i]
+			id := BufferID(atomic.AddInt64(&nextBufferID, 1))
+			absPath, err := filepath.Abs(paths[i])
+			ce(err)
+			buffer := &Buffer{
+				ID:               id,
+				Path:             paths[i],
+				AbsPath:          absPath,
+				AbsDir:           filepath.Dir(absPath),
+				LastSyncFileInfo: moment.FileInfo,
+				Linebreak:        linebreak,
+			}
+			link(buffer, moment)
+			buffer.SetLanguage(scope, LanguageFromPath(paths[i]))
+			buffers = append(buffers, buffer)
+		}
+
+		return
+	}
 }
 
 type evBufferLanguageChanged struct{}

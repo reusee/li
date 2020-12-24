@@ -197,13 +197,10 @@ func withHelloEditor(t *testing.T, fn any) {
 func withEditorBytes(t *testing.T, bs []byte, fn any) {
 	withEditor(func(
 		s Scope,
+		newBuf NewBufferFromBytes,
 	) {
 
-		var buf *Buffer
-		var err error
-		s.Sub(func() []byte {
-			return bs
-		}).Call(NewBufferFromBytes, &buf, &err)
+		buf, err := newBuf(bs)
 		if err != nil {
 			t.Fatal(err)
 		}

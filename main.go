@@ -37,9 +37,11 @@ func main() {
 	for _, path := range os.Args[1:] {
 		var buffers []*li.Buffer
 		var err error
-		scope.Sub(func() string {
-			return path
-		}).Call(li.NewBuffersFromPath, &buffers, &err)
+		scope.Call(func(
+			newBuffers li.NewBuffersFromPath,
+		) {
+			buffers, err = newBuffers(path)
+		})
 		if err != nil {
 			return
 		}

@@ -13,9 +13,11 @@ func (_ Command) ChoosePathAndLoad() (spec CommandSpec) {
 		cb := func(path string) {
 			var buffers []*Buffer
 			var err error
-			scope.Sub(
-				&path,
-			).Call(NewBuffersFromPath, &buffers, &err)
+			scope.Call(func(
+				newBuffers NewBuffersFromPath,
+			) {
+				buffers, err = newBuffers(path)
+			})
 			if err != nil {
 				return
 			}
