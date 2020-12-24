@@ -295,17 +295,21 @@ func (c *CompletionList) StrokeSpecs() any {
 					apply := func(index int) {
 						c.index = &index
 						candidate := c.Candidates[index]
-						moment := c.Moment
 						scope.Sub(
 							AsCurrentView(c.View),
 							AsCurrentMoment(c.Moment),
-							func() (Range, string) {
-								return Range{
+						).Call(func(
+							replace ReplaceWithinRange,
+						) {
+							replace(
+								Range{
 									candidate.Begin,
 									candidate.End,
-								}, candidate.Text
-							},
-						).Call(ReplaceWithinRange, &moment)
+								},
+								candidate.Text,
+							)
+						})
+
 					}
 					if c.index == nil {
 						index := 0

@@ -583,36 +583,31 @@ func TestReplace(t *testing.T) {
 		scope Scope,
 		view *View,
 		moment *Moment,
+		replace ReplaceWithinRange,
 	) {
 
-		scope.Sub(func() (Range, string) {
-			return Range{
-				Position{0, 0},
-				Position{0, 0},
-			}, "foo"
-		}).Call(ReplaceWithinRange, &moment)
+		moment = replace(Range{
+			Position{0, 0},
+			Position{0, 0},
+		}, "foo")
 		eq(t,
 			moment.NumLines(), 2,
 			moment.GetLine(0).content, "fooa\n",
 		)
 
-		scope.Sub(func() (Range, string) {
-			return Range{
-				Position{0, 0},
-				Position{0, 1},
-			}, "foo"
-		}).Call(ReplaceWithinRange, &moment)
+		moment = replace(Range{
+			Position{0, 0},
+			Position{0, 1},
+		}, "foo")
 		eq(t,
 			moment.NumLines(), 2,
 			moment.GetLine(0).content, "fooooa\n",
 		)
 
-		scope.Sub(func() (Range, string) {
-			return Range{
-				Position{0, 0},
-				Position{1, 0},
-			}, "foo"
-		}).Call(ReplaceWithinRange, &moment)
+		moment = replace(Range{
+			Position{0, 0},
+			Position{1, 0},
+		}, "foo")
 		eq(t,
 			moment.NumLines(), 1,
 			moment.GetLine(0).content, "foob\n",

@@ -282,50 +282,62 @@ func (_ Provide) DeleteWithinPositionFuncs(
 	}
 }
 
-func ReplaceWithinRange(
-	v CurrentView,
-	m CurrentMoment,
+type ReplaceWithinRange func(
 	r Range,
 	text string,
+) (
+	newMoment *Moment,
+)
+
+func (_ Provide) ReplaceWithinRange(
+	v CurrentView,
+	m CurrentMoment,
 	scope Scope,
 	moveCursor MoveCursor,
 	apply ApplyChange,
-) (
-	newMoment *Moment,
-) {
-	view := v()
-	if view == nil {
+) ReplaceWithinRange {
+	return func(
+		r Range,
+		text string,
+	) (
+		newMoment *Moment,
+	) {
+
+		view := v()
+		if view == nil {
+			return
+		}
+		moment := m()
+
+		if r.Begin != r.End {
+			// delete
+			change := Change{
+				Op:    OpDelete,
+				Begin: r.Begin,
+				End:   r.End,
+			}
+			moment, _ = apply(moment, change)
+		}
+
+		// insert
+		change := Change{
+			Op:     OpInsert,
+			Begin:  r.Begin,
+			String: text,
+		}
+		var nRunesInserted int
+		moment, nRunesInserted = apply(moment, change)
+
+		view.switchMoment(scope, moment)
+
+		col := moment.GetLine(r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
+		moveCursor(Move{AbsLine: intP(r.Begin.Line), AbsCol: &col})
+		moveCursor(Move{RelRune: nRunesInserted})
+
+		newMoment = moment
 		return
 	}
-	moment := m()
 
-	if r.Begin != r.End {
-		// delete
-		change := Change{
-			Op:    OpDelete,
-			Begin: r.Begin,
-			End:   r.End,
-		}
-		moment, _ = apply(moment, change)
-	}
-
-	// insert
-	change := Change{
-		Op:     OpInsert,
-		Begin:  r.Begin,
-		String: text,
-	}
-	var nRunesInserted int
-	moment, nRunesInserted = apply(moment, change)
-
-	view.switchMoment(scope, moment)
-
-	col := moment.GetLine(r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
-	moveCursor(Move{AbsLine: intP(r.Begin.Line), AbsCol: &col})
-	moveCursor(Move{RelRune: nRunesInserted})
-
-	newMoment = moment
-	return
 }
 
 func DeletePrevRune(

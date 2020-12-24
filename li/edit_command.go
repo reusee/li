@@ -208,6 +208,7 @@ func (_ Command) ChangeLine() (spec CommandSpec) {
 		v CurrentView,
 		insert InsertAtPositionFunc,
 		enable EnableEditMode,
+		replace ReplaceWithinRange,
 	) {
 		view := v()
 		if view == nil {
@@ -218,9 +219,7 @@ func (_ Command) ChangeLine() (spec CommandSpec) {
 		scope.Call(PosLineBegin, &begin)
 		scope.Call(PosLineEnd, &end)
 		str := ""
-		scope.Sub(
-			&Range{begin, end}, &str,
-		).Call(ReplaceWithinRange)
+		replace(Range{begin, end}, str)
 		fn := PositionFunc(PosCursor)
 		insert(indent, fn)
 		enable()
