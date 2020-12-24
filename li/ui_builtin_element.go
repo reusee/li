@@ -3,6 +3,7 @@ package li
 import (
 	"fmt"
 	"math"
+	"sync"
 )
 
 // Rect
@@ -330,6 +331,7 @@ type FrameBufferCell struct {
 }
 
 type FrameBuffer struct {
+	sync.RWMutex
 	Cells  []*FrameBufferCell
 	Left   int
 	Top    int
@@ -358,7 +360,9 @@ func (f *FrameBuffer) RenderFunc() any {
 		targetHeight := box.Height()
 		for y := 0; y < f.Height; y++ {
 			for x := 0; x < f.Width; x++ {
+				f.RLock()
 				cell := f.Cells[y*f.Width+x]
+				f.RUnlock()
 				if cell == nil {
 					continue
 				}
@@ -375,6 +379,8 @@ func (f *FrameBuffer) SetContent(x int, y int, mainc rune, combc []rune, style S
 	x -= f.Left
 	y -= f.Top
 	i := y*f.Width + x
+	f.Lock()
+	defer f.Unlock()
 	if i >= len(f.Cells) {
 		return
 		//panic("bad pos")
