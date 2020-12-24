@@ -221,35 +221,43 @@ func (_ Provide) InsertAtPositionFunc(
 	}
 }
 
-func DeleteWithinRange(
+type DeleteWithinRange func(
 	r Range,
+)
+
+func (_ Provide) DeleteWithinRange(
 	v CurrentView,
 	m CurrentMoment,
 	scope Scope,
 	moveCursor MoveCursor,
 	apply ApplyChange,
-) {
-	view := v()
-	if view == nil {
-		return
+) DeleteWithinRange {
+	return func(
+		r Range,
+	) {
+		view := v()
+		if view == nil {
+			return
+		}
+		change := Change{
+			Op:    OpDelete,
+			Begin: r.Begin,
+			End:   r.End,
+		}
+		var newMoment *Moment
+		moment := m()
+		newMoment, _ = apply(moment, change)
+		view.switchMoment(scope, newMoment)
+		col := newMoment.GetLine(r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
+		moveCursor(Move{AbsLine: intP(r.Begin.Line), AbsCol: &col})
 	}
-	change := Change{
-		Op:    OpDelete,
-		Begin: r.Begin,
-		End:   r.End,
-	}
-	var newMoment *Moment
-	moment := m()
-	newMoment, _ = apply(moment, change)
-	view.switchMoment(scope, newMoment)
-	col := newMoment.GetLine(r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
-	moveCursor(Move{AbsLine: intP(r.Begin.Line), AbsCol: &col})
 }
 
 func DeleteWithinPositionFuncs(
 	fns [2]PositionFunc,
 	scope Scope,
 	cur CurrentView,
+	deleteRange DeleteWithinRange,
 ) {
 	view := cur()
 	if view == nil {
@@ -259,12 +267,10 @@ func DeleteWithinPositionFuncs(
 	scope.Call(fns[0], &begin)
 	var end Position
 	scope.Call(fns[1], &end)
-	scope.Sub(
-		&Range{
-			Begin: begin,
-			End:   end,
-		},
-	).Call(DeleteWithinRange)
+	deleteRange(Range{
+		Begin: begin,
+		End:   end,
+	})
 }
 
 func ReplaceWithinRange(
@@ -339,6 +345,7 @@ func _Delete(
 	cur CurrentView,
 	scope Scope,
 	afterFunc AfterFunc,
+	deleteRagne DeleteWithinRange,
 ) {
 	view := cur()
 	if view == nil {
@@ -347,7 +354,7 @@ func _Delete(
 
 	// delete selected
 	if r := view.selectedRange(); r != nil {
-		scope.Sub(r).Call(DeleteWithinRange)
+		deleteRagne(*r)
 		view.SelectionAnchor = nil
 	}
 
