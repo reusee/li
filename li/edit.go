@@ -253,24 +253,33 @@ func (_ Provide) DeleteWithinRange(
 	}
 }
 
-func DeleteWithinPositionFuncs(
-	fns [2]PositionFunc,
+type DeleteWithinPositionFuncs func(
+	begin PositionFunc,
+	end PositionFunc,
+)
+
+func (_ Provide) DeleteWithinPositionFuncs(
 	scope Scope,
 	cur CurrentView,
 	deleteRange DeleteWithinRange,
-) {
-	view := cur()
-	if view == nil {
-		return
+) DeleteWithinPositionFuncs {
+	return func(
+		beginFn PositionFunc,
+		endFn PositionFunc,
+	) {
+		view := cur()
+		if view == nil {
+			return
+		}
+		var begin Position
+		scope.Call(beginFn, &begin)
+		var end Position
+		scope.Call(endFn, &end)
+		deleteRange(Range{
+			Begin: begin,
+			End:   end,
+		})
 	}
-	var begin Position
-	scope.Call(fns[0], &begin)
-	var end Position
-	scope.Call(fns[1], &end)
-	deleteRange(Range{
-		Begin: begin,
-		End:   end,
-	})
 }
 
 func ReplaceWithinRange(
@@ -320,25 +329,21 @@ func ReplaceWithinRange(
 }
 
 func DeletePrevRune(
-	scope Scope,
+	del DeleteWithinPositionFuncs,
 ) {
-	scope.Sub(
-		&[2]PositionFunc{
-			PosPrevRune,
-			PosCursor,
-		},
-	).Call(DeleteWithinPositionFuncs)
+	del(
+		PosPrevRune,
+		PosCursor,
+	)
 }
 
 func DeleteRune(
-	scope Scope,
+	del DeleteWithinPositionFuncs,
 ) {
-	scope.Sub(
-		&[2]PositionFunc{
-			PosCursor,
-			PosNextRune,
-		},
-	).Call(DeleteWithinPositionFuncs)
+	del(
+		PosCursor,
+		PosNextRune,
+	)
 }
 
 func _Delete(
@@ -406,26 +411,24 @@ func ChangeText(
 }
 
 func ChangeToWordEnd(
-	scope Scope,
 	cur CurrentView,
 	enable EnableEditMode,
+	del DeleteWithinPositionFuncs,
 ) {
 	if cur() == nil {
 		return
 	}
-	scope.Sub(
-		&[2]PositionFunc{
-			PosCursor,
-			PosWordEnd,
-		},
-	).Call(DeleteWithinPositionFuncs)
+	del(
+		PosCursor,
+		PosWordEnd,
+	)
 	enable()
 }
 
 func DeleteLine(
 	v CurrentView,
 	m CurrentMoment,
-	scope Scope,
+	del DeleteWithinPositionFuncs,
 	lineBegin LineBegin,
 ) {
 	view := v()
@@ -433,19 +436,15 @@ func DeleteLine(
 		return
 	}
 	if view.CursorLine == m().NumLines()-1 {
-		scope.Sub(
-			&[2]PositionFunc{
-				PosPrevLineEnd,
-				PosLineEnd,
-			},
-		).Call(DeleteWithinPositionFuncs)
+		del(
+			PosPrevLineEnd,
+			PosLineEnd,
+		)
 		lineBegin()
 	} else {
-		scope.Sub(
-			&[2]PositionFunc{
-				PosLineBegin,
-				PosNextLineBegin,
-			},
-		).Call(DeleteWithinPositionFuncs)
+		del(
+			PosLineBegin,
+			PosNextLineBegin,
+		)
 	}
 }
