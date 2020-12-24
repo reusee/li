@@ -224,164 +224,188 @@ type evCursorMoved struct{}
 
 var EvCursorMoved = new(evCursorMoved)
 
-func PageDown(
+type PageDown func()
+
+func (_ Provide) PageDown(
 	cur CurrentView,
 	scope Scope,
 	config ScrollConfig,
 	moveCursor MoveCursor,
-) {
-	view := cur()
-	if view == nil {
-		return
-	}
-	moment := view.GetMoment()
+) PageDown {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		moment := view.GetMoment()
 
-	scrollHeight := view.Box.Height() - config.PaddingBottom
-	line := view.ViewportLine
-	var lineHeights map[int]int
-	scope.Sub(&moment, &[2]int{line, line + scrollHeight}).
-		Call(CalculateLineHeights, &lineHeights)
-	scrollLines := 0
-	for {
-		if h, ok := lineHeights[line]; ok {
-			scrollHeight -= h
-		} else {
-			scrollHeight--
+		scrollHeight := view.Box.Height() - config.PaddingBottom
+		line := view.ViewportLine
+		var lineHeights map[int]int
+		scope.Sub(&moment, &[2]int{line, line + scrollHeight}).
+			Call(CalculateLineHeights, &lineHeights)
+		scrollLines := 0
+		for {
+			if h, ok := lineHeights[line]; ok {
+				scrollHeight -= h
+			} else {
+				scrollHeight--
+			}
+			if scrollHeight < 0 {
+				break
+			}
+			if line > moment.NumLines()-1 {
+				break
+			}
+			line++
+			scrollLines++
 		}
-		if scrollHeight < 0 {
-			break
-		}
-		if line > moment.NumLines()-1 {
-			break
-		}
-		line++
-		scrollLines++
-	}
 
-	if view.ViewportLine != line {
-		view.ViewportLine = line
+		if view.ViewportLine != line {
+			view.ViewportLine = line
+		}
+		moveCursor(Move{RelLine: scrollLines})
 	}
-	moveCursor(Move{RelLine: scrollLines})
 }
 
-func PageUp(
+type PageUp func()
+
+func (_ Provide) PageUp(
 	cur CurrentView,
 	scope Scope,
 	config ScrollConfig,
 	moveCursor MoveCursor,
-) {
-	view := cur()
-	if view == nil {
-		return
-	}
-	moment := view.GetMoment()
+) PageUp {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		moment := view.GetMoment()
 
-	scrollHeight := view.Box.Height() - config.PaddingTop
-	line := view.ViewportLine
-	var lineHeights map[int]int
-	scope.Sub(&moment, &[2]int{line - scrollHeight - 1, line}).
-		Call(CalculateLineHeights, &lineHeights)
-	for {
-		l := line - 1
-		if l < 0 {
-			break
+		scrollHeight := view.Box.Height() - config.PaddingTop
+		line := view.ViewportLine
+		var lineHeights map[int]int
+		scope.Sub(&moment, &[2]int{line - scrollHeight - 1, line}).
+			Call(CalculateLineHeights, &lineHeights)
+		for {
+			l := line - 1
+			if l < 0 {
+				break
+			}
+			if h, ok := lineHeights[l]; ok {
+				scrollHeight -= h
+			} else {
+				scrollHeight--
+			}
+			if scrollHeight < 0 {
+				break
+			}
+			line--
 		}
-		if h, ok := lineHeights[l]; ok {
-			scrollHeight -= h
-		} else {
-			scrollHeight--
+		lines := view.ViewportLine - line
+		if line == 0 && scrollHeight > 0 {
+			// viewport not moving, set cursor line to 0
+			lines = view.CursorLine
 		}
-		if scrollHeight < 0 {
-			break
-		}
-		line--
-	}
-	lines := view.ViewportLine - line
-	if line == 0 && scrollHeight > 0 {
-		// viewport not moving, set cursor line to 0
-		lines = view.CursorLine
-	}
 
-	if view.ViewportLine != line {
-		view.ViewportLine = line
+		if view.ViewportLine != line {
+			view.ViewportLine = line
+		}
+		moveCursor(Move{RelLine: -lines})
 	}
-	moveCursor(Move{RelLine: -lines})
 }
 
-func NextEmptyLine(
+type NextEmptyLine func()
+
+func (_ Provide) NextEmptyLine(
 	cur CurrentView,
 	scope Scope,
 	moveCursor MoveCursor,
-) {
-	view := cur()
-	if view == nil {
-		return
-	}
-	n := view.CursorLine + 1
-	moment := view.GetMoment()
-	maxLine := moment.NumLines()
-	for n < maxLine {
-		line := moment.GetLine(n)
-		if line.AllSpace {
-			break
+) NextEmptyLine {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
 		}
-		n++
-	}
-	moveCursor(Move{AbsLine: &n, AbsCol: intP(0)})
-	scope.Call(ScrollToCursor)
-}
-
-func PrevEmptyLine(
-	cur CurrentView,
-	scope Scope,
-	moveCursor MoveCursor,
-) {
-	view := cur()
-	if view == nil {
-		return
-	}
-	n := view.CursorLine - 1
-	for n > 0 {
-		line := view.GetMoment().GetLine(n)
-		if line.AllSpace {
-			break
+		n := view.CursorLine + 1
+		moment := view.GetMoment()
+		maxLine := moment.NumLines()
+		for n < maxLine {
+			line := moment.GetLine(n)
+			if line.AllSpace {
+				break
+			}
+			n++
 		}
-		n--
+		moveCursor(Move{AbsLine: &n, AbsCol: intP(0)})
+		scope.Call(ScrollToCursor)
 	}
-	moveCursor(Move{AbsLine: &n, AbsCol: intP(0)})
-	scope.Call(ScrollToCursor)
 }
 
-func LineBegin(
+type PrevEmptyLine func()
+
+func (_ Provide) PrevEmptyLine(
 	cur CurrentView,
 	scope Scope,
 	moveCursor MoveCursor,
-) {
-	view := cur()
-	if view == nil {
-		return
+) PrevEmptyLine {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		n := view.CursorLine - 1
+		for n > 0 {
+			line := view.GetMoment().GetLine(n)
+			if line.AllSpace {
+				break
+			}
+			n--
+		}
+		moveCursor(Move{AbsLine: &n, AbsCol: intP(0)})
+		scope.Call(ScrollToCursor)
 	}
-	zero := 0
-	moveCursor(Move{
-		AbsCol: &zero,
-	})
-	scope.Call(ScrollToCursor)
 }
 
-func LineEnd(
+type LineBegin func()
+
+func (_ Provide) LineBegin(
 	cur CurrentView,
 	scope Scope,
 	moveCursor MoveCursor,
-) {
-	view := cur()
-	if view == nil {
-		return
+) LineBegin {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		zero := 0
+		moveCursor(Move{
+			AbsCol: &zero,
+		})
+		scope.Call(ScrollToCursor)
 	}
-	largeCol := math.MaxInt32
-	moveCursor(Move{
-		AbsCol: &largeCol,
-	})
-	scope.Call(ScrollToCursor)
+}
+
+type LineEnd func()
+
+func (_ Provide) LineEnd(
+	cur CurrentView,
+	scope Scope,
+	moveCursor MoveCursor,
+) LineEnd {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
+		}
+		largeCol := math.MaxInt32
+		moveCursor(Move{
+			AbsCol: &largeCol,
+		})
+		scope.Call(ScrollToCursor)
+	}
 }
 
 func NextRune() []StrokeSpec {
@@ -404,7 +428,6 @@ func NextRune() []StrokeSpec {
 				toFind := ev.Rune()
 				fn = func(
 					getCur CurrentView,
-					scope Scope,
 					moveCursor MoveCursor,
 				) {
 					cur := getCur()
@@ -471,7 +494,6 @@ func PrevRune() []StrokeSpec {
 				toFind := ev.Rune()
 				fn = func(
 					getCur CurrentView,
-					scope Scope,
 					moveCursor MoveCursor,
 				) {
 					cur := getCur()
@@ -528,7 +550,6 @@ func NextLineWithRune() []StrokeSpec {
 				toFind := ev.Rune()
 				fn = func(
 					cur CurrentView,
-					scope Scope,
 					moveCursor MoveCursor,
 				) {
 
@@ -579,7 +600,6 @@ func PrevLineWithRune() []StrokeSpec {
 				toFind := ev.Rune()
 				fn = func(
 					cur CurrentView,
-					scope Scope,
 					moveCursor MoveCursor,
 				) {
 
@@ -610,78 +630,86 @@ func PrevLineWithRune() []StrokeSpec {
 	}
 }
 
-func PrevDedentLine(
+type PrevDedentLine func()
+
+func (_ Provide) PrevDedentLine(
 	cur CurrentView,
 	scope Scope,
 	moveCursor MoveCursor,
-) {
-	view := cur()
-	if view == nil {
-		return
-	}
-	n := view.CursorLine - 1
-	moment := view.GetMoment()
-	for n > 0 {
-		line := moment.GetLine(n)
-		nextLine := moment.GetLine(n + 1)
-		if line.NonSpaceDisplayOffset == nil &&
-			nextLine != nil ||
-			line.NonSpaceDisplayOffset != nil &&
-				nextLine.NonSpaceDisplayOffset != nil &&
-				*line.NonSpaceDisplayOffset < *nextLine.NonSpaceDisplayOffset {
-			break
+) PrevDedentLine {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
 		}
-		n--
+		n := view.CursorLine - 1
+		moment := view.GetMoment()
+		for n > 0 {
+			line := moment.GetLine(n)
+			nextLine := moment.GetLine(n + 1)
+			if line.NonSpaceDisplayOffset == nil &&
+				nextLine != nil ||
+				line.NonSpaceDisplayOffset != nil &&
+					nextLine.NonSpaceDisplayOffset != nil &&
+					*line.NonSpaceDisplayOffset < *nextLine.NonSpaceDisplayOffset {
+				break
+			}
+			n--
+		}
+		if n < 0 {
+			n = 0
+		}
+		col := 0
+		if offset := moment.GetLine(n).NonSpaceDisplayOffset; offset != nil {
+			col = *offset
+		}
+		moveCursor(Move{
+			AbsLine: &n,
+			AbsCol:  intP(col),
+		})
+		scope.Call(ScrollToCursor)
 	}
-	if n < 0 {
-		n = 0
-	}
-	col := 0
-	if offset := moment.GetLine(n).NonSpaceDisplayOffset; offset != nil {
-		col = *offset
-	}
-	moveCursor(Move{
-		AbsLine: &n,
-		AbsCol:  intP(col),
-	})
-	scope.Call(ScrollToCursor)
 }
 
-func NextDedentLine(
+type NextDedentLine func()
+
+func (_ Provide) NextDedentLine(
 	cur CurrentView,
 	scope Scope,
 	moveCursor MoveCursor,
-) {
-	view := cur()
-	if view == nil {
-		return
-	}
-	n := view.CursorLine + 1
-	moment := view.GetMoment()
-	for n < moment.NumLines() {
-		line := moment.GetLine(n)
-		nextLine := moment.GetLine(n + 1)
-		if nextLine == nil {
-			break
+) NextDedentLine {
+	return func() {
+		view := cur()
+		if view == nil {
+			return
 		}
-		if line.NonSpaceDisplayOffset == nil &&
-			line.NonSpaceDisplayOffset != nil &&
-			nextLine.NonSpaceDisplayOffset != nil &&
-			*line.NonSpaceDisplayOffset < *nextLine.NonSpaceDisplayOffset {
-			break
+		n := view.CursorLine + 1
+		moment := view.GetMoment()
+		for n < moment.NumLines() {
+			line := moment.GetLine(n)
+			nextLine := moment.GetLine(n + 1)
+			if nextLine == nil {
+				break
+			}
+			if line.NonSpaceDisplayOffset == nil &&
+				line.NonSpaceDisplayOffset != nil &&
+				nextLine.NonSpaceDisplayOffset != nil &&
+				*line.NonSpaceDisplayOffset < *nextLine.NonSpaceDisplayOffset {
+				break
+			}
+			n++
 		}
-		n++
+		if n >= moment.NumLines() {
+			n = moment.NumLines() - 1
+		}
+		col := 0
+		if offset := moment.GetLine(n).NonSpaceDisplayOffset; offset != nil {
+			col = *offset
+		}
+		moveCursor(Move{
+			AbsLine: &n,
+			AbsCol:  intP(col),
+		})
+		scope.Call(ScrollToCursor)
 	}
-	if n >= moment.NumLines() {
-		n = moment.NumLines() - 1
-	}
-	col := 0
-	if offset := moment.GetLine(n).NonSpaceDisplayOffset; offset != nil {
-		col = *offset
-	}
-	moveCursor(Move{
-		AbsLine: &n,
-		AbsCol:  intP(col),
-	})
-	scope.Call(ScrollToCursor)
 }

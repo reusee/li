@@ -29,43 +29,43 @@ func (_ Command) MoveRight() (spec CommandSpec) {
 }
 
 func (_ Command) PageDown() (spec CommandSpec) {
-	spec.Func = func(scope Scope) {
-		scope.Call(PageDown)
+	spec.Func = func(pageDown PageDown) {
+		pageDown()
 	}
 	return
 }
 
 func (_ Command) PageUp() (spec CommandSpec) {
-	spec.Func = func(scope Scope) {
-		scope.Call(PageUp)
+	spec.Func = func(pageUp PageUp) {
+		pageUp()
 	}
 	return
 }
 
 func (_ Command) NextEmptyLine() (spec CommandSpec) {
-	spec.Func = func(scope Scope) {
-		scope.Call(NextEmptyLine)
+	spec.Func = func(next NextEmptyLine) {
+		next()
 	}
 	return
 }
 
 func (_ Command) PrevEmptyLine() (spec CommandSpec) {
-	spec.Func = func(scope Scope) {
-		scope.Call(PrevEmptyLine)
+	spec.Func = func(prev PrevEmptyLine) {
+		prev()
 	}
 	return
 }
 
 func (_ Command) LineBegin() (spec CommandSpec) {
-	spec.Func = func(scope Scope) {
-		scope.Call(LineBegin)
+	spec.Func = func(b LineBegin) {
+		b()
 	}
 	return
 }
 
 func (_ Command) LineEnd() (spec CommandSpec) {
-	spec.Func = func(scope Scope) {
-		scope.Call(LineEnd)
+	spec.Func = func(end LineEnd) {
+		end()
 	}
 	return
 }
@@ -96,12 +96,16 @@ func (_ Command) PrevLineWithRune() (spec CommandSpec) {
 
 func (_ Command) PrevDedentLine() (spec CommandSpec) {
 	spec.Desc = "jump to previous dedent line"
-	spec.Func = PrevDedentLine
+	spec.Func = func(prev PrevDedentLine) {
+		prev()
+	}
 	return
 }
 
 func (_ Command) NextDedentLine() (spec CommandSpec) {
 	spec.Desc = "jump to next dedent line"
-	spec.Func = NextDedentLine
+	spec.Func = func(next NextDedentLine) {
+		next()
+	}
 	return
 }

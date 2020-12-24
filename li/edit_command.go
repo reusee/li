@@ -72,6 +72,7 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 	spec.Func = func(
 		scope Scope,
 		cur CurrentView,
+		lineEnd LineEnd,
 	) {
 		view := cur()
 		if view == nil {
@@ -83,7 +84,7 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 		scope.Sub(
 			&fn, &str, &view,
 		).Call(InsertAtPositionFunc)
-		scope.Call(LineEnd)
+		lineEnd()
 		scope.Call(EnableEditMode)
 	}
 	return
@@ -95,6 +96,7 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		scope Scope,
 		cur CurrentView,
 		moveCursor MoveCursor,
+		lineEnd LineEnd,
 	) {
 		view := cur()
 		if view == nil {
@@ -107,7 +109,7 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 			&fn, &str, &view,
 		).Call(InsertAtPositionFunc)
 		moveCursor(Move{RelLine: -1})
-		scope.Call(LineEnd)
+		lineEnd()
 		scope.Call(EnableEditMode)
 	}
 	return
@@ -198,8 +200,8 @@ func (_ Command) DeleteLine() (spec CommandSpec) {
 
 func (_ Command) AppendAtLineEnd() (spec CommandSpec) {
 	spec.Desc = "append at line end"
-	spec.Func = func(scope Scope) {
-		scope.Call(LineEnd)
+	spec.Func = func(scope Scope, lineEnd LineEnd) {
+		lineEnd()
 		scope.Call(EnableEditMode)
 	}
 	return

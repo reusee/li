@@ -403,6 +403,7 @@ func DeleteLine(
 	v CurrentView,
 	m CurrentMoment,
 	scope Scope,
+	lineBegin LineBegin,
 ) {
 	view := v()
 	if view == nil {
@@ -415,7 +416,7 @@ func DeleteLine(
 				PosLineEnd,
 			},
 		).Call(DeleteWithinPositionFuncs)
-		scope.Call(LineBegin)
+		lineBegin()
 	} else {
 		scope.Sub(
 			&[2]PositionFunc{

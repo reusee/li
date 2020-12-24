@@ -306,14 +306,15 @@ func TestDeleteSelection(t *testing.T) {
 	withEditorBytes(t, []byte("foo"), func(
 		scope Scope,
 		toggle ToggleSelection,
+		lineEnd LineEnd,
 	) {
 		toggle()
-		scope.Call(LineEnd)
+		lineEnd()
 		scope.Call(Delete)
 
 		// select and delete empty line
 		toggle()
-		scope.Call(LineEnd)
+		lineEnd()
 		scope.Call(Delete)
 	})
 }
