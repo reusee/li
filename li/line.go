@@ -10,11 +10,11 @@ import (
 
 type Line struct {
 	Cells                 []Cell
-	Runes                 []rune
 	DisplayWidth          int
 	AllSpace              bool
 	NonSpaceDisplayOffset *int
 
+	runes    []rune
 	content  string
 	initOnce *sync.Once
 	config   *BufferConfig
@@ -31,6 +31,11 @@ type Cell struct {
 	UTF16Offset   int // byte offset in utf16 encoding in line
 }
 
+func (l *Line) Runes() []rune {
+	l.init()
+	return l.runes
+}
+
 func (l *Line) init() {
 	l.initOnce.Do(func() {
 		var cells []Cell
@@ -38,9 +43,9 @@ func (l *Line) init() {
 		displayOffset := 0
 		utf16ByteOffset := 0
 		byteOffset := 0
-		l.Runes = []rune(l.content)
+		l.runes = []rune(l.content)
 		var nonSpaceOffset *int
-		for i, r := range l.Runes {
+		for i, r := range l.runes {
 			width := runeDisplayWidth(r)
 			var displayWidth int
 			if r == '\t' && l.config.ExpandTabs {

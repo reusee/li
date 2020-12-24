@@ -20,9 +20,7 @@ func (_ NoopStainer) Line() dyn {
 		line *Line,
 		lineNumber LineNumber,
 	) (ret []*StyleFunc) {
-		for i := 0; i < len(line.Runes); i++ {
-			ret = append(ret, nil)
-		}
+		ret = make([]*StyleFunc, len(line.Runes()))
 		return
 	}
 }
@@ -36,7 +34,8 @@ func (_ RandomStainer) Line() dyn {
 		line *Line,
 	) []*StyleFunc {
 		var ret []*StyleFunc
-		for i := 0; i < len(line.Runes); i++ {
+		runes := line.Runes()
+		for i := 0; i < len(runes); i++ {
 			fn := SetFG(tcell.NewRGBColor(
 				int32(rand.Intn(256)),
 				int32(rand.Intn(256)),

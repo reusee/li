@@ -58,10 +58,11 @@ func (_ Provide) CollectWords(
 							beginIndex := 0
 							var lastCategory RuneCategory
 
-							for i, r := range line.Runes {
+							runes := line.Runes()
+							for i, r := range runes {
 								category := runeCategory(r)
 								if i > 0 && category != lastCategory {
-									word := strings.TrimSpace(string(line.Runes[beginIndex:i]))
+									word := strings.TrimSpace(string(runes[beginIndex:i]))
 									beginIndex = i
 									if word != "" && lastCategory == RuneCategoryIdentifier {
 										if _, ok := wordSet[word]; !ok {
@@ -75,8 +76,8 @@ func (_ Provide) CollectWords(
 								lastCategory = category
 							}
 
-							if beginIndex < len(line.Runes) {
-								word := strings.TrimSpace(string(line.Runes[beginIndex:]))
+							if beginIndex < len(runes) {
+								word := strings.TrimSpace(string(runes[beginIndex:]))
 								if word != "" {
 									if _, ok := wordSet[word]; !ok {
 										wordSet[word] = Word{
@@ -181,7 +182,8 @@ func (_ Provide) CollectWords(
 			// no pattern
 			return
 		}
-		patternRunes := line.Runes[cell:endCell]
+		runes := line.Runes()
+		patternRunes := runes[cell:endCell]
 		pattern := string(patternRunes)
 		for i, r := range patternRunes {
 			patternRunes[i] = unicode.ToLower(r)
