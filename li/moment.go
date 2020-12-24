@@ -206,7 +206,7 @@ func NewMomentFromFile(
 
 	// read
 	contentBytes, err := ioutil.ReadFile(path)
-	ce(err, "read %s", path)
+	ce(err, fe("read %s", path))
 
 	scope.Sub(
 		&contentBytes,

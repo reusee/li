@@ -1,23 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/gdamore/tcell"
-	"github.com/reusee/e/v2"
 	"github.com/reusee/li/li"
 )
 
 type (
 	Scope = li.Scope
 	any   = interface{}
-)
-
-var (
-	me     = e.Default.WithStack().WithName("li-editor")
-	ce, he = e.New(me)
-	pt     = fmt.Printf
 )
 
 func main() {

@@ -34,7 +34,7 @@ func (_ Provide) Config() (
 
 	userConfig, err := ioutil.ReadFile(filepath.Join(configDir, "config.toml"))
 	if err != nil && !os.IsNotExist(err) {
-		ce(err, "open config.toml")
+		ce(err, fe("open config.toml"))
 	}
 
 	defaultConfig := []byte(DefaultConfig)

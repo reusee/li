@@ -32,7 +32,7 @@ func (e _ElementFrom) RenderFunc() any {
 				}
 
 			default:
-				panic(me(nil, "unknown spec %#v\n", v))
+				panic(we(fe("unknown spec %#v\n", v)))
 			}
 		})
 

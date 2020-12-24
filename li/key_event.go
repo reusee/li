@@ -97,7 +97,7 @@ func strokeSpecsFromSequenceCommand(m map[string]string) []StrokeSpec {
 	var specs []StrokeSpec
 	for seq, name := range m {
 		if _, ok := NamedCommands[name]; !ok {
-			panic(me(nil, "no such command: %s", name))
+			panic(we(fe("no such command: %s", name)))
 		}
 		sequence := strings.Split(seq, " ")
 		var nice []string

@@ -89,7 +89,7 @@ func (r _Rect) RenderFunc() any {
 					marginBottom = v[2]
 					marginLeft = v[3]
 				} else {
-					panic(me(nil, "bad margin: %q\n", v))
+					panic(we(fe("bad margin: %q\n", v)))
 				}
 
 			case _Padding:
@@ -114,11 +114,11 @@ func (r _Rect) RenderFunc() any {
 					paddingBottom = v[2]
 					paddingLeft = v[3]
 				} else {
-					panic(me(nil, "bad padding: %q\n", v))
+					panic(we(fe("bad padding: %q\n", v)))
 				}
 
 			default:
-				panic(me(nil, "unknown spec %#v\n", v))
+				panic(we(fe("unknown spec %#v\n", v)))
 			}
 		})
 
@@ -261,14 +261,14 @@ func (t _Text) RenderFunc() any {
 					paddingBottom = v[2]
 					paddingLeft = v[3]
 				} else {
-					panic(me(nil, "bad padding: %q\n", v))
+					panic(we(fe("bad padding: %q\n", v)))
 				}
 
 			case OffsetStyleFunc:
 				offsetStyleFunc = v
 
 			default:
-				panic(me(nil, "unknown spec %#v\n", v))
+				panic(we(fe("unknown spec %#v\n", v)))
 			}
 		})
 

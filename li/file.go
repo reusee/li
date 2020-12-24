@@ -76,8 +76,7 @@ func SyncBufferMomentToFile(
 		}
 	}
 	if !ok {
-		err = me(nil, "buffer moment is not loaded from current disk file")
-		return
+		return we(fe("buffer moment is not loaded from current disk file"))
 	}
 
 	// save
