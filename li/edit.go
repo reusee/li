@@ -377,8 +377,8 @@ func ChangeText(
 
 	if view := cur(); view != nil && view.selectedRange() != nil {
 		// if selected
-		after := AfterFunc(func(scope Scope) {
-			scope.Call(EnableEditMode)
+		after := AfterFunc(func(enable EnableEditMode) {
+			enable()
 		})
 		scope.Sub(
 			&after,
@@ -394,6 +394,7 @@ func ChangeText(
 func ChangeToWordEnd(
 	scope Scope,
 	cur CurrentView,
+	enable EnableEditMode,
 ) {
 	if cur() == nil {
 		return
@@ -404,7 +405,7 @@ func ChangeToWordEnd(
 			PosWordEnd,
 		},
 	).Call(DeleteWithinPositionFuncs)
-	scope.Call(EnableEditMode)
+	enable()
 }
 
 func DeleteLine(

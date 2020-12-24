@@ -273,10 +273,10 @@ func TestGetScreenString(t *testing.T) {
 	withHelloEditor(t, func(
 		view *View,
 		get GetScreenString,
-		scope Scope,
+		enable EnableEditMode,
 		emitRune EmitRune,
 	) {
-		scope.Call(EnableEditMode)
+		enable()
 		emitRune('H')
 		lines := get(view.ContentBox)
 		eq(t,

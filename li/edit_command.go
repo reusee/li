@@ -32,9 +32,9 @@ func (_ Command) InsertTab() (spec CommandSpec) {
 
 func (_ Command) Append() (spec CommandSpec) {
 	spec.Desc = "start append at current cursor"
-	spec.Func = func(scope Scope, move MoveCursor) {
+	spec.Func = func(enable EnableEditMode, move MoveCursor) {
 		move(Move{RelRune: 1})
-		scope.Call(EnableEditMode)
+		enable()
 	}
 	return
 }
@@ -66,10 +66,10 @@ func (_ Command) Change() (spec CommandSpec) {
 func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 	spec.Desc = "insert new line below the current line and enable edit mode"
 	spec.Func = func(
-		scope Scope,
 		cur CurrentView,
 		lineEnd LineEnd,
 		insert InsertAtPositionFunc,
+		enable EnableEditMode,
 	) {
 		view := cur()
 		if view == nil {
@@ -80,7 +80,7 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 		str := "\n" + indent
 		insert(str, fn)
 		lineEnd()
-		scope.Call(EnableEditMode)
+		enable()
 	}
 	return
 }
@@ -88,7 +88,7 @@ func (_ Command) EditNewLineBelow() (spec CommandSpec) {
 func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 	spec.Desc = "insert new line above the current line and enable edit mode"
 	spec.Func = func(
-		scope Scope,
+		enable EnableEditMode,
 		cur CurrentView,
 		moveCursor MoveCursor,
 		lineEnd LineEnd,
@@ -104,7 +104,7 @@ func (_ Command) EditNewLineAbove() (spec CommandSpec) {
 		insert(str, fn)
 		moveCursor(Move{RelLine: -1})
 		lineEnd()
-		scope.Call(EnableEditMode)
+		enable()
 	}
 	return
 }
@@ -194,9 +194,9 @@ func (_ Command) DeleteLine() (spec CommandSpec) {
 
 func (_ Command) AppendAtLineEnd() (spec CommandSpec) {
 	spec.Desc = "append at line end"
-	spec.Func = func(scope Scope, lineEnd LineEnd) {
+	spec.Func = func(enable EnableEditMode, lineEnd LineEnd) {
 		lineEnd()
-		scope.Call(EnableEditMode)
+		enable()
 	}
 	return
 }
@@ -207,6 +207,7 @@ func (_ Command) ChangeLine() (spec CommandSpec) {
 		scope Scope,
 		v CurrentView,
 		insert InsertAtPositionFunc,
+		enable EnableEditMode,
 	) {
 		view := v()
 		if view == nil {
@@ -222,7 +223,7 @@ func (_ Command) ChangeLine() (spec CommandSpec) {
 		).Call(ReplaceWithinRange)
 		fn := PositionFunc(PosCursor)
 		insert(indent, fn)
-		scope.Call(EnableEditMode)
+		enable()
 	}
 	return
 }

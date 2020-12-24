@@ -8,14 +8,14 @@ import (
 
 func TestCompletionList(t *testing.T) {
 	withHelloEditor(t, func(
-		scope Scope,
+		enable EnableEditMode,
 		emitRune EmitRune,
 		view *View,
 		getScreenString GetScreenString,
 		ctrl func(string),
 		config CompletionConfig,
 	) {
-		scope.Call(EnableEditMode)
+		enable()
 		emitRune('w')
 		time.Sleep(time.Millisecond * time.Duration(config.DelayMilliseconds))
 		ctrl("loop")

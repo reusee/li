@@ -14,18 +14,18 @@ type (
 
 func HandleScreenEvent(
 	ev ScreenEvent,
-	scope Scope,
 	derive Derive,
-	handle HandleMouseEvent,
+	handleMouse HandleMouseEvent,
+	handleKey HandleKeyEvent,
 ) {
 
 	switch ev := ev.(type) {
 
 	case *tcell.EventKey:
-		scope.Sub(&ev).Call(HandleKeyEvent)
+		handleKey(ev)
 
 	case *tcell.EventMouse:
-		handle(ev)
+		handleMouse(ev)
 
 	case *tcell.EventResize:
 		width, height := ev.Size()

@@ -13,49 +13,53 @@ type EditMode struct {
 
 type editModeMatchState dyn
 
-func EnableEditMode(
+type EnableEditMode func()
+
+func (_ Provide) EnableEditMode(
 	cur CurrentModes,
 	screen Screen,
-) {
-
-	modes := cur()
-	enabled := false
-	for _, mode := range modes {
-		if _, ok := mode.(*EditMode); ok {
-			enabled = true
-			break
+) EnableEditMode {
+	return func() {
+		modes := cur()
+		enabled := false
+		for _, mode := range modes {
+			if _, ok := mode.(*EditMode); ok {
+				enabled = true
+				break
+			}
 		}
+		if enabled {
+			return
+		}
+
+		newModes := make([]Mode, len(modes)+1)
+		copy(newModes[1:], modes)
+		newModes[0] = new(EditMode)
+		cur(newModes)
+
+		screen.SetCursorShape(CursorBeam)
 	}
-	if enabled {
-		return
-	}
-
-	newModes := make([]Mode, len(modes)+1)
-	copy(newModes[1:], modes)
-	newModes[0] = new(EditMode)
-	cur(newModes)
-
-	screen.SetCursorShape(CursorBeam)
-
 }
 
-func DisableEditMode(
+type DisableEditMode func()
+
+func (_ Provide) DisableEditMode(
 	cur CurrentModes,
 	screen Screen,
-) {
-
-	modes := cur()
-	filtered := make([]Mode, 0, len(modes))
-	for _, mode := range modes {
-		if _, ok := mode.(*EditMode); ok {
-			continue
+) DisableEditMode {
+	return func() {
+		modes := cur()
+		filtered := make([]Mode, 0, len(modes))
+		for _, mode := range modes {
+			if _, ok := mode.(*EditMode); ok {
+				continue
+			}
+			filtered = append(filtered, mode)
 		}
-		filtered = append(filtered, mode)
+		cur(filtered)
+
+		screen.SetCursorShape(CursorBlock)
 	}
-	cur(filtered)
-
-	screen.SetCursorShape(CursorBlock)
-
 }
 
 type EditModeConfig struct {
@@ -85,6 +89,7 @@ func (e *EditMode) matchDisableSeq(
 		cur CurrentView,
 		scope Scope,
 		dropLink DropLink,
+		disable DisableEditMode,
 	) (bool, editModeMatchState) {
 		// not match sequence
 		if ev.Rune() != e.disableSeqRunes[index] {
@@ -112,7 +117,7 @@ func (e *EditMode) matchDisableSeq(
 			}
 			view.switchMoment(scope, rollback)
 		}
-		scope.Call(DisableEditMode)
+		disable()
 		return true, nil
 	}
 }
@@ -200,13 +205,17 @@ func (e *EditMode) StrokeSpecs() any {
 
 func (_ Command) EnableEditMode() (spec CommandSpec) {
 	spec.Desc = "enable edit mode"
-	spec.Func = EnableEditMode
+	spec.Func = func(enable EnableEditMode) {
+		enable()
+	}
 	return
 }
 
 func (_ Command) DisableEditMode() (spec CommandSpec) {
 	spec.Desc = "disable edit mode"
-	spec.Func = DisableEditMode
+	spec.Func = func(disable DisableEditMode) {
+		disable()
+	}
 	return
 }
 

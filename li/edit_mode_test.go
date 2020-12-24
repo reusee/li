@@ -9,6 +9,7 @@ import (
 func TestEditModeRedoAfterSwitching(t *testing.T) {
 	withEditorBytes(t, []byte("foo"), func(
 		scope Scope,
+		enable EnableEditMode,
 		view *View,
 	) {
 		var config EditModeConfig
@@ -16,10 +17,12 @@ func TestEditModeRedoAfterSwitching(t *testing.T) {
 		scope = scope.Sub(func() EditModeConfig {
 			return config
 		})
-		scope.Call(EnableEditMode)
+		enable()
 
 		var getModes CurrentModes
-		scope.Assign(&getModes)
+		var handleKey HandleKeyEvent
+		scope.Assign(&getModes, &handleKey)
+
 		modes := getModes()
 		_, ok := modes[0].(*EditMode)
 		if !ok {
@@ -27,12 +30,8 @@ func TestEditModeRedoAfterSwitching(t *testing.T) {
 		}
 
 		// trigger
-		scope.Sub(func() KeyEvent {
-			return tcell.NewEventKey(tcell.KeyRune, 'j', 0)
-		}).Call(HandleKeyEvent)
-		scope.Sub(func() KeyEvent {
-			return tcell.NewEventKey(tcell.KeyRune, 'j', 0)
-		}).Call(HandleKeyEvent)
+		handleKey(tcell.NewEventKey(tcell.KeyRune, 'j', 0))
+		handleKey(tcell.NewEventKey(tcell.KeyRune, 'j', 0))
 		modes = getModes()
 		_, ok = modes[0].(*EditMode)
 		if ok {
@@ -46,13 +45,9 @@ func TestEditModeRedoAfterSwitching(t *testing.T) {
 		)
 
 		// not trigger
-		scope.Call(EnableEditMode)
-		scope.Sub(func() KeyEvent {
-			return tcell.NewEventKey(tcell.KeyRune, 'j', 0)
-		}).Call(HandleKeyEvent)
-		scope.Sub(func() KeyEvent {
-			return tcell.NewEventKey(tcell.KeyRune, 'k', 0)
-		}).Call(HandleKeyEvent)
+		enable()
+		handleKey(tcell.NewEventKey(tcell.KeyRune, 'j', 0))
+		handleKey(tcell.NewEventKey(tcell.KeyRune, 'k', 0))
 		modes = getModes()
 		_, ok = modes[0].(*EditMode)
 		if !ok {

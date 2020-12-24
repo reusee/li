@@ -140,8 +140,11 @@ type evKeyEventHandled struct{}
 
 var EvKeyEventHandled = new(evKeyEventHandled)
 
-func HandleKeyEvent(
+type HandleKeyEvent func(
 	ev KeyEvent,
+)
+
+func (_ Provide) HandleKeyEvent(
 	reset ResetStrokeSpecs,
 	set SetStrokeSpecs,
 	get GetStrokeSpecs,
@@ -151,83 +154,88 @@ func HandleKeyEvent(
 	recording MacroRecording,
 	record RecordMacroKey,
 	trigger Trigger,
-) {
+) HandleKeyEvent {
 
-	defer func() {
-		trigger(scope, EvKeyEventHandled)
-	}()
+	return func(
+		ev KeyEvent,
+	) {
+		defer func() {
+			trigger(scope, EvKeyEventHandled)
+		}()
 
-	if recording {
-		record(ev)
-	}
+		if recording {
+			record(ev)
+		}
 
-	specs, _ := get()
-	if len(specs) == 0 {
-		specs = reset()
-	}
+		specs, _ := get()
+		if len(specs) == 0 {
+			specs = reset()
+		}
 
-	r := ev.Name()
-	setEv(ev)
-	keyScope := scope.Sub(
-		&ev,
-	)
+		r := ev.Name()
+		setEv(ev)
+		keyScope := scope.Sub(
+			&ev,
+		)
 
-	var nextSpecs []StrokeSpec
-	for _, spec := range specs {
-		match := false
-		if len(spec.Sequence) == 1 && spec.Sequence[0] == r {
-			// match sequence
-			match = true
+		var nextSpecs []StrokeSpec
+		for _, spec := range specs {
+			match := false
+			if len(spec.Sequence) == 1 && spec.Sequence[0] == r {
+				// match sequence
+				match = true
 
-		} else if len(spec.Sequence) > 1 && spec.Sequence[0] == r {
-			// match sequence prefix
-			newSpec := spec
-			newSpec.Sequence = spec.Sequence[1:]
-			// show hints for commands bound to multiple strokes
-			if len(newSpec.Hints) == 0 &&
-				newSpec.CommandName != "" {
-				hints := []string{
-					fmt.Sprintf(
-						"press %s to ",
-						newSpec.Sequence[0],
-					) +
-						NamedCommands[newSpec.CommandName].Desc,
+			} else if len(spec.Sequence) > 1 && spec.Sequence[0] == r {
+				// match sequence prefix
+				newSpec := spec
+				newSpec.Sequence = spec.Sequence[1:]
+				// show hints for commands bound to multiple strokes
+				if len(newSpec.Hints) == 0 &&
+					newSpec.CommandName != "" {
+					hints := []string{
+						fmt.Sprintf(
+							"press %s to ",
+							newSpec.Sequence[0],
+						) +
+							NamedCommands[newSpec.CommandName].Desc,
+					}
+					newSpec.Hints = hints
 				}
-				newSpec.Hints = hints
-			}
-			nextSpecs = append(nextSpecs, newSpec)
+				nextSpecs = append(nextSpecs, newSpec)
 
-		} else if spec.Predict != nil { // assuming len(spec.Sequence) == 0
-			// call predict function
-			keyScope.Call(spec.Predict, &match)
+			} else if spec.Predict != nil { // assuming len(spec.Sequence) == 0
+				// call predict function
+				keyScope.Call(spec.Predict, &match)
+			}
+
+			if match {
+
+				// call handling function
+				var fn Func
+				if spec.Func != nil {
+					fn = spec.Func
+				} else if spec.Command.Func != nil {
+					fn = spec.Command.Func
+				} else if spec.CommandName != "" && commands[spec.CommandName].Func != nil {
+					fn = commands[spec.CommandName].Func
+				}
+				var abort Abort
+				keyScope.Sub(&fn).Call(
+					ExecuteCommandFunc,
+					&abort,
+				)
+
+				if !abort {
+					return
+				}
+			}
+
 		}
 
-		if match {
-
-			// call handling function
-			var fn Func
-			if spec.Func != nil {
-				fn = spec.Func
-			} else if spec.Command.Func != nil {
-				fn = spec.Command.Func
-			} else if spec.CommandName != "" && commands[spec.CommandName].Func != nil {
-				fn = commands[spec.CommandName].Func
-			}
-			var abort Abort
-			keyScope.Sub(&fn).Call(
-				ExecuteCommandFunc,
-				&abort,
-			)
-
-			if !abort {
-				return
-			}
-		}
-
+		// no match
+		set(nextSpecs, false)
 	}
 
-	// no match
-	set(nextSpecs, false)
 }
 
 func (_ Provide) KeyEventHooks(
