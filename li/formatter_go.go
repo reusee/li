@@ -60,6 +60,7 @@ func (_ Provide) FormatterGo(
 					run(func(
 						scope Scope,
 						moveCursor MoveCursor,
+						apply ApplyChange,
 					) {
 						if job.view.GetMoment() != job.moment {
 							return
@@ -77,24 +78,24 @@ func (_ Provide) FormatterGo(
 							switch diff.Type {
 
 							case diffmatchpatch.DiffDelete:
-								scope.Sub(
-									&moment,
-									&Change{
+								moment, numRunesInserted = apply(
+									moment,
+									Change{
 										Op:    OpDelete,
 										Begin: position,
 										End:   moment.ByteOffsetToPosition(offset + len(diff.Text)),
 									},
-								).Call(ApplyChange, &moment, &numRunesInserted)
+								)
 
 							case diffmatchpatch.DiffInsert:
-								scope.Sub(
-									&moment,
-									&Change{
+								moment, numRunesInserted = apply(
+									moment,
+									Change{
 										Op:     OpInsert,
 										String: diff.Text,
 										Begin:  position,
 									},
-								).Call(ApplyChange, &moment, &numRunesInserted)
+								)
 								offset += len(diff.Text)
 
 							case diffmatchpatch.DiffEqual:

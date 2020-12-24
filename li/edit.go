@@ -21,149 +21,161 @@ type Change struct {
 	Number int      // for Delete
 }
 
-func ApplyChange(
+type ApplyChange func(
 	moment *Moment,
 	change Change,
-	config BufferConfig,
-	link Link,
-	linkedOne LinkedOne,
 ) (
 	newMoment *Moment,
 	numRunesInserted int,
-) {
+)
 
-	newMoment = NewMoment(moment)
-	newMoment.Change = change
+func (_ Provide) ApplyChange(
+	config BufferConfig,
+	link Link,
+	linkedOne LinkedOne,
+) ApplyChange {
 
-	// validate begin position
-	if change.Begin.Line >= moment.NumLines() {
-		// bad line
-		return
-	}
-	if line := moment.GetLine(change.Begin.Line); change.Begin.Cell > len(line.Cells) {
-		// bad rune offset
-		return
-	}
+	return func(
+		moment *Moment,
+		change Change,
+	) (
+		newMoment *Moment,
+		numRunesInserted int,
+	) {
+		newMoment = NewMoment(moment)
+		newMoment.Change = change
 
-	var newSegments Segments
-
-	switch change.Op {
-
-	case OpInsert:
-		newSegments = moment.segments.Sub(-1, change.Begin.Line)
-		line := moment.GetLine(change.Begin.Line)
-		offset := 0
-		for _, cell := range line.Cells[:change.Begin.Cell] {
-			offset += cell.Len
+		// validate begin position
+		if change.Begin.Line >= moment.NumLines() {
+			// bad line
+			return
 		}
-		content := line.content[:offset] + change.String + line.content[offset:]
-		numRunesInserted += len([]rune(change.String))
-		changingLastLine := change.Begin.Line == moment.NumLines()-1
-		lines := splitLines(content)
-		newSegment := new(Segment)
-		for i, content := range lines {
-			if changingLastLine && i == len(lines)-1 {
-				// add newline to the last line
-				if !strings.HasSuffix(content, "\n") {
-					content += "\n"
-					numRunesInserted++
-				}
-			}
-			newSegment.lines = append(newSegment.lines, &Line{
-				content:  content,
-				initOnce: new(sync.Once),
-				config:   &config,
-			})
-		}
-		newSegments = append(newSegments, newSegment)
-		newSegments = append(newSegments, moment.segments.Sub(change.Begin.Line+1, -1)...)
-
-	case OpDelete:
-		// resolve change.Number
-		if change.Number > 0 {
-			change.End = change.Begin
-			// iterate
-			for change.Number > 0 {
-				line := moment.GetLine(change.End.Line)
-				if line == nil {
-					change.Number = 0
-					change.End.Line--
-					change.End.Cell = len(moment.GetLine(change.End.Line).Cells) - 1
-				} else {
-					if change.End.Cell+change.Number >= len(line.Cells) {
-						// next line
-						change.Number -= len(line.Cells) - change.End.Cell
-						change.End.Cell = 0
-						change.End.Line++
-					} else {
-						change.End.Cell += change.Number
-						change.Number = 0
-					}
-				}
-			}
-		}
-
-		if change.Begin == change.End {
-			newMoment = moment
+		if line := moment.GetLine(change.Begin.Line); change.Begin.Cell > len(line.Cells) {
+			// bad rune offset
 			return
 		}
 
-		// assemble new lines
-		newSegments = moment.segments.Sub(-1, change.Begin.Line)
-		var b strings.Builder
-		for lineNum := change.Begin.Line; lineNum <= change.End.Line; lineNum++ {
-			if lineNum >= moment.NumLines() {
-				break
+		var newSegments Segments
+
+		switch change.Op {
+
+		case OpInsert:
+			newSegments = moment.segments.Sub(-1, change.Begin.Line)
+			line := moment.GetLine(change.Begin.Line)
+			offset := 0
+			for _, cell := range line.Cells[:change.Begin.Cell] {
+				offset += cell.Len
 			}
-			if lineNum == change.Begin.Line {
-				for _, cell := range moment.GetLine(lineNum).Cells {
-					if cell.RuneOffset >= change.Begin.Cell {
-						break
+			content := line.content[:offset] + change.String + line.content[offset:]
+			numRunesInserted += len([]rune(change.String))
+			changingLastLine := change.Begin.Line == moment.NumLines()-1
+			lines := splitLines(content)
+			newSegment := new(Segment)
+			for i, content := range lines {
+				if changingLastLine && i == len(lines)-1 {
+					// add newline to the last line
+					if !strings.HasSuffix(content, "\n") {
+						content += "\n"
+						numRunesInserted++
 					}
-					b.WriteRune(cell.Rune)
 				}
+				newSegment.lines = append(newSegment.lines, &Line{
+					content:  content,
+					initOnce: new(sync.Once),
+					config:   &config,
+				})
 			}
-			if lineNum == change.End.Line {
-				for _, cell := range moment.GetLine(lineNum).Cells {
-					if cell.RuneOffset < change.End.Cell {
-						continue
+			newSegments = append(newSegments, newSegment)
+			newSegments = append(newSegments, moment.segments.Sub(change.Begin.Line+1, -1)...)
+
+		case OpDelete:
+			// resolve change.Number
+			if change.Number > 0 {
+				change.End = change.Begin
+				// iterate
+				for change.Number > 0 {
+					line := moment.GetLine(change.End.Line)
+					if line == nil {
+						change.Number = 0
+						change.End.Line--
+						change.End.Cell = len(moment.GetLine(change.End.Line).Cells) - 1
+					} else {
+						if change.End.Cell+change.Number >= len(line.Cells) {
+							// next line
+							change.Number -= len(line.Cells) - change.End.Cell
+							change.End.Cell = 0
+							change.End.Line++
+						} else {
+							change.End.Cell += change.Number
+							change.Number = 0
+						}
 					}
-					b.WriteRune(cell.Rune)
 				}
 			}
-		}
-		changingLastLine := change.End.Line >= moment.NumLines()-1
-		lines := splitLines(b.String())
-		newSegment := new(Segment)
-		for i, content := range lines {
-			if changingLastLine && i == len(lines)-1 {
-				// add newline to the last line
-				if !strings.HasSuffix(content, "\n") {
-					content += "\n"
+
+			if change.Begin == change.End {
+				newMoment = moment
+				return
+			}
+
+			// assemble new lines
+			newSegments = moment.segments.Sub(-1, change.Begin.Line)
+			var b strings.Builder
+			for lineNum := change.Begin.Line; lineNum <= change.End.Line; lineNum++ {
+				if lineNum >= moment.NumLines() {
+					break
+				}
+				if lineNum == change.Begin.Line {
+					for _, cell := range moment.GetLine(lineNum).Cells {
+						if cell.RuneOffset >= change.Begin.Cell {
+							break
+						}
+						b.WriteRune(cell.Rune)
+					}
+				}
+				if lineNum == change.End.Line {
+					for _, cell := range moment.GetLine(lineNum).Cells {
+						if cell.RuneOffset < change.End.Cell {
+							continue
+						}
+						b.WriteRune(cell.Rune)
+					}
 				}
 			}
-			newSegment.lines = append(newSegment.lines, &Line{
-				content:  content,
-				initOnce: new(sync.Once),
-				config:   &config,
-			})
-		}
-		newSegments = append(newSegments, newSegment)
-		res := change.End.Line + 1
-		if res < moment.NumLines() {
-			newSegments = append(newSegments, moment.segments.Sub(res, -1)...)
+			changingLastLine := change.End.Line >= moment.NumLines()-1
+			lines := splitLines(b.String())
+			newSegment := new(Segment)
+			for i, content := range lines {
+				if changingLastLine && i == len(lines)-1 {
+					// add newline to the last line
+					if !strings.HasSuffix(content, "\n") {
+						content += "\n"
+					}
+				}
+				newSegment.lines = append(newSegment.lines, &Line{
+					content:  content,
+					initOnce: new(sync.Once),
+					config:   &config,
+				})
+			}
+			newSegments = append(newSegments, newSegment)
+			res := change.End.Line + 1
+			if res < moment.NumLines() {
+				newSegments = append(newSegments, moment.segments.Sub(res, -1)...)
+			}
+
 		}
 
+		newMoment.segments = newSegments
+		var buffer *Buffer
+		linkedOne(moment, &buffer)
+		if buffer != nil {
+			link(buffer, newMoment)
+		}
+
+		return
 	}
 
-	newMoment.segments = newSegments
-	var buffer *Buffer
-	linkedOne(moment, &buffer)
-	if buffer != nil {
-		link(buffer, newMoment)
-	}
-
-	return
 }
 
 type InsertAtPositionFunc func(
@@ -176,6 +188,7 @@ func (_ Provide) InsertAtPositionFunc(
 	m CurrentMoment,
 	scope Scope,
 	moveCursor MoveCursor,
+	apply ApplyChange,
 ) InsertAtPositionFunc {
 	return func(
 		str string,
@@ -197,9 +210,7 @@ func (_ Provide) InsertAtPositionFunc(
 		var newMoment *Moment
 		var nRunesInserted int
 		moment := m()
-		scope.Sub(
-			&moment, &change,
-		).Call(ApplyChange, &newMoment, &nRunesInserted)
+		newMoment, nRunesInserted = apply(moment, change)
 
 		view.switchMoment(scope, newMoment)
 
@@ -216,6 +227,7 @@ func DeleteWithinRange(
 	m CurrentMoment,
 	scope Scope,
 	moveCursor MoveCursor,
+	apply ApplyChange,
 ) {
 	view := v()
 	if view == nil {
@@ -228,9 +240,7 @@ func DeleteWithinRange(
 	}
 	var newMoment *Moment
 	moment := m()
-	scope.Sub(
-		&moment, &change,
-	).Call(ApplyChange, &newMoment)
+	newMoment, _ = apply(moment, change)
 	view.switchMoment(scope, newMoment)
 	col := newMoment.GetLine(r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
 	moveCursor(Move{AbsLine: intP(r.Begin.Line), AbsCol: &col})
@@ -264,6 +274,7 @@ func ReplaceWithinRange(
 	text string,
 	scope Scope,
 	moveCursor MoveCursor,
+	apply ApplyChange,
 ) (
 	newMoment *Moment,
 ) {
@@ -280,9 +291,7 @@ func ReplaceWithinRange(
 			Begin: r.Begin,
 			End:   r.End,
 		}
-		scope.Sub(
-			&moment, &change,
-		).Call(ApplyChange, &moment)
+		moment, _ = apply(moment, change)
 	}
 
 	// insert
@@ -292,9 +301,7 @@ func ReplaceWithinRange(
 		String: text,
 	}
 	var nRunesInserted int
-	scope.Sub(
-		&moment, &change,
-	).Call(ApplyChange, &moment, &nRunesInserted)
+	moment, nRunesInserted = apply(moment, change)
 
 	view.switchMoment(scope, moment)
 

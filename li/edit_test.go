@@ -9,6 +9,7 @@ func TestApplyChange(t *testing.T) {
 	withEditor(func(
 		scope Scope,
 		newMoment NewMomentFromBytes,
+		apply ApplyChange,
 	) {
 		moment, _, err := newMoment([]byte(``))
 		if err != nil {
@@ -27,9 +28,7 @@ func TestApplyChange(t *testing.T) {
 			},
 			String: "foo",
 		}
-		scope.Sub(func() (*Moment, Change) {
-			return moment, change
-		}).Call(ApplyChange, &m2)
+		m2, _ = apply(moment, change)
 		eq(t,
 			m2 != nil, true,
 			m2.ID > 0, true,
@@ -48,9 +47,7 @@ func TestApplyChange(t *testing.T) {
 			},
 			String: "foo\nfoo\nfoo",
 		}
-		scope.Sub(func() (*Moment, Change) {
-			return m2, change
-		}).Call(ApplyChange, &m3)
+		m3, _ = apply(m2, change)
 		eq(t,
 			m3 != nil, true,
 			m3.ID > 0, true,
@@ -71,9 +68,7 @@ func TestApplyChange(t *testing.T) {
 			},
 			String: "\nbar",
 		}
-		scope.Sub(func() (*Moment, Change) {
-			return m3, change
-		}).Call(ApplyChange, &m4)
+		m4, _ = apply(m3, change)
 		eq(t,
 			m4 != nil, true,
 			m4.ID > 0, true,
@@ -96,9 +91,7 @@ func TestApplyChange(t *testing.T) {
 			},
 			String: "quux",
 		}
-		scope.Sub(func() (*Moment, Change) {
-			return m4, change
-		}).Call(ApplyChange, &m5)
+		m5, _ = apply(m4, change)
 		eq(t,
 			m5 != nil, true,
 			m5.ID > 0, true,
@@ -121,9 +114,7 @@ func TestApplyChange(t *testing.T) {
 			},
 			String: "你好\n世界\n",
 		}
-		scope.Sub(func() (*Moment, Change) {
-			return m5, change
-		}).Call(ApplyChange, &m6)
+		m6, _ = apply(m5, change)
 		eq(t,
 			m6 != nil, true,
 			m6.ID > 0, true,
@@ -148,9 +139,7 @@ func TestApplyChange(t *testing.T) {
 			},
 			Number: 3,
 		}
-		scope.Sub(func() (*Moment, Change) {
-			return m6, change
-		}).Call(ApplyChange, &m7)
+		m7, _ = apply(m6, change)
 		eq(t,
 			m7 != nil, true,
 			m7.ID > 0, true,
@@ -176,9 +165,7 @@ func TestApplyChange(t *testing.T) {
 			},
 			Number: 3,
 		}
-		scope.Sub(func() (*Moment, Change) {
-			return m7, change
-		}).Call(ApplyChange, &m8)
+		m8, _ = apply(m7, change)
 		eq(t,
 			m8 != nil, true,
 			m8.ID > 0, true,
@@ -202,9 +189,7 @@ func TestApplyChange(t *testing.T) {
 			},
 			Number: 9999,
 		}
-		scope.Sub(func() (*Moment, Change) {
-			return m8, change
-		}).Call(ApplyChange, &m9)
+		m9, _ = apply(m8, change)
 		eq(t,
 			m9 != nil, true,
 			m9.ID > 0, true,
@@ -220,6 +205,7 @@ func BenchmarkLargeBuf(b *testing.B) {
 	withEditor(func(
 		scope Scope,
 		newMoment NewMomentFromBytes,
+		apply ApplyChange,
 	) {
 
 		buf := new(bytes.Buffer)
@@ -236,7 +222,6 @@ func BenchmarkLargeBuf(b *testing.B) {
 		b.ResetTimer()
 
 		for i := 0; i < b.N; i++ {
-			var m9 *Moment
 			change := Change{
 				Op: OpInsert,
 				Begin: Position{
@@ -245,9 +230,7 @@ func BenchmarkLargeBuf(b *testing.B) {
 				},
 				String: "foo",
 			}
-			scope.Sub(func() (*Moment, Change) {
-				return moment, change
-			}).Call(ApplyChange, &m9)
+			apply(moment, change)
 		}
 
 	})
@@ -257,6 +240,7 @@ func TestDelete(t *testing.T) {
 	withEditorBytes(t, []byte("a\nb"), func(
 		scope Scope,
 		view *View,
+		apply ApplyChange,
 	) {
 
 		moment := view.GetMoment()
@@ -269,9 +253,7 @@ func TestDelete(t *testing.T) {
 			Number: 1,
 		}
 		var m2 *Moment
-		scope.Sub(func() (*Moment, Change) {
-			return moment, change
-		}).Call(ApplyChange, &m2)
+		m2, _ = apply(moment, change)
 		eq(t,
 			m2 != nil, true,
 			m2.ID > 0, true,
@@ -291,9 +273,7 @@ func TestDelete(t *testing.T) {
 			Number: 2,
 		}
 		var m3 *Moment
-		scope.Sub(func() (*Moment, Change) {
-			return m2, change
-		}).Call(ApplyChange, &m3)
+		m3, _ = apply(m2, change)
 		eq(t,
 			m3 != nil, true,
 			m3.ID > 0, true,
@@ -349,17 +329,16 @@ func TestEditLineOverflow(t *testing.T) {
 	withHelloEditor(t, func(
 		view *View,
 		scope Scope,
+		apply ApplyChange,
 	) {
 		moment := view.GetMoment()
-		scope.Sub(func() Change {
-			return Change{
-				Begin: Position{
-					Line: 9999,
-				},
-				Op:     OpDelete,
-				Number: 9,
-			}
-		}).Call(ApplyChange)
+		apply(moment, Change{
+			Begin: Position{
+				Line: 9999,
+			},
+			Op:     OpDelete,
+			Number: 9,
+		})
 		eq(t,
 			view.GetMoment() == moment, true,
 		)
@@ -370,18 +349,17 @@ func TestEditRuneOffsetOverflow(t *testing.T) {
 	withHelloEditor(t, func(
 		view *View,
 		scope Scope,
+		apply ApplyChange,
 	) {
 		moment := view.GetMoment()
-		scope.Sub(func() Change {
-			return Change{
-				Begin: Position{
-					Line: 0,
-					Cell: 99999,
-				},
-				Op:     OpInsert,
-				String: "foo",
-			}
-		}).Call(ApplyChange)
+		apply(moment, Change{
+			Begin: Position{
+				Line: 0,
+				Cell: 99999,
+			},
+			Op:     OpInsert,
+			String: "foo",
+		})
 		eq(t,
 			view.GetMoment() == moment, true,
 		)
@@ -392,18 +370,17 @@ func TestDeleteRuneOffsetOverflow(t *testing.T) {
 	withHelloEditor(t, func(
 		view *View,
 		scope Scope,
+		apply ApplyChange,
 	) {
 		moment := view.GetMoment()
-		scope.Sub(func() Change {
-			return Change{
-				Begin: Position{
-					Line: 0,
-					Cell: 99999,
-				},
-				Op:     OpDelete,
-				Number: 9,
-			}
-		}).Call(ApplyChange)
+		apply(moment, Change{
+			Begin: Position{
+				Line: 0,
+				Cell: 99999,
+			},
+			Op:     OpDelete,
+			Number: 9,
+		})
 		eq(t,
 			view.GetMoment() == moment, true,
 		)
