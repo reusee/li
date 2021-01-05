@@ -152,7 +152,7 @@ func (e *EditMode) StrokeSpecs() any {
 					for _, thread := range e.matchStates {
 						var next editModeMatchState
 						var handled bool
-						scope.Call(thread, &next, &handled)
+						scope.Call(thread).Assign(&next, &handled)
 						if handled {
 							e.matchStates = e.matchStates[:0]
 							return

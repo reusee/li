@@ -50,12 +50,12 @@ func TestFileSync(t *testing.T) {
 
 		// sync
 		delRune()
-		scope.Call(SyncViewToFile, &err)
+		scope.Call(SyncViewToFile).Assign(&err)
 		ce(err)
 
 		// undo then sync
 		scope.Call(Undo)
-		scope.Call(SyncViewToFile, &err)
+		scope.Call(SyncViewToFile).Assign(&err)
 		ce(err)
 
 	})

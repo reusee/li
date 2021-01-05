@@ -17,6 +17,8 @@ import (
 )
 import (
 	"bytes"
+
+	"github.com/reusee/e4"
 )
 
 type MomentID int64
@@ -216,7 +218,7 @@ func (_ Provide) NewMomentFromFile(
 
 		// read
 		contentBytes, err := ioutil.ReadFile(path)
-		ce(err, fe("read %s", path))
+		ce(err, e4.WithInfo("read %s", path))
 
 		moment, linebreak, err = newMoment(contentBytes)
 		if err != nil {

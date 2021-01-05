@@ -1,5 +1,7 @@
 package li
 
+import "fmt"
+
 // ElementFrom
 
 type _ElementFrom struct {
@@ -32,7 +34,7 @@ func (e _ElementFrom) RenderFunc() any {
 				}
 
 			default:
-				panic(we(fe("unknown spec %#v\n", v)))
+				panic(we(fmt.Errorf("unknown spec %#v\n", v)))
 			}
 		})
 

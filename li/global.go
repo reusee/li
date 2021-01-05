@@ -1,6 +1,8 @@
 package li
 
-import "reflect"
+import (
+	"reflect"
+)
 
 type Provide struct{}
 
@@ -44,8 +46,8 @@ func NewGlobal(fns ...any) Scope {
 
 	var init2s []any
 	for _, proto := range protoInit2s {
-		rets := scope.Call(proto)
-		for _, ret := range rets {
+		res := scope.Call(proto)
+		for _, ret := range res.Values {
 			fn := ret.Interface()
 			if fn == nil {
 				continue

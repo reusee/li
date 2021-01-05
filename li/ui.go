@@ -50,8 +50,8 @@ func NewUIDesc(specs []any) UIDesc {
 
 func (u UIDesc) IterSpecs(scope Scope, cb func(any)) {
 	for _, fn := range u.InitFuncs {
-		rets := scope.Call(fn)
-		for _, ret := range rets {
+		res := scope.Call(fn)
+		for _, ret := range res.Values {
 			cb(ret.Interface())
 		}
 	}
@@ -81,7 +81,7 @@ func renderAll(scope Scope, elements ...Element) {
 		for _, elem := range elements {
 			var e Element
 			var es []Element
-			scope.Call(elem.RenderFunc(), &e, &es)
+			scope.Call(elem.RenderFunc()).Assign(&e, &es)
 			if e != nil {
 				next = append(next, e)
 			}

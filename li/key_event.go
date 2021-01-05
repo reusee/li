@@ -68,14 +68,14 @@ func (_ Provide) StrokeSpecs(
 	for _, overlay := range overlays {
 		if overlay.KeyStrokeHandler != nil {
 			var specs []StrokeSpec
-			scope.Call(overlay.KeyStrokeHandler.StrokeSpecs(), &specs)
+			scope.Call(overlay.KeyStrokeHandler.StrokeSpecs()).Assign(&specs)
 			initial = append(initial, specs...)
 		}
 	}
 	for _, mode := range curModes() {
 		if mode, ok := mode.(KeyStrokeHandler); ok {
 			var specs []StrokeSpec
-			scope.Call(mode.StrokeSpecs(), &specs)
+			scope.Call(mode.StrokeSpecs()).Assign(&specs)
 			initial = append(initial, specs...)
 		}
 	}
@@ -97,7 +97,7 @@ func strokeSpecsFromSequenceCommand(m map[string]string) []StrokeSpec {
 	var specs []StrokeSpec
 	for seq, name := range m {
 		if _, ok := NamedCommands[name]; !ok {
-			panic(we(fe("no such command: %s", name)))
+			panic(we(fmt.Errorf("no such command: %s", name)))
 		}
 		sequence := strings.Split(seq, " ")
 		var nice []string
@@ -205,7 +205,7 @@ func (_ Provide) HandleKeyEvent(
 
 			} else if spec.Predict != nil { // assuming len(spec.Sequence) == 0
 				// call predict function
-				keyScope.Call(spec.Predict, &match)
+				keyScope.Call(spec.Predict).Assign(&match)
 			}
 
 			if match {
@@ -222,6 +222,7 @@ func (_ Provide) HandleKeyEvent(
 				var abort Abort
 				keyScope.Sub(&fn).Call(
 					ExecuteCommandFunc,
+				).Assign(
 					&abort,
 				)
 

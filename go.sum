@@ -24,9 +24,15 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/reusee/dscope v0.0.0-20201222153157-e120e12e6f5b h1:YS3IibZFvdGtUGy/uuY7zzbjvVpVawbs5Zd6nZCE35U=
 github.com/reusee/dscope v0.0.0-20201222153157-e120e12e6f5b/go.mod h1:EE1E5AvD8cPuuLsxgD9/V1gvLvO+CkoCFZqnvK3+80k=
+github.com/reusee/dscope v0.0.0-20210105081825-0190f5f9afd1 h1:V4ojbz+OgeUSyWvytq18DltYepFujQ3V58HF3zQOlJw=
+github.com/reusee/dscope v0.0.0-20210105081825-0190f5f9afd1/go.mod h1:EE1E5AvD8cPuuLsxgD9/V1gvLvO+CkoCFZqnvK3+80k=
+github.com/reusee/dscope v0.0.0-20210105093459-9bff4836e854 h1:VE0G5/HOL740YkWbu75kV/95ozgUC2fJllsuW7QUSpA=
+github.com/reusee/dscope v0.0.0-20210105093459-9bff4836e854/go.mod h1:EE1E5AvD8cPuuLsxgD9/V1gvLvO+CkoCFZqnvK3+80k=
 github.com/reusee/e4 v0.0.0-20201218072924-87f538a3e17a/go.mod h1:uKxRTtwTi6F66Mzc+Lk/cEPBGwv0W1Macn9it1OXVE4=
 github.com/reusee/e4 v0.0.0-20201218075434-0b4200a899c3 h1:UUahlUe5ObuHh3FdUK+4RZuLZCxmFd06fy6dZv4vxM8=
 github.com/reusee/e4 v0.0.0-20201218075434-0b4200a899c3/go.mod h1:uKxRTtwTi6F66Mzc+Lk/cEPBGwv0W1Macn9it1OXVE4=
+github.com/reusee/e4 v0.0.0-20210105023653-efb6af6bfcb5 h1:i5nHrBYtm8ZBLDZbBCqt8KYS3ESTe4bNVu1yh6I7ooU=
+github.com/reusee/e4 v0.0.0-20210105023653-efb6af6bfcb5/go.mod h1:uKxRTtwTi6F66Mzc+Lk/cEPBGwv0W1Macn9it1OXVE4=
 github.com/reusee/toml v0.4.0 h1:PXYMfykMkrPXp3BoTO8SFdAa+MZsfEFYzBToqeiybpY=
 github.com/reusee/toml v0.4.0/go.mod h1:15eATpOssvXKCy9TgWVzbcU4GaTYocvlKlG7D0Hix+0=
 github.com/saracen/walker v0.1.1/go.mod h1:0oKYMsKVhSJ+ful4p/XbjvXbMgLEkLITZaxozsl4CGE=

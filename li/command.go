@@ -50,6 +50,7 @@ call:
 	// abort execution
 	scope.Call(
 		fn,
+	).Assign(
 		&specs,
 		&moreFunc,
 		&abort,

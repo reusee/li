@@ -1,6 +1,7 @@
 package li
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -81,7 +82,7 @@ func (_ Provide) SyncBufferMomentToFile(
 			}
 		}
 		if !ok {
-			return we(fe("buffer moment is not loaded from current disk file"))
+			return we(fmt.Errorf("buffer moment is not loaded from current disk file"))
 		}
 
 		// save

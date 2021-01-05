@@ -260,6 +260,7 @@ func (view *View) RenderFunc() any {
 								&moment, &line, &l,
 							).Call(
 								view.Stainer.Line(),
+							).Assign(
 								&cellColors,
 								&cellStyleFuncs,
 							)

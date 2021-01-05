@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/reusee/e4"
 	"github.com/reusee/toml"
 )
 
@@ -34,7 +35,7 @@ func (_ Provide) Config() (
 
 	userConfig, err := ioutil.ReadFile(filepath.Join(configDir, "config.toml"))
 	if err != nil && !os.IsNotExist(err) {
-		ce(err, fe("open config.toml"))
+		ce(err, e4.WithInfo("open config.toml"))
 	}
 
 	defaultConfig := []byte(DefaultConfig)

@@ -9,7 +9,6 @@ import (
 var (
 	ce = e4.Check
 	he = e4.Handle
-	fe = e4.WithInfo
 	we = e4.DefaultWrap
 	pt = fmt.Printf
 )

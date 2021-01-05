@@ -94,7 +94,7 @@ func withEditor(fn any) {
 			applyDerives()
 
 			var root Element
-			scope.Call(Root, &root)
+			scope.Call(Root).Assign(&root)
 			renderAll(scope, root)
 			screen.Show()
 			applyDerives()
