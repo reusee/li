@@ -125,7 +125,7 @@ func main() {
 		case <-renderTimer.C:
 			// render
 			var root li.Element
-			scope.Call(li.Root, &root)
+			scope.Call(li.Root).Assign(&root)
 			scope.Call(root.RenderFunc())
 			screen.Show()
 
