@@ -10,8 +10,6 @@ type Provide struct{}
 
 type Derive func(inits ...any)
 
-type Init func() any
-
 type Init2 any
 
 var init2Type = reflect.TypeOf((*Init2)(nil)).Elem()
@@ -22,12 +20,7 @@ func NewGlobal(fns ...any) Scope {
 
 	processFunc := func(fnValue reflect.Value) {
 		fn := fnValue.Interface()
-		if initFunc, ok := fn.(func() Init); ok {
-			fn = initFunc()()
-			if fn == nil {
-				return
-			}
-		} else if t := fnValue.Type(); t.NumOut() == 1 && t.Out(0) == init2Type {
+		if t := fnValue.Type(); t.NumOut() == 1 && t.Out(0) == init2Type {
 			protoInit2s = append(protoInit2s, fn)
 			return
 		}
