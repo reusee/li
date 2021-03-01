@@ -14,6 +14,18 @@ type Init2 any
 
 var init2Type = reflect.TypeOf((*Init2)(nil)).Elem()
 
+type OnStartup func()
+
+var _ dscope.Reducer = OnStartup(nil)
+
+func (_ OnStartup) Reduce(_ dscope.Scope, vs []reflect.Value) reflect.Value {
+	return dscope.Reduce(vs)
+}
+
+func (_ Provide) OnStartup() OnStartup {
+	return func() {}
+}
+
 func NewGlobal(fns ...any) Scope {
 	var inits []any
 	var protoInit2s []any
@@ -51,6 +63,12 @@ func NewGlobal(fns ...any) Scope {
 		}
 	}
 	scope = scope.Sub(init2s...)
+
+	scope.Call(func(
+		onStartup OnStartup,
+	) {
+		onStartup()
+	})
 
 	return scope
 }

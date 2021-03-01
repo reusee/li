@@ -22,201 +22,204 @@ type AddCompletionCandidate func(CompletionCandidate)
 
 type ContinueCompletion *int64
 
+func (_ Provide) ContinueCompletion() ContinueCompletion {
+	var cont int64
+	return &cont
+}
+
 func (_ Provide) Completion(
 	on On,
 	run RunInMainLoop,
-) Init2 {
+) OnStartup {
 
-	var completionOverlayID ID
-	closeOverlay := func() {
-		if completionOverlayID > 0 {
-			id := completionOverlayID
-			run(func(
-				scope Scope,
-				closeOverlay CloseOverlay,
-			) {
-				closeOverlay(id)
-			})
-		}
-	}
-
-	on(EvKeyEventHandled, func(
-		curView CurrentView,
-		procs CompletionProcs,
-		config CompletionConfig,
-		trigger Trigger,
-		scope Scope,
-		maxWidth Width,
-		maxHeight Height,
-		cont ContinueCompletion,
-		calLineHeight CalculateSumLineHeight,
-	) {
-
-		// continue, dont update
-		if atomic.CompareAndSwapInt64(cont, 1, 0) {
-			return
+	return func() {
+		var completionOverlayID ID
+		closeOverlay := func() {
+			if completionOverlayID > 0 {
+				id := completionOverlayID
+				run(func(
+					scope Scope,
+					closeOverlay CloseOverlay,
+				) {
+					closeOverlay(id)
+				})
+			}
 		}
 
-		view := curView()
-		if view == nil {
-			return
-		}
-		moment := view.GetMoment()
-		state := view.ViewMomentState
+		on(EvKeyEventHandled, func(
+			curView CurrentView,
+			procs CompletionProcs,
+			config CompletionConfig,
+			trigger Trigger,
+			scope Scope,
+			maxWidth Width,
+			maxHeight Height,
+			cont ContinueCompletion,
+			calLineHeight CalculateSumLineHeight,
+		) {
 
-		skip := func(scope Scope) (b bool) {
-			scope.Call(func(
-				curModes CurrentModes,
-				curView CurrentView,
-			) {
-				// skip if not editing
-				if !IsEditing(curModes()) {
-					b = true
-					return
-				}
-				cur := curView()
-				// skip if view switched
-				if cur != view {
-					b = true
-					return
-				}
-				// skip if state changed
-				if cur.ViewMomentState != state {
-					b = true
-					return
-				}
-			})
-			return
-		}
-		if skip(scope) {
-			closeOverlay()
-			return
-		}
+			// continue, dont update
+			if atomic.CompareAndSwapInt64(cont, 1, 0) {
+				return
+			}
 
-		// delay
-		time.AfterFunc(time.Millisecond*time.Duration(config.DelayMilliseconds), func() {
+			view := curView()
+			if view == nil {
+				return
+			}
+			moment := view.GetMoment()
+			state := view.ViewMomentState
 
+			skip := func(scope Scope) (b bool) {
+				scope.Call(func(
+					curModes CurrentModes,
+					curView CurrentView,
+				) {
+					// skip if not editing
+					if !IsEditing(curModes()) {
+						b = true
+						return
+					}
+					cur := curView()
+					// skip if view switched
+					if cur != view {
+						b = true
+						return
+					}
+					// skip if state changed
+					if cur.ViewMomentState != state {
+						b = true
+						return
+					}
+				})
+				return
+			}
 			if skip(scope) {
 				closeOverlay()
 				return
 			}
 
-			// async
-			procs <- func() {
-
-				// collect candidates
-				var candidates []CompletionCandidate
-				trigger(scope.Sub(
-					func() AddCompletionCandidate {
-						return func(c CompletionCandidate) {
-							candidates = append(candidates, c)
-						}
-					},
-					&view, &moment, &state,
-				), EvCollectCompletionCandidate)
+			// delay
+			time.AfterFunc(time.Millisecond*time.Duration(config.DelayMilliseconds), func() {
 
 				if skip(scope) {
 					closeOverlay()
 					return
 				}
 
-				// sort
-				sort.SliceStable(candidates, func(i, j int) bool {
-					c1 := candidates[i]
-					c2 := candidates[j]
-					if c1.MatchRuneOffsets[0] != c2.MatchRuneOffsets[0] {
-						return c1.MatchRuneOffsets[0] < c2.MatchRuneOffsets[0]
-					}
-					if c1.Rank != c2.Rank {
-						return c1.Rank > c2.Rank
-					}
-					return c1.Text < c2.Text
-				})
+				// async
+				procs <- func() {
 
-				// position
-				width := 0
-				for _, candidate := range candidates {
-					if w := displayWidth(candidate.Text); w > width {
-						width = w
-					}
-				}
-				width += 2 // padding
-				if width > int(maxWidth)-10 {
-					width = int(maxWidth) - 10
-				}
-				view.RLock()
-				defer view.RUnlock()
-				cursorY := view.ContentBox.Top
-				lineHeight := calLineHeight(moment, [2]int{view.ViewportLine, view.CursorLine})
-				cursorY += lineHeight
-				height := len(candidates)
-				below := true
-				var maxH int
-				if cursorY < int(maxHeight)/2 {
-					maxH = int(maxHeight) - cursorY - 1
-				} else {
-					below = false
-					maxH = cursorY
-				}
-				if height > maxH {
-					height = maxH
-				}
-				cursorX := view.ContentBox.Left + (view.CursorCol - view.ViewportCol)
-				left := cursorX - 1
-				if left+width > int(maxWidth) {
-					left = int(maxWidth) - width
-				}
-				right := left + width
-				top := cursorY + 1 // below
-				bottom := top + height
-				if !below {
-					bottom = cursorY
-					top = bottom - height
-				}
-				box := Box{top, left, bottom, right}
+					// collect candidates
+					var candidates []CompletionCandidate
+					trigger(scope.Sub(
+						func() AddCompletionCandidate {
+							return func(c CompletionCandidate) {
+								candidates = append(candidates, c)
+							}
+						},
+						&view, &moment, &state,
+					), EvCollectCompletionCandidate)
 
-				// truncate
-				candidates = candidates[:height]
-
-				// reverse
-				if !below {
-					for i := 0; i < len(candidates)/2; i++ {
-						candidates[i], candidates[len(candidates)-1-i] = candidates[len(candidates)-1-i], candidates[i]
-					}
-				}
-
-				// update
-				run(func(
-					scope Scope,
-					j AppendJournal,
-					pushOverlay PushOverlay,
-				) {
-					// close
-					closeOverlay()
-					if len(candidates) == 0 {
+					if skip(scope) {
+						closeOverlay()
 						return
 					}
 
-					// push overlay
-					overlay := OverlayObject(&CompletionList{
-						Box:        box,
-						Candidates: candidates,
-						Below:      below,
-						Moment:     moment,
-						View:       view,
+					// sort
+					sort.SliceStable(candidates, func(i, j int) bool {
+						c1 := candidates[i]
+						c2 := candidates[j]
+						if c1.MatchRuneOffsets[0] != c2.MatchRuneOffsets[0] {
+							return c1.MatchRuneOffsets[0] < c2.MatchRuneOffsets[0]
+						}
+						if c1.Rank != c2.Rank {
+							return c1.Rank > c2.Rank
+						}
+						return c1.Text < c2.Text
 					})
-					completionOverlayID = pushOverlay(overlay)
 
-				})
+					// position
+					width := 0
+					for _, candidate := range candidates {
+						if w := displayWidth(candidate.Text); w > width {
+							width = w
+						}
+					}
+					width += 2 // padding
+					if width > int(maxWidth)-10 {
+						width = int(maxWidth) - 10
+					}
+					view.RLock()
+					defer view.RUnlock()
+					cursorY := view.ContentBox.Top
+					lineHeight := calLineHeight(moment, [2]int{view.ViewportLine, view.CursorLine})
+					cursorY += lineHeight
+					height := len(candidates)
+					below := true
+					var maxH int
+					if cursorY < int(maxHeight)/2 {
+						maxH = int(maxHeight) - cursorY - 1
+					} else {
+						below = false
+						maxH = cursorY
+					}
+					if height > maxH {
+						height = maxH
+					}
+					cursorX := view.ContentBox.Left + (view.CursorCol - view.ViewportCol)
+					left := cursorX - 1
+					if left+width > int(maxWidth) {
+						left = int(maxWidth) - width
+					}
+					right := left + width
+					top := cursorY + 1 // below
+					bottom := top + height
+					if !below {
+						bottom = cursorY
+						top = bottom - height
+					}
+					box := Box{top, left, bottom, right}
 
-			}
+					// truncate
+					candidates = candidates[:height]
+
+					// reverse
+					if !below {
+						for i := 0; i < len(candidates)/2; i++ {
+							candidates[i], candidates[len(candidates)-1-i] = candidates[len(candidates)-1-i], candidates[i]
+						}
+					}
+
+					// update
+					run(func(
+						scope Scope,
+						j AppendJournal,
+						pushOverlay PushOverlay,
+					) {
+						// close
+						closeOverlay()
+						if len(candidates) == 0 {
+							return
+						}
+
+						// push overlay
+						overlay := OverlayObject(&CompletionList{
+							Box:        box,
+							Candidates: candidates,
+							Below:      below,
+							Moment:     moment,
+							View:       view,
+						})
+						completionOverlayID = pushOverlay(overlay)
+
+					})
+
+				}
+			})
+
 		})
 
-	})
-
-	var cont int64
-	return func() ContinueCompletion {
-		return &cont
 	}
 }
 
