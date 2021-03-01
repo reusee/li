@@ -2,6 +2,8 @@ package li
 
 import (
 	"reflect"
+
+	"github.com/reusee/dscope"
 )
 
 type Provide struct{}
@@ -42,7 +44,7 @@ func NewGlobal(fns ...any) Scope {
 		processFunc(reflect.ValueOf(fn))
 	}
 
-	scope := NewScope(inits...)
+	scope := dscope.New(inits...)
 
 	var init2s []any
 	for _, proto := range protoInit2s {

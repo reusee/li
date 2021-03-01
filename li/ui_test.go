@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/gdamore/tcell"
+	"github.com/reusee/dscope"
 )
 
 func TestUIDescription(t *testing.T) {
@@ -81,7 +82,7 @@ func TestUIDescription(t *testing.T) {
 
 	screen := tcell.NewSimulationScreen("")
 	screen.SetSize(screenWidth, screenHeight)
-	scope := NewScope(
+	scope := dscope.New(
 		// defaults
 		func() Box {
 			return Box{0, 0, screenWidth, screenHeight}
@@ -134,7 +135,7 @@ func BenchmarkUI(b *testing.B) {
 	screenHeight := 25
 	screen := tcell.NewSimulationScreen("")
 	screen.SetSize(screenWidth, screenHeight)
-	scope := NewScope(
+	scope := dscope.New(
 		// defaults
 		func() Box {
 			return Box{0, 0, screenWidth, screenHeight}

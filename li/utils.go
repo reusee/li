@@ -17,10 +17,9 @@ import (
 )
 
 var (
-	NewScope = dscope.New
-	is       = errors.Is
-	numCPU   = runtime.NumCPU()
-	never    = time.Date(9102, 1, 1, 1, 1, 1, 1, time.Local)
+	is     = errors.Is
+	numCPU = runtime.NumCPU()
+	never  = time.Date(9102, 1, 1, 1, 1, 1, 1, time.Local)
 )
 
 type (
