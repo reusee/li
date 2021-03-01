@@ -82,16 +82,20 @@ func (_ Provide) ViewGroupConfig(
 	return
 }
 
-type (
-	CurrentViewGroup func(...*ViewGroup) *ViewGroup
-)
+type CurrentViewGroup func(...*ViewGroup) *ViewGroup
 
-func (_ Provide) CurrentViewGroupAccessor() Init {
-	return func() any {
-		return SeriesValue{
-			Type:   (*ViewGroup)(nil),
-			Access: CurrentViewGroup(nil),
-		}.Provider()
+func (_ Provide) CurrentViewGroupAccessor(
+	link Link,
+	linkedOne LinkedOne,
+) CurrentViewGroup {
+	type Anchor struct{}
+	var anchor Anchor
+	return func(gs ...*ViewGroup) (ret *ViewGroup) {
+		for _, g := range gs {
+			link(anchor, g)
+		}
+		linkedOne(anchor, &ret)
+		return
 	}
 }
 

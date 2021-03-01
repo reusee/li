@@ -2,38 +2,38 @@ package li
 
 import "path/filepath"
 
-type (
-	CurrentView   func(...*View) *View
-	CurrentMoment func() *Moment
-)
+type CurrentMoment func() *Moment
 
 type evCurrentViewChanged struct{}
 
 var EvCurrentViewChanged = new(evCurrentViewChanged)
 
-func (_ Provide) CurrentView() CurrentView {
-	return nil // re-provide below
-}
+type CurrentView func(...*View) *View
 
-func (_ Provide) CurrentViewAccessor(
+func (_ Provide) CurrentView(
+	link Link,
+	linkedOne LinkedOne,
 	j AppendJournal,
 	trigger Trigger,
 	scope Scope,
-) Init2 {
-	return SeriesValue{
-		Type:   (*View)(nil),
-		Access: CurrentView(nil),
-		OnLink: func(view *View) {
-			path, err := filepath.Abs(view.Buffer.Path)
+) CurrentView {
+	type Anchor struct{}
+	var anchor Anchor
+	return func(vs ...*View) (ret *View) {
+		for _, v := range vs {
+			link(anchor, v)
+			path, err := filepath.Abs(v.Buffer.Path)
 			ce(err)
 			j("switch to %s", path)
-		},
-		OnChanged: func(view *View) {
+		}
+		linkedOne(anchor, &ret)
+		if len(vs) > 0 {
 			trigger(scope.Sub(
-				&view,
+				&ret,
 			), EvCurrentViewChanged)
-		},
-	}.Provider()
+		}
+		return
+	}
 }
 
 func AsCurrentView(view *View) (
