@@ -22,128 +22,129 @@ func (_ Provide) LSP(
 	on On,
 	j AppendJournal,
 	getConfig GetConfig,
-) Init2 {
+) OnStartup {
+	return func() {
 
-	var c struct {
-		LanguageServerProtocol LanguageServerProtocolConfig
-	}
-	ce(getConfig(&c))
-	config := c.LanguageServerProtocol
+		var c struct {
+			LanguageServerProtocol LanguageServerProtocolConfig
+		}
+		ce(getConfig(&c))
+		config := c.LanguageServerProtocol
 
-	if !config.Enable {
-		return nil
-	}
-
-	endpoints := make(map[string]*LSPEndpoint)
-
-	// start lsp process
-	on(EvBufferLanguageChanged, func(
-		buffer *Buffer,
-		langs [2]Language,
-		configDir ConfigDir,
-		linkedOne LinkedOne,
-	) {
-		j("%s changed language from %v to %v", buffer.Path, langs[0], langs[1])
-
-		if _, ok := endpoints[buffer.AbsDir]; ok {
+		if !config.Enable {
 			return
 		}
 
-		lang := langs[1]
-		switch lang {
+		endpoints := make(map[string]*LSPEndpoint)
 
-		case LanguageGo:
-			exePath, err := exec.LookPath("gopls")
-			if err != nil {
-				j("gopls executable not found in PATH")
-			} else {
-				cmd := exec.Command(
-					exePath,
-					"-logfile", filepath.Join(string(configDir), "gopls.log"),
-					"-rpc.trace",
-					"-v",
-				)
-				w, err := cmd.StdinPipe()
-				ce(err)
-				r, err := cmd.StdoutPipe()
-				ce(err)
-				ce(cmd.Start())
+		// start lsp process
+		on(EvBufferLanguageChanged, func(
+			buffer *Buffer,
+			langs [2]Language,
+			configDir ConfigDir,
+			linkedOne LinkedOne,
+		) {
+			j("%s changed language from %v to %v", buffer.Path, langs[0], langs[1])
 
-				var endpoint *LSPEndpoint
-				endpoint = NewLSPEndpoint(
-					struct {
-						io.Writer
-						io.Reader
-					}{w, r},
-					lang,
-					func(err error) {
-						j("language server for %s error: %v", endpoint.Language, err)
-						delete(endpoints, buffer.AbsDir)
-					},
-					func(format string, args ...any) {
-						j(format, args...)
-					},
-				)
-				endpoints[buffer.AbsDir] = endpoint
-
-				var ret any
-				ce(endpoint.Req("initialize", M{
-					"processId": syscall.Getpid(),
-					"rootUri":   buffer.AbsDir,
-				}).Unmarshal(&ret))
-				endpoint.Notify("initialized", M{})
-
-				var moment *Moment
-				linkedOne(buffer, &moment)
-				if moment != nil {
-					endpoint.Notify("textDocument/didOpen", M{
-						"textDocument": M{
-							"uri":        buffer.AbsPath,
-							"languageId": "go",
-							"version":    moment.ID,
-							"text":       moment.GetContent(),
-						},
-					})
-				}
-
-				j("language server for %s started:\n%s", lang, toJSON(ret))
+			if _, ok := endpoints[buffer.AbsDir]; ok {
+				return
 			}
 
-		}
-	})
+			lang := langs[1]
+			switch lang {
 
-	// format
-	on(EvMomentSwitched, func(
-		buffer *Buffer,
-	) {
-		endpoint, ok := endpoints[buffer.AbsDir]
-		if !ok {
-			return
-		}
-		endpoint.Req("textDocument/formatting", M{
-			"textDocument": M{
-				"uri": buffer.AbsPath,
-			},
-			"options": M{
-				"foo": "bar",
-			},
-		}).Then(func(c *LSPCall) {
-			var ret any
-			ce(c.Unmarshal(&ret))
-			j("format %s", toJSON(ret))
-			//TODO apply change
+			case LanguageGo:
+				exePath, err := exec.LookPath("gopls")
+				if err != nil {
+					j("gopls executable not found in PATH")
+				} else {
+					cmd := exec.Command(
+						exePath,
+						"-logfile", filepath.Join(string(configDir), "gopls.log"),
+						"-rpc.trace",
+						"-v",
+					)
+					w, err := cmd.StdinPipe()
+					ce(err)
+					r, err := cmd.StdoutPipe()
+					ce(err)
+					ce(cmd.Start())
+
+					var endpoint *LSPEndpoint
+					endpoint = NewLSPEndpoint(
+						struct {
+							io.Writer
+							io.Reader
+						}{w, r},
+						lang,
+						func(err error) {
+							j("language server for %s error: %v", endpoint.Language, err)
+							delete(endpoints, buffer.AbsDir)
+						},
+						func(format string, args ...any) {
+							j(format, args...)
+						},
+					)
+					endpoints[buffer.AbsDir] = endpoint
+
+					var ret any
+					ce(endpoint.Req("initialize", M{
+						"processId": syscall.Getpid(),
+						"rootUri":   buffer.AbsDir,
+					}).Unmarshal(&ret))
+					endpoint.Notify("initialized", M{})
+
+					var moment *Moment
+					linkedOne(buffer, &moment)
+					if moment != nil {
+						endpoint.Notify("textDocument/didOpen", M{
+							"textDocument": M{
+								"uri":        buffer.AbsPath,
+								"languageId": "go",
+								"version":    moment.ID,
+								"text":       moment.GetContent(),
+							},
+						})
+					}
+
+					j("language server for %s started:\n%s", lang, toJSON(ret))
+				}
+
+			}
 		})
-	})
 
-	// sync change
-	on(EvMomentSwitched, func(
-		buffer *Buffer,
-		moments [2]*Moment,
-	) {
-		//TODO
-	})
+		// format
+		on(EvMomentSwitched, func(
+			buffer *Buffer,
+		) {
+			endpoint, ok := endpoints[buffer.AbsDir]
+			if !ok {
+				return
+			}
+			endpoint.Req("textDocument/formatting", M{
+				"textDocument": M{
+					"uri": buffer.AbsPath,
+				},
+				"options": M{
+					"foo": "bar",
+				},
+			}).Then(func(c *LSPCall) {
+				var ret any
+				ce(c.Unmarshal(&ret))
+				j("format %s", toJSON(ret))
+				//TODO apply change
+			})
+		})
 
-	return nil
+		// sync change
+		on(EvMomentSwitched, func(
+			buffer *Buffer,
+			moments [2]*Moment,
+		) {
+			//TODO
+		})
+
+	}
 }
 
 type LSPEndpoint struct {

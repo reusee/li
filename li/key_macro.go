@@ -101,19 +101,20 @@ func (_ Command) ToggleMacroRecording() (spec CommandSpec) {
 
 func (_ Provide) KeyMacroStatus(
 	on On,
-) Init2 {
+) OnStartup {
+	return func() {
 
-	on(EvCollectStatusSections, func(
-		add AddStatusSection,
-		recording MacroRecording,
-		getMacroName GetMacroName,
-	) {
-		if recording {
-			add("macro", [][]any{
-				{getMacroName(), AlignRight, Padding(0, 2, 0, 0)},
-			})
-		}
-	})
+		on(EvCollectStatusSections, func(
+			add AddStatusSection,
+			recording MacroRecording,
+			getMacroName GetMacroName,
+		) {
+			if recording {
+				add("macro", [][]any{
+					{getMacroName(), AlignRight, Padding(0, 2, 0, 0)},
+				})
+			}
+		})
 
-	return nil
+	}
 }

@@ -63,28 +63,29 @@ var EvModesChanged = new(evModesChanged)
 
 func (_ Provide) ModeStatus(
 	on On,
-) Init2 {
+) OnStartup {
+	return func() {
 
-	on(EvCollectStatusSections, func(
-		getModes CurrentModes,
-		add AddStatusSection,
-		styles []Style,
-	) {
-		modes := getModes()
-		var lines [][]any
-		for _, mode := range modes {
-			name := reflect.TypeOf(mode).Elem().Name()
-			name = strings.TrimSuffix(name, "Mode")
-			s := styles[0]
-			if name == "Edit" {
-				s = styles[1]
+		on(EvCollectStatusSections, func(
+			getModes CurrentModes,
+			add AddStatusSection,
+			styles []Style,
+		) {
+			modes := getModes()
+			var lines [][]any
+			for _, mode := range modes {
+				name := reflect.TypeOf(mode).Elem().Name()
+				name = strings.TrimSuffix(name, "Mode")
+				s := styles[0]
+				if name == "Edit" {
+					s = styles[1]
+				}
+				lines = append(lines, []any{
+					s, name, AlignRight, Padding(0, 2, 0, 0),
+				})
 			}
-			lines = append(lines, []any{
-				s, name, AlignRight, Padding(0, 2, 0, 0),
-			})
-		}
-		add("modes", lines)
-	})
+			add("modes", lines)
+		})
 
-	return nil
+	}
 }
