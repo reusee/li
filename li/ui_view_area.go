@@ -172,26 +172,36 @@ func ViewArea(
 
 type ShouldShowViewList func() bool
 
+type ShouldShowViewListState *int64
+
+func (_ Provide) ShouldShowViewListState() (
+	s ShouldShowViewListState,
+	get ShouldShowViewList,
+) {
+	var i int64
+	s = &i
+	get = func() bool {
+		return atomic.LoadInt64(&i) > 0
+	}
+	return
+}
+
 func (_ Provide) ShowViewListFlag(
 	on On,
 	config UIConfig,
 	run RunInMainLoop,
-) Init2 {
+	p ShouldShowViewListState,
+) OnStartup {
+	return func() {
 
-	var p int64
-
-	on(EvCurrentViewChanged, func() {
-		atomic.AddInt64(&p, 1)
-		time.AfterFunc(time.Second*time.Duration(config.ViewList.HideTimeoutSeconds), func() {
-			run(func() {
-				atomic.AddInt64(&p, -1)
+		on(EvCurrentViewChanged, func() {
+			atomic.AddInt64(p, 1)
+			time.AfterFunc(time.Second*time.Duration(config.ViewList.HideTimeoutSeconds), func() {
+				run(func() {
+					atomic.AddInt64(p, -1)
+				})
 			})
 		})
-	})
 
-	return func() ShouldShowViewList {
-		return func() bool {
-			return atomic.LoadInt64(&p) > 0
-		}
 	}
 }

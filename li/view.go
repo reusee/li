@@ -217,31 +217,32 @@ func (_ Provide) ViewEvents(
 	on On,
 	j AppendJournal,
 	config DebugConfig,
-) Init2 {
+) OnStartup {
+	return func() {
 
-	if config.Verbose {
-		on(EvMomentSwitched, func(view *View, ms [2]*Moment) {
-			j("view %d switch moment from %d to %d", view.ID, ms[0].ID, ms[1].ID)
+		if config.Verbose {
+			on(EvMomentSwitched, func(view *View, ms [2]*Moment) {
+				j("view %d switch moment from %d to %d", view.ID, ms[0].ID, ms[1].ID)
+			})
+		}
+
+		// buffer saving state
+		on(EvCollectStatusSections, func(
+			add AddStatusSection,
+			v CurrentView,
+			styles []Style,
+		) {
+			view := v()
+			if view == nil {
+				return
+			}
+			if view.Buffer.LastSyncFileInfo == view.GetMoment().FileInfo {
+				return
+			}
+			add("file", [][]any{
+				{"unsaved", styles[1], AlignRight, Padding(0, 2, 0, 0)},
+			})
 		})
+
 	}
-
-	// buffer saving state
-	on(EvCollectStatusSections, func(
-		add AddStatusSection,
-		v CurrentView,
-		styles []Style,
-	) {
-		view := v()
-		if view == nil {
-			return
-		}
-		if view.Buffer.LastSyncFileInfo == view.GetMoment().FileInfo {
-			return
-		}
-		add("file", [][]any{
-			{"unsaved", styles[1], AlignRight, Padding(0, 2, 0, 0)},
-		})
-	})
-
-	return nil
 }
