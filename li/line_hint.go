@@ -15,13 +15,12 @@ type evCollectLineHints struct{}
 
 var EvCollectLineHints = new(evCollectLineHints)
 
-func (_ Provide) GetLineHints() GetLineHints {
-	panic("impossible")
-}
-
 func (_ Provide) LineHints(
 	on On,
-) Init2 {
+) (
+	GetLineHints,
+	OnStartup,
+) {
 
 	// sorted
 	var hints []LineHint
@@ -106,38 +105,38 @@ func (_ Provide) LineHints(
 
 	version := mark
 
-	on(EvLoopBegin, func(
-		trigger Trigger,
-		scope Scope,
-		cont ContinueMainLoop,
-	) {
-		changed = false
-		mark++
-		trigger(
-			scope.Sub(&add),
-			EvCollectLineHints,
-		)
-		// clear unmarked entries
-		hs := hints[:0]
-		for _, hint := range hints {
-			if hint.mark == mark {
-				hs = append(hs, hint)
-			} else {
-				changed = true
-			}
-		}
-		if changed {
-			version = mark
-			hints = hs
-			// mark re-render
-			cont()
-		}
-	})
-
-	return func() GetLineHints {
-		return func() ([]LineHint, int) {
+	return func() ([]LineHint, int) {
 			return hints, version
+		}, func() {
+
+			on(EvLoopBegin, func(
+				trigger Trigger,
+				scope Scope,
+				cont ContinueMainLoop,
+			) {
+				changed = false
+				mark++
+				trigger(
+					scope.Sub(&add),
+					EvCollectLineHints,
+				)
+				// clear unmarked entries
+				hs := hints[:0]
+				for _, hint := range hints {
+					if hint.mark == mark {
+						hs = append(hs, hint)
+					} else {
+						changed = true
+					}
+				}
+				if changed {
+					version = mark
+					hints = hs
+					// mark re-render
+					cont()
+				}
+			})
+
 		}
-	}
 
 }
