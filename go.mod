@@ -7,8 +7,8 @@ require (
 	github.com/junegunn/fzf v0.0.0-20210203133252-6654239c9466
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.10 // indirect
-	github.com/reusee/dscope v0.0.0-20210206143919-b87ea3684f79
-	github.com/reusee/e4 v0.0.0-20210212135126-a1c20d5adc4d
+	github.com/reusee/dscope v0.0.0-20210311165014-dff0bd94e45c
+	github.com/reusee/e4 v0.0.0-20210220140921-dc464f80154d
 	github.com/reusee/toml v0.4.0
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sergi/go-diff v1.1.0
