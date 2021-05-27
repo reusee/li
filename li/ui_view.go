@@ -39,9 +39,10 @@ func (view *View) RenderFunc() any {
 		moment := view.GetMoment()
 
 		defer func() {
-			trigger(scope.Sub(
-				&moment, &view,
-			), EvViewRendered)
+			trigger(EvViewRendered{
+				View:   view,
+				Moment: moment,
+			})
 		}()
 
 		// content box
@@ -380,9 +381,10 @@ func (view *View) RenderFunc() any {
 	}
 }
 
-type evViewRendered struct{}
-
-var EvViewRendered = new(evViewRendered)
+type EvViewRendered struct {
+	View   *View
+	Moment *Moment
+}
 
 type ViewRenderProcs chan func()
 

@@ -138,27 +138,25 @@ func (_ Provide) CollectWords(
 		}
 
 		var n int64
-		on(EvMomentSwitched, func(
-			moments [2]*Moment,
+		on(func(
+			ev EvMomentSwitched,
 		) {
 			jobs[int(atomic.AddInt64(&n, 1))%shard] <- CollectJob{
-				Moment: moments[1],
+				Moment: ev.New,
 			}
 		})
 
-		on(EvCollectCompletionCandidate, func(
-			moment *Moment,
-			state ViewMomentState,
+		on(func(
+			ev EvCollectCompletionCandidate,
 			scope Scope,
-			add AddCompletionCandidate,
 		) {
 
 			// get pattern
-			line := moment.GetLine(state.CursorLine)
+			line := ev.Moment.GetLine(ev.State.CursorLine)
 			var cell int
 			col := 0
 			for i := 0; i < len(line.Cells); i++ {
-				if col >= state.CursorCol {
+				if col >= ev.State.CursorCol {
 					break
 				}
 				col += line.Cells[i].DisplayWidth
@@ -188,8 +186,8 @@ func (_ Provide) CollectWords(
 			for i, r := range patternRunes {
 				patternRunes[i] = unicode.ToLower(r)
 			}
-			beginPos := Position{Line: state.CursorLine, Cell: cell}
-			endPos := Position{Line: state.CursorLine, Cell: endCell}
+			beginPos := Position{Line: ev.State.CursorLine, Cell: cell}
+			endPos := Position{Line: ev.State.CursorLine, Cell: endCell}
 
 			allCandidates := make(map[string]CompletionCandidate)
 			var l sync.Mutex
@@ -220,7 +218,7 @@ func (_ Provide) CollectWords(
 			wg.Wait()
 
 			for _, candidate := range allCandidates {
-				add(candidate)
+				ev.Add(candidate)
 			}
 
 		})

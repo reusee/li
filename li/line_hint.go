@@ -11,9 +11,9 @@ type (
 	AddLineHint  func(*Moment, int, []string)
 )
 
-type evCollectLineHints struct{}
-
-var EvCollectLineHints = new(evCollectLineHints)
+type EvCollectLineHints struct {
+	Add AddLineHint
+}
 
 func (_ Provide) LineHints(
 	on On,
@@ -109,7 +109,8 @@ func (_ Provide) LineHints(
 			return hints, version
 		}, func() {
 
-			on(EvLoopBegin, func(
+			on(func(
+				ev EvLoopBegin,
 				trigger Trigger,
 				scope Scope,
 				cont ContinueMainLoop,
@@ -117,8 +118,9 @@ func (_ Provide) LineHints(
 				changed = false
 				mark++
 				trigger(
-					scope.Sub(&add),
-					EvCollectLineHints,
+					EvCollectLineHints{
+						Add: add,
+					},
 				)
 				// clear unmarked entries
 				hs := hints[:0]

@@ -23,9 +23,10 @@ type Buffer struct {
 
 var nextBufferID int64
 
-type evBufferCreated struct{}
-
-var EvBufferCreated = new(evBufferCreated)
+type EvBufferCreated struct {
+	Buffer *Buffer
+	Moment *Moment
+}
 
 type NewBufferFromFile func(
 	path string,
@@ -60,9 +61,10 @@ func (_ Provide) NewBufferFromFile(
 		link(buffer, moment)
 		buffer.SetLanguage(scope, LanguageFromPath(path))
 
-		trigger(scope.Sub(
-			&buffer, &moment,
-		), EvBufferCreated)
+		trigger(EvBufferCreated{
+			Buffer: buffer,
+			Moment: moment,
+		})
 
 		return
 	}
@@ -76,7 +78,6 @@ type NewBufferFromBytes func(
 )
 
 func (_ Provide) NewBufferFromBytes(
-	scope Scope,
 	link Link,
 	trigger Trigger,
 	newMoment NewMomentFromBytes,
@@ -96,9 +97,10 @@ func (_ Provide) NewBufferFromBytes(
 		}
 		link(buffer, moment)
 
-		trigger(scope.Sub(
-			&buffer, &moment,
-		), EvBufferCreated)
+		trigger(EvBufferCreated{
+			Buffer: buffer,
+			Moment: moment,
+		})
 
 		return
 	}
@@ -164,9 +166,11 @@ func (_ Provide) NewBuffersFromPath(
 	}
 }
 
-type evBufferLanguageChanged struct{}
-
-var EvBufferLanguageChanged = new(evBufferLanguageChanged)
+type EvBufferLanguageChanged struct {
+	Buffer  *Buffer
+	OldLang Language
+	NewLang Language
+}
 
 func (b *Buffer) SetLanguage(scope Scope, lang Language) {
 	oldLang := b.language
@@ -175,9 +179,11 @@ func (b *Buffer) SetLanguage(scope Scope, lang Language) {
 		scope.Call(func(
 			trigger Trigger,
 		) {
-			trigger(scope.Sub(
-				&b, &[2]Language{oldLang, lang},
-			), EvBufferLanguageChanged)
+			trigger(EvBufferLanguageChanged{
+				Buffer:  b,
+				OldLang: oldLang,
+				NewLang: lang,
+			})
 		})
 	}
 }

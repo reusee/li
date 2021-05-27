@@ -35,10 +35,6 @@ func (_ Provide) Loop() (
 	return
 }
 
-type evLoopBegin struct{}
+type EvLoopBegin struct{}
 
-var EvLoopBegin = new(evLoopBegin)
-
-type evLoopEnd struct{}
-
-var EvLoopEnd = new(evLoopEnd)
+type EvLoopEnd struct{}

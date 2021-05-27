@@ -47,14 +47,14 @@ func (_ Provide) ContextStatus(
 ) OnStartup {
 	return func() {
 
-		on(EvCollectStatusSections, func(
+		on(func(
+			ev EvCollectStatusSections,
 			getModes CurrentModes,
-			add AddStatusSection,
 		) {
 			for _, mode := range getModes() {
 				m, ok := mode.(*ContextMode)
 				if ok {
-					add("context", [][]any{
+					ev.Add("context", [][]any{
 						{"num: " + strconv.Itoa(m.Number), AlignRight, Padding(0, 2, 0, 0)},
 					})
 					break
@@ -62,10 +62,10 @@ func (_ Provide) ContextStatus(
 			}
 		})
 
-		on(EvCollectLineHints, func(
+		on(func(
+			ev EvCollectLineHints,
 			getModes CurrentModes,
 			curView CurrentView,
-			add AddLineHint,
 		) {
 			view := curView()
 			if view == nil {
@@ -74,7 +74,7 @@ func (_ Provide) ContextStatus(
 			for _, mode := range getModes() {
 				m, ok := mode.(*ContextMode)
 				if ok && m.Number > 0 {
-					add(view.GetMoment(), view.CursorLine, []string{
+					ev.Add(view.GetMoment(), view.CursorLine, []string{
 						fmt.Sprintf("context number: %d", m.Number),
 					})
 					break

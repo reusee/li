@@ -4,9 +4,9 @@ import "path/filepath"
 
 type CurrentMoment func() *Moment
 
-type evCurrentViewChanged struct{}
-
-var EvCurrentViewChanged = new(evCurrentViewChanged)
+type EvCurrentViewChanged struct {
+	View *View
+}
 
 type CurrentView func(...*View) *View
 
@@ -15,7 +15,6 @@ func (_ Provide) CurrentView(
 	linkedOne LinkedOne,
 	j AppendJournal,
 	trigger Trigger,
-	scope Scope,
 ) CurrentView {
 	type Anchor struct{}
 	var anchor Anchor
@@ -28,9 +27,9 @@ func (_ Provide) CurrentView(
 		}
 		linkedOne(anchor, &ret)
 		if len(vs) > 0 {
-			trigger(scope.Sub(
-				&ret,
-			), EvCurrentViewChanged)
+			trigger(EvCurrentViewChanged{
+				View: ret,
+			})
 		}
 		return
 	}
@@ -149,8 +148,8 @@ func (_ Provide) CurrentViewFilePathStatus(
 	on On,
 ) OnStartup {
 	return func() {
-		on(EvCollectStatusSections, func(
-			add AddStatusSection,
+		on(func(
+			ev EvCollectStatusSections,
 			cur CurrentView,
 		) {
 			view := cur()
@@ -169,7 +168,7 @@ func (_ Provide) CurrentViewFilePathStatus(
 					Padding(0, 2, 0, 0),
 				})
 			}
-			add("path", lines)
+			ev.Add("path", lines)
 		})
 	}
 }

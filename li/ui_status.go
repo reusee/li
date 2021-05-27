@@ -9,9 +9,10 @@ type StatusSection struct {
 	Lines [][]any
 }
 
-type evCollectStatusSections struct{}
-
-var EvCollectStatusSections = new(evCollectStatusSections)
+type EvCollectStatusSections struct {
+	Add    AddStatusSection
+	Styles []Style
+}
 
 type AddStatusSection func(string, [][]any)
 
@@ -38,10 +39,10 @@ func Status(
 	add := AddStatusSection(func(title string, lines [][]any) {
 		sections = append(sections, StatusSection{title, lines})
 	})
-	trigger(scope.Sub(
-		&add,
-		&[]Style{style, hlStyle},
-	), EvCollectStatusSections)
+	trigger(EvCollectStatusSections{
+		Add:    add,
+		Styles: []Style{style, hlStyle},
+	})
 	sort.Slice(sections, func(i, j int) bool {
 		return sections[i].Title < sections[j].Title
 	})

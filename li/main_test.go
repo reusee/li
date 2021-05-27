@@ -44,7 +44,9 @@ func withEditor(fn any) {
 	ce(screen.Init())
 	var on On
 	scope.Assign(&on)
-	on(EvExit, func() {
+	on(func(
+		ev EvExit,
+	) {
 		screen.Fini()
 	})
 	screen.EnableMouse()
@@ -60,8 +62,8 @@ func withEditor(fn any) {
 		},
 		func() AppendJournal {
 			return func(format string, args ...any) {
-				fmt.Printf(format, args...)
-				fmt.Printf("\n")
+				//fmt.Printf(format, args...)
+				//fmt.Printf("\n")
 			}
 		},
 	)
@@ -90,7 +92,7 @@ func withEditor(fn any) {
 	loop:
 		for {
 
-			trigger(scope, EvLoopBegin)
+			trigger(EvLoopBegin{})
 			applyDerives()
 
 			var root Element
@@ -119,7 +121,7 @@ func withEditor(fn any) {
 			}
 			applyDerives()
 
-			trigger(scope, EvLoopEnd)
+			trigger(EvLoopEnd{})
 			applyDerives()
 
 		}

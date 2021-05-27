@@ -30,7 +30,9 @@ func (_ Provide) Screen(
 
 	screen, err := tcell.NewScreen()
 	ce(err)
-	on(EvExit, func() {
+	on(func(
+		ev EvExit,
+	) {
 		screen.Fini()
 	})
 	ce(screen.Init()) // NOCOVER

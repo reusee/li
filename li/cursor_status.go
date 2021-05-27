@@ -7,9 +7,9 @@ func (_ Provide) CursorStatus(
 ) OnStartup {
 	return func() {
 
-		on(EvCollectStatusSections, func(
+		on(func(
+			ev EvCollectStatusSections,
 			cur CurrentView,
-			add AddStatusSection,
 			scope Scope,
 		) {
 			focusing := cur()
@@ -30,7 +30,7 @@ func (_ Provide) CursorStatus(
 					AlignRight, Padding(0, 2, 0, 0),
 				})
 			}
-			add("cursor", lines)
+			ev.Add("cursor", lines)
 		})
 
 	}

@@ -102,7 +102,7 @@ func main() {
 
 	for {
 
-		trigger(scope, li.EvLoopBegin)
+		trigger(li.EvLoopBegin{})
 		applyDerives()
 
 		select {
@@ -132,7 +132,7 @@ func main() {
 		}
 		applyDerives()
 
-		trigger(scope, li.EvLoopEnd)
+		trigger(li.EvLoopEnd{})
 		applyDerives()
 
 	}

@@ -129,28 +129,26 @@ func (_ Provide) FormatterGo(
 		}
 
 		// formatter for go
-		on(EvMomentSwitched, func(
-			buffer *Buffer,
-			moments [2]*Moment,
-			view *View,
+		on(func(
+			ev EvMomentSwitched,
 			curModes CurrentModes,
 		) {
-			if buffer.language != LanguageGo {
+			if ev.Buffer.language != LanguageGo {
 				return
 			}
 			if IsEditing(curModes()) {
 				return
 			}
 			c <- Job{
-				view:   view,
-				buffer: buffer,
-				moment: moments[1],
+				view:   ev.View,
+				buffer: ev.Buffer,
+				moment: ev.New,
 			}
 		})
 
-		on(EvModesChanged, func(
+		on(func(
+			ev EvModesChanged,
 			v CurrentView,
-			modes []Mode,
 		) {
 			view := v()
 			if view == nil {
@@ -160,7 +158,7 @@ func (_ Provide) FormatterGo(
 			if buffer.language != LanguageGo {
 				return
 			}
-			if IsEditing(modes) {
+			if IsEditing(ev.Modes) {
 				return
 			}
 			c <- Job{

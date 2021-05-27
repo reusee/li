@@ -10,29 +10,33 @@ func TestHooks(t *testing.T) {
 		scope Scope,
 	) {
 
-		trigger(scope, 42)
+		trigger(42)
 
 		n := 0
-		on(42, func() {
+		on(func(
+			ev int,
+		) {
 			n++
 		})
-		trigger(scope, 42)
+		trigger(42)
 		if n != 1 {
 			t.Fatal()
 		}
-		trigger(scope, 42)
+		trigger(42)
 		if n != 2 {
 			t.Fatal()
 		}
 
-		onNext(42, func() {
+		onNext(func(
+			ev int,
+		) {
 			n++
 		})
-		trigger(scope, 42)
+		trigger(42)
 		if n != 4 {
 			t.Fatal()
 		}
-		trigger(scope, 42)
+		trigger(42)
 		if n != 5 {
 			t.Fatal()
 		}

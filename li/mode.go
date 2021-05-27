@@ -12,29 +12,42 @@ type (
 	CurrentModes func(args ...[]Mode) []Mode
 )
 
-func (_ Provide) ModesAccessor(
-	derive Derive,
-	trigger Trigger,
-	scope Scope,
-) (
-	fn CurrentModes,
+type modesLock struct {
+	*sync.RWMutex
+}
+
+func (_ Provide) ModesVars() (
+	l modesLock,
+	p *[]Mode,
 ) {
-
-	var l sync.RWMutex
-
+	l = modesLock{
+		RWMutex: new(sync.RWMutex),
+	}
 	modes := []Mode{
 		// default modes
 		new(ReadMode),
 		new(ContextMode),
 		new(SystemMode),
 	}
+	p = &modes
+	return
+}
+
+func (_ Provide) ModesAccessor(
+	derive Derive,
+	trigger Trigger,
+	l modesLock,
+	ptr *[]Mode,
+) (
+	fn CurrentModes,
+) {
 
 	fn = func(args ...[]Mode) []Mode {
 		if len(args) > 0 {
 			l.Lock()
 			defer l.Unlock()
 			for _, arg := range args {
-				modes = arg
+				*ptr = arg
 			}
 			// must be derive to trigger dependencies recalculate
 			derive(
@@ -42,49 +55,48 @@ func (_ Provide) ModesAccessor(
 					return fn
 				},
 			)
-			trigger(scope.Sub(
-				&modes,
-			), EvModesChanged)
+			trigger(EvModesChanged{
+				Modes: *ptr,
+			})
 		} else {
 			l.RLock()
 			defer l.RUnlock()
 		}
-		ms := make([]Mode, len(modes))
-		copy(ms, modes)
+		ms := make([]Mode, len(*ptr))
+		copy(ms, *ptr)
 		return ms
 	}
 
 	return
 }
 
-type evModesChanged struct{}
-
-var EvModesChanged = new(evModesChanged)
+type EvModesChanged struct {
+	Modes []Mode
+}
 
 func (_ Provide) ModeStatus(
 	on On,
 ) OnStartup {
 	return func() {
 
-		on(EvCollectStatusSections, func(
+		on(func(
+			ev EvCollectStatusSections,
 			getModes CurrentModes,
-			add AddStatusSection,
-			styles []Style,
 		) {
 			modes := getModes()
 			var lines [][]any
 			for _, mode := range modes {
 				name := reflect.TypeOf(mode).Elem().Name()
 				name = strings.TrimSuffix(name, "Mode")
-				s := styles[0]
+				s := ev.Styles[0]
 				if name == "Edit" {
-					s = styles[1]
+					s = ev.Styles[1]
 				}
 				lines = append(lines, []any{
 					s, name, AlignRight, Padding(0, 2, 0, 0),
 				})
 			}
-			add("modes", lines)
+			ev.Add("modes", lines)
 		})
 
 	}

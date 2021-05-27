@@ -26,7 +26,6 @@ type MoveCursor func(
 
 func (_ Provide) MoveCursor(
 	cur CurrentView,
-	scope Scope,
 	withN WithContextNumber,
 	trigger Trigger,
 	scrollToCursor ScrollToCursor,
@@ -213,16 +212,22 @@ func (_ Provide) MoveCursor(
 		// update
 		scrollToCursor()
 
-		trigger(scope.Sub(
-			&view, &moment, &[2]Position{currentPosition, view.cursorPosition()},
-		), EvCursorMoved)
+		trigger(EvCursorMoved{
+			View:        view,
+			Moment:      moment,
+			OldPosition: currentPosition,
+			NewPosition: view.cursorPosition(),
+		})
 	}
 
 }
 
-type evCursorMoved struct{}
-
-var EvCursorMoved = new(evCursorMoved)
+type EvCursorMoved struct {
+	View        *View
+	Moment      *Moment
+	OldPosition Position
+	NewPosition Position
+}
 
 type PageDown func()
 

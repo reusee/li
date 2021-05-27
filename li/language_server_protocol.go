@@ -38,19 +38,18 @@ func (_ Provide) LSP(
 		endpoints := make(map[string]*LSPEndpoint)
 
 		// start lsp process
-		on(EvBufferLanguageChanged, func(
-			buffer *Buffer,
-			langs [2]Language,
+		on(func(
+			ev EvBufferLanguageChanged,
 			configDir ConfigDir,
 			linkedOne LinkedOne,
 		) {
-			j("%s changed language from %v to %v", buffer.Path, langs[0], langs[1])
+			j("%s changed language from %v to %v", ev.Buffer.Path, ev.OldLang, ev.NewLang)
 
-			if _, ok := endpoints[buffer.AbsDir]; ok {
+			if _, ok := endpoints[ev.Buffer.AbsDir]; ok {
 				return
 			}
 
-			lang := langs[1]
+			lang := ev.NewLang
 			switch lang {
 
 			case LanguageGo:
@@ -79,27 +78,27 @@ func (_ Provide) LSP(
 						lang,
 						func(err error) {
 							j("language server for %s error: %v", endpoint.Language, err)
-							delete(endpoints, buffer.AbsDir)
+							delete(endpoints, ev.Buffer.AbsDir)
 						},
 						func(format string, args ...any) {
 							j(format, args...)
 						},
 					)
-					endpoints[buffer.AbsDir] = endpoint
+					endpoints[ev.Buffer.AbsDir] = endpoint
 
 					var ret any
 					ce(endpoint.Req("initialize", M{
 						"processId": syscall.Getpid(),
-						"rootUri":   buffer.AbsDir,
+						"rootUri":   ev.Buffer.AbsDir,
 					}).Unmarshal(&ret))
 					endpoint.Notify("initialized", M{})
 
 					var moment *Moment
-					linkedOne(buffer, &moment)
+					linkedOne(ev.Buffer, &moment)
 					if moment != nil {
 						endpoint.Notify("textDocument/didOpen", M{
 							"textDocument": M{
-								"uri":        buffer.AbsPath,
+								"uri":        ev.Buffer.AbsPath,
 								"languageId": "go",
 								"version":    moment.ID,
 								"text":       moment.GetContent(),
@@ -114,16 +113,16 @@ func (_ Provide) LSP(
 		})
 
 		// format
-		on(EvMomentSwitched, func(
-			buffer *Buffer,
+		on(func(
+			ev EvMomentSwitched,
 		) {
-			endpoint, ok := endpoints[buffer.AbsDir]
+			endpoint, ok := endpoints[ev.Buffer.AbsDir]
 			if !ok {
 				return
 			}
 			endpoint.Req("textDocument/formatting", M{
 				"textDocument": M{
-					"uri": buffer.AbsPath,
+					"uri": ev.Buffer.AbsPath,
 				},
 				"options": M{
 					"foo": "bar",
@@ -137,9 +136,8 @@ func (_ Provide) LSP(
 		})
 
 		// sync change
-		on(EvMomentSwitched, func(
-			buffer *Buffer,
-			moments [2]*Moment,
+		on(func(
+			ev EvMomentSwitched,
 		) {
 			//TODO
 		})

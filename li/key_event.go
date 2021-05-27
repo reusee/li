@@ -136,9 +136,8 @@ func (_ Provide) KeyLogging() (
 	return
 }
 
-type evKeyEventHandled struct{}
-
-var EvKeyEventHandled = new(evKeyEventHandled)
+type EvKeyEventHandled struct {
+}
 
 type HandleKeyEvent func(
 	ev KeyEvent,
@@ -160,7 +159,7 @@ func (_ Provide) HandleKeyEvent(
 		ev KeyEvent,
 	) {
 		defer func() {
-			trigger(scope, EvKeyEventHandled)
+			trigger(EvKeyEventHandled{})
 		}()
 
 		if recording {
@@ -244,20 +243,20 @@ func (_ Provide) KeyEventHooks(
 ) OnStartup {
 	return func() {
 
-		on(EvCollectStatusSections, func(
-			add AddStatusSection,
+		on(func(
+			ev EvCollectStatusSections,
 			getKeyEv GetLastKeyEvent,
 		) {
-			if ev := getKeyEv(); ev != nil {
-				add("key", [][]any{
-					{ev.Name(), AlignRight, Padding(0, 2, 0, 0)},
+			if keyEv := getKeyEv(); keyEv != nil {
+				ev.Add("key", [][]any{
+					{keyEv.Name(), AlignRight, Padding(0, 2, 0, 0)},
 				})
 			}
 		})
 
-		on(EvCollectLineHints, func(
+		on(func(
+			ev EvCollectLineHints,
 			cur CurrentView,
-			add AddLineHint,
 			getSpecs GetStrokeSpecs,
 		) {
 			view := cur()
@@ -269,7 +268,7 @@ func (_ Provide) KeyEventHooks(
 			moment := view.GetMoment()
 			for _, spec := range specs {
 				if len(spec.Hints) > 0 {
-					add(moment, curLine, spec.Hints)
+					ev.Add(moment, curLine, spec.Hints)
 				}
 			}
 		})

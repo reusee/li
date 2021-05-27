@@ -194,7 +194,9 @@ func (_ Provide) ShowViewListFlag(
 ) OnStartup {
 	return func() {
 
-		on(EvCurrentViewChanged, func() {
+		on(func(
+			ev EvCurrentViewChanged,
+		) {
 			atomic.AddInt64(p, 1)
 			time.AfterFunc(time.Second*time.Duration(config.ViewList.HideTimeoutSeconds), func() {
 				run(func() {

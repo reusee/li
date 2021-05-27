@@ -57,7 +57,6 @@ func (_ Provide) NewViewFromBuffer(
 	width Width,
 	height Height,
 	views Views,
-	scope Scope,
 	_ ViewGroups, // dep
 	curGroup CurrentViewGroup,
 	link Link,
@@ -102,13 +101,12 @@ func (_ Provide) NewViewFromBuffer(
 
 		views[view.ID] = view
 
-		trigger(scope.Sub(
-			&view,
-			&view.Buffer,
-			&[2]*Moment{
-				nil, moment,
-			},
-		), EvMomentSwitched)
+		trigger(EvMomentSwitched{
+			View:   view,
+			Buffer: view.Buffer,
+			Old:    nil,
+			New:    moment,
+		})
 
 		return
 	}
@@ -179,9 +177,12 @@ func (v *View) cursorPosition() Position {
 	}
 }
 
-type evMomentSwitched struct{}
-
-var EvMomentSwitched = new(evMomentSwitched)
+type EvMomentSwitched struct {
+	View   *View
+	Buffer *Buffer
+	Old    *Moment
+	New    *Moment
+}
 
 func (v *View) switchMoment(scope Scope, m *Moment) {
 	v.Lock()
@@ -198,11 +199,12 @@ func (v *View) switchMoment(scope Scope, m *Moment) {
 	scope.Call(func(
 		trigger Trigger,
 	) {
-		trigger(scope.Sub(
-			&v,
-			&v.Buffer,
-			&[2]*Moment{old, m},
-		), EvMomentSwitched)
+		trigger(EvMomentSwitched{
+			View:   v,
+			Buffer: v.Buffer,
+			Old:    old,
+			New:    m,
+		})
 	})
 }
 
@@ -221,16 +223,18 @@ func (_ Provide) ViewEvents(
 	return func() {
 
 		if config.Verbose {
-			on(EvMomentSwitched, func(view *View, ms [2]*Moment) {
-				j("view %d switch moment from %d to %d", view.ID, ms[0].ID, ms[1].ID)
+			on(func(
+				ev EvMomentSwitched,
+			) {
+				j("view %d switch moment from %d to %d",
+					ev.View.ID, ev.Old.ID, ev.New.ID)
 			})
 		}
 
 		// buffer saving state
-		on(EvCollectStatusSections, func(
-			add AddStatusSection,
+		on(func(
+			ev EvCollectStatusSections,
 			v CurrentView,
-			styles []Style,
 		) {
 			view := v()
 			if view == nil {
@@ -239,8 +243,8 @@ func (_ Provide) ViewEvents(
 			if view.Buffer.LastSyncFileInfo == view.GetMoment().FileInfo {
 				return
 			}
-			add("file", [][]any{
-				{"unsaved", styles[1], AlignRight, Padding(0, 2, 0, 0)},
+			ev.Add("file", [][]any{
+				{"unsaved", ev.Styles[1], AlignRight, Padding(0, 2, 0, 0)},
 			})
 		})
 

@@ -104,13 +104,13 @@ func (_ Provide) KeyMacroStatus(
 ) OnStartup {
 	return func() {
 
-		on(EvCollectStatusSections, func(
-			add AddStatusSection,
+		on(func(
+			ev EvCollectStatusSections,
 			recording MacroRecording,
 			getMacroName GetMacroName,
 		) {
 			if recording {
-				add("macro", [][]any{
+				ev.Add("macro", [][]any{
 					{getMacroName(), AlignRight, Padding(0, 2, 0, 0)},
 				})
 			}

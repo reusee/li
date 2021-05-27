@@ -26,7 +26,8 @@ func TestEditModeRedoAfterSwitching(t *testing.T) {
 		modes := getModes()
 		_, ok := modes[0].(*EditMode)
 		if !ok {
-			t.Fatal()
+			pt("%#v\n", modes)
+			t.Fatalf("got %T", modes[0])
 		}
 
 		// trigger

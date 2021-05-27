@@ -6,9 +6,12 @@ import (
 	"time"
 )
 
-type evCollectCompletionCandidate struct{}
-
-var EvCollectCompletionCandidate = new(evCollectCompletionCandidate)
+type EvCollectCompletionCandidate struct {
+	Add    AddCompletionCandidate
+	View   *View
+	Moment *Moment
+	State  ViewMomentState
+}
 
 type CompletionCandidate struct {
 	Text             string
@@ -46,7 +49,8 @@ func (_ Provide) Completion(
 			}
 		}
 
-		on(EvKeyEventHandled, func(
+		on(func(
+			ev EvKeyEventHandled,
 			curView CurrentView,
 			procs CompletionProcs,
 			config CompletionConfig,
@@ -112,14 +116,14 @@ func (_ Provide) Completion(
 
 					// collect candidates
 					var candidates []CompletionCandidate
-					trigger(scope.Sub(
-						func() AddCompletionCandidate {
-							return func(c CompletionCandidate) {
-								candidates = append(candidates, c)
-							}
+					trigger(EvCollectCompletionCandidate{
+						Add: func(c CompletionCandidate) {
+							candidates = append(candidates, c)
 						},
-						&view, &moment, &state,
-					), EvCollectCompletionCandidate)
+						View:   view,
+						Moment: moment,
+						State:  state,
+					})
 
 					if skip(scope) {
 						closeOverlay()

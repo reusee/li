@@ -10,10 +10,10 @@ func TestLineHeight(t *testing.T) {
 		ctrl func(string),
 		calLineHeight CalculateSumLineHeight,
 	) {
-		on(EvCollectLineHints, func(
-			add AddLineHint,
+		on(func(
+			ev EvCollectLineHints,
 		) {
-			add(moment, 0, []string{"42"})
+			ev.Add(moment, 0, []string{"42"})
 		})
 		ctrl("loop")
 
