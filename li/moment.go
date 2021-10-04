@@ -218,7 +218,7 @@ func (_ Provide) NewMomentFromFile(
 
 		// read
 		contentBytes, err := ioutil.ReadFile(path)
-		ce(err, e4.WithInfo("read %s", path))
+		ce(err, e4.NewInfo("read %s", path))
 
 		moment, linebreak, err = newMoment(contentBytes)
 		if err != nil {

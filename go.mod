@@ -6,8 +6,9 @@ require (
 	github.com/gdamore/tcell v1.4.0
 	github.com/junegunn/fzf v0.0.0-20210523023155-7e5aa1e2a5d7
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
-	github.com/reusee/dscope v0.0.0-20210527071832-45809dbad70b
-	github.com/reusee/e4 v0.0.0-20210524031902-9c86ac6c4189
+	github.com/reusee/dscope v0.0.0-20210927163816-996990a3ac8a
+	github.com/reusee/e4 v0.0.0-20210929160631-f5ffcca999a5
+	github.com/reusee/pr v0.0.0-20211003125556-3e6e9c7537ae // indirect
 	github.com/reusee/toml v0.4.0
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sergi/go-diff v1.2.0
