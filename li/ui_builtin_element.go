@@ -145,7 +145,7 @@ func (r _Rect) RenderFunc() any {
 		}
 		fgColor := FGColor(fg)
 		bgColor := BGColor(bg)
-		childScope := scope.Sub(
+		childScope := scope.Fork(
 			&childBox,
 			&set,
 			&style,
@@ -440,7 +440,7 @@ func (v _VerticalScroll) RenderFunc() any {
 				Style: style,
 			}
 		})
-		scope.Sub(
+		scope.Fork(
 			&elemBox, &set,
 		).Call(v.element.RenderFunc())
 		fromY := box.Top + v.offset - box.Height()/2

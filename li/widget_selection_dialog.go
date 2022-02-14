@@ -165,7 +165,7 @@ func (d *SelectionDialog) RenderFunc() any {
 				candidateElements = append(
 					candidateElements,
 					d.CandidateElement(
-						scope.Sub(
+						scope.Fork(
 							&candidateBox,
 							&style,
 							&d.candidates[d.index],

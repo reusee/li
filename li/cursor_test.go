@@ -221,7 +221,7 @@ func TestCursor(t *testing.T) {
 
 		// next / prev rune
 		move(Move{AbsLine: intP(0), AbsCol: intP(0)})
-		s.Sub(func() Func {
+		s.Fork(func() Func {
 			return commands["NextRune"].Func
 		}).Call(ExecuteCommandFunc)
 		emitRune('e')
@@ -229,7 +229,7 @@ func TestCursor(t *testing.T) {
 			view.CursorCol, 1,
 			view.CursorLine, 0,
 		)
-		s.Sub(func() Func {
+		s.Fork(func() Func {
 			return commands["NextRune"].Func
 		}).Call(ExecuteCommandFunc)
 		emitRune(',')
@@ -237,7 +237,7 @@ func TestCursor(t *testing.T) {
 			view.CursorCol, 5,
 			view.CursorLine, 0,
 		)
-		s.Sub(func() Func {
+		s.Fork(func() Func {
 			return commands["NextRune"].Func
 		}).Call(ExecuteCommandFunc)
 		emitRune('z') // not exists
@@ -245,7 +245,7 @@ func TestCursor(t *testing.T) {
 			view.CursorCol, 5,
 			view.CursorLine, 0,
 		)
-		s.Sub(func() Func {
+		s.Fork(func() Func {
 			return commands["NextRune"].Func
 		}).Call(ExecuteCommandFunc)
 		emitKey(tcell.KeyEsc) // not rune
@@ -253,7 +253,7 @@ func TestCursor(t *testing.T) {
 			view.CursorCol, 5,
 			view.CursorLine, 0,
 		)
-		s.Sub(func() Func {
+		s.Fork(func() Func {
 			return commands["PrevRune"].Func
 		}).Call(ExecuteCommandFunc)
 		emitRune('H') // not rune
@@ -261,7 +261,7 @@ func TestCursor(t *testing.T) {
 			view.CursorCol, 0,
 			view.CursorLine, 0,
 		)
-		s.Sub(func() Func {
+		s.Fork(func() Func {
 			return commands["PrevRune"].Func
 		}).Call(ExecuteCommandFunc)
 		emitKey(tcell.KeyTab) // not rune
@@ -269,7 +269,7 @@ func TestCursor(t *testing.T) {
 			view.CursorCol, 0,
 			view.CursorLine, 0,
 		)
-		s.Sub(func() Func {
+		s.Fork(func() Func {
 			return commands["PrevRune"].Func
 		}).Call(ExecuteCommandFunc)
 		emitRune('x') // not exists
@@ -320,7 +320,7 @@ func TestPageUpAndDown(t *testing.T) {
 		commands Commands,
 		view *View,
 	) {
-		s = s.Sub(
+		s = s.Fork(
 			func() ScrollConfig {
 				return ScrollConfig{
 					PaddingTop:    1,
@@ -396,7 +396,7 @@ func TestCursorNoView(t *testing.T) {
 		scope.Call(commands["PrevEmptyLine"].Func)
 		scope.Call(commands["LineBegin"].Func)
 		scope.Call(commands["LineEnd"].Func)
-		scope.Sub(func() Func {
+		scope.Fork(func() Func {
 			return commands["NextRune"].Func
 		}).Call(ExecuteCommandFunc)
 		emitKey(tcell.KeyEsc) // not rune

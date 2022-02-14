@@ -1,8 +1,6 @@
 package li
 
 import (
-	"reflect"
-
 	"github.com/reusee/dscope"
 )
 
@@ -14,9 +12,7 @@ type OnStartup func()
 
 var _ dscope.Reducer = OnStartup(nil)
 
-func (_ OnStartup) Reduce(_ dscope.Scope, vs []reflect.Value) reflect.Value {
-	return dscope.Reduce(vs)
-}
+func (_ OnStartup) IsReducer() {}
 
 func (_ Provide) OnStartup() OnStartup {
 	return func() {}

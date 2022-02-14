@@ -174,7 +174,7 @@ func (view *View) RenderFunc() any {
 					// show absolute
 					box := lineNumBox
 					box.Top += (y - contentBox.Top)
-					scope.Sub(
+					scope.Fork(
 						&box, &defaultStyle, &set,
 					).Call(Text(
 						fmt.Sprintf("%d", lineNum+1),
@@ -191,7 +191,7 @@ func (view *View) RenderFunc() any {
 					}
 					box := lineNumBox
 					box.Top += (y - contentBox.Top)
-					scope.Sub(
+					scope.Fork(
 						&box, &defaultStyle, &set,
 					).Call(Text(
 						fmt.Sprintf("%d", rel),
@@ -203,7 +203,7 @@ func (view *View) RenderFunc() any {
 				} else {
 					box := lineNumBox
 					box.Top += (y - contentBox.Top)
-					scope.Sub(
+					scope.Fork(
 						&box, &defaultStyle, &set,
 					).Call(Text(
 						"",
@@ -257,7 +257,7 @@ func (view *View) RenderFunc() any {
 						var cellStyleFuncs []StyleFunc
 						if view.Stainer != nil {
 							l := LineNumber(lineNum)
-							scope.Sub(
+							scope.Fork(
 								&moment, &line, &l,
 							).Call(
 								view.Stainer.Line(),

@@ -33,7 +33,7 @@ func main() {
 
 	// open files
 	views := make(li.Views)
-	scope = scope.Sub(func() li.Views { return views })
+	scope = scope.Fork(func() li.Views { return views })
 	scope.Call(func(
 		newBuffers li.NewBuffersFromPath,
 		newView li.NewViewFromBuffer,
@@ -86,7 +86,7 @@ func main() {
 		&trigger,
 	)
 
-	scope = scope.Sub(
+	scope = scope.Fork(
 		func() li.SetContent {
 			return screen.SetContent
 		},
@@ -94,7 +94,7 @@ func main() {
 
 	applyDerives := func() {
 		if len(derives) > 0 {
-			scope = scope.Sub(derives...)
+			scope = scope.Fork(derives...)
 			derives = derives[:0]
 		}
 

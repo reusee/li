@@ -62,7 +62,7 @@ func (f _ElementFunc) RenderFunc() any {
 	return func(
 		scope Scope,
 	) {
-		scope.Sub(f.provides...).Call(f.fn)
+		scope.Fork(f.provides...).Call(f.fn)
 	}
 }
 
@@ -86,7 +86,7 @@ func (s _ElementWith) RenderFunc() any {
 	return func(
 		scope Scope,
 	) {
-		renderAll(scope.Sub(s.provides...), s.elem)
+		renderAll(scope.Fork(s.provides...), s.elem)
 	}
 }
 

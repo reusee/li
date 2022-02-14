@@ -51,7 +51,7 @@ func withEditor(fn any) {
 	})
 	screen.EnableMouse()
 	screen.SetSize(80, 25)
-	scope = scope.Sub(
+	scope = scope.Fork(
 		func() Screen {
 			return SimScreen{
 				Screen: screen,
@@ -83,7 +83,7 @@ func withEditor(fn any) {
 
 	applyDerives := func() {
 		if len(derives) > 0 {
-			scope = scope.Sub(derives...)
+			scope = scope.Fork(derives...)
 			derives = derives[:0]
 		}
 	}
@@ -128,7 +128,7 @@ func withEditor(fn any) {
 		applyDerives()
 	}
 
-	scope.Sub(
+	scope.Fork(
 		func() *Scope {
 			return &scope
 		},
@@ -223,7 +223,7 @@ func withEditorBytes(t *testing.T, bs []byte, fn any) {
 			t.Fatal()
 		}
 
-		s.Sub(
+		s.Fork(
 			func() (*View, *Buffer, *Moment) {
 				return view, buf, view.GetMoment()
 			},

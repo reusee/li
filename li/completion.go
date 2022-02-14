@@ -302,7 +302,7 @@ func (c *CompletionList) StrokeSpecs() any {
 					apply := func(index int) {
 						c.index = &index
 						candidate := c.Candidates[index]
-						scope.Sub(
+						scope.Fork(
 							AsCurrentView(c.View),
 							AsCurrentMoment(c.Moment),
 						).Call(func(

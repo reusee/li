@@ -1,7 +1,6 @@
 package li
 
 import (
-	"reflect"
 	"strings"
 	"unsafe"
 
@@ -36,9 +35,7 @@ type LanguageStainers map[Language]func() Stainer
 
 var _ dscope.Reducer = LanguageStainers{}
 
-func (_ LanguageStainers) Reduce(_ dscope.Scope, vs []reflect.Value) reflect.Value {
-	return dscope.Reduce(vs)
-}
+func (_ LanguageStainers) IsReducer() {}
 
 func (_ Provide) DefaultLanguageStainers(
 	newGo NewGoLexicalStainer,

@@ -11,7 +11,7 @@ func Root(
 
 	box := Box{0, 0, int(height), int(width)}
 	style := getStyle("Default")
-	scope = scope.Sub(
+	scope = scope.Fork(
 		&box,
 		&style,
 	)

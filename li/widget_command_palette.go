@@ -139,7 +139,7 @@ func (_ Provide) ShowCommandPalette(
 				case tcell.KeyEnter:
 					run(func(scope Scope) {
 						fn := candidates[index].Func
-						scope.Sub(&fn).Call(ExecuteCommandFunc)
+						scope.Fork(&fn).Call(ExecuteCommandFunc)
 					})
 					closeOverlay(id)
 

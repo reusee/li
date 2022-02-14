@@ -14,7 +14,7 @@ func TestEditModeRedoAfterSwitching(t *testing.T) {
 	) {
 		var config EditModeConfig
 		config.DisableSequence = "jj"
-		scope = scope.Sub(func() EditModeConfig {
+		scope = scope.Fork(func() EditModeConfig {
 			return config
 		})
 		enable()

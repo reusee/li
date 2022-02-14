@@ -81,7 +81,7 @@ func (_ Provide) Hook(
 		l.Unlock()
 		evPtr := reflect.New(t)
 		evPtr.Elem().Set(reflect.ValueOf(ev))
-		subScope := scope.Sub(evPtr.Interface())
+		subScope := scope.Fork(evPtr.Interface())
 		for _, fn := range fns {
 			subScope.CallValue(fn)
 		}

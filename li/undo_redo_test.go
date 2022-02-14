@@ -93,7 +93,7 @@ func TestTimedUndo(t *testing.T) {
 		var config UndoConfig
 		scope.Assign(&config)
 		config.DurationMS1 = 10
-		scope = scope.Sub(func() UndoConfig { return config })
+		scope = scope.Fork(func() UndoConfig { return config })
 
 		m := view.GetMoment()
 		t0 := time.Now()

@@ -173,7 +173,7 @@ func (_ Provide) HandleKeyEvent(
 
 		r := ev.Name()
 		setEv(ev)
-		keyScope := scope.Sub(
+		keyScope := scope.Fork(
 			&ev,
 		)
 
@@ -219,7 +219,7 @@ func (_ Provide) HandleKeyEvent(
 					fn = commands[spec.CommandName].Func
 				}
 				var abort Abort
-				keyScope.Sub(&fn).Call(
+				keyScope.Fork(&fn).Call(
 					ExecuteCommandFunc,
 				).Assign(
 					&abort,
