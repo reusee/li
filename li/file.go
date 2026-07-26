@@ -2,7 +2,6 @@ package li
 
 import (
 	"fmt"
-	"io/fs"
 
 	"os"
 	"strings"
