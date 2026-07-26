@@ -90,7 +90,7 @@ func (r _Rect) RenderFunc() any {
 					marginBottom = v[2]
 					marginLeft = v[3]
 				} else {
-					panic(we(fmt.Errorf("bad margin: %q\n", v)))
+					panic(we(fmt.Errorf("bad margin: %v\n", v)))
 				}
 
 			case _Padding:
@@ -115,7 +115,7 @@ func (r _Rect) RenderFunc() any {
 					paddingBottom = v[2]
 					paddingLeft = v[3]
 				} else {
-					panic(we(fmt.Errorf("bad padding: %q\n", v)))
+					panic(we(fmt.Errorf("bad padding: %v\n", v)))
 				}
 
 			default:
@@ -262,7 +262,7 @@ func (t _Text) RenderFunc() any {
 					paddingBottom = v[2]
 					paddingLeft = v[3]
 				} else {
-					panic(we(fmt.Errorf("bad padding: %q\n", v)))
+					panic(we(fmt.Errorf("bad padding: %v\n", v)))
 				}
 
 			case OffsetStyleFunc:
