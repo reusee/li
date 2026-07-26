@@ -32,7 +32,7 @@ func (_ Provide) Commands() Commands {
 	return NamedCommands
 }
 
-//TODO scopify
+// TODO scopify
 func ExecuteCommandFunc(
 	fn Func,
 	scope Scope,

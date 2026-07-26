@@ -35,7 +35,7 @@ func (_ RandomStainer) Line() dyn {
 	) []*StyleFunc {
 		var ret []*StyleFunc
 		runes := line.Runes()
-		for i := 0; i < len(runes); i++ {
+		for range runes {
 			fn := SetFG(tcell.NewRGBColor(
 				int32(rand.Intn(256)),
 				int32(rand.Intn(256)),

@@ -124,7 +124,6 @@ func (_ Provide) ShowFileChooser(
 				for {
 					infos, err := f.Readdir(256)
 					for _, info := range infos {
-						info := info
 						name := info.Name()
 						fullPath := filepath.Join(path, name)
 						if w := displayWidth(fullPath); w > maxLength {

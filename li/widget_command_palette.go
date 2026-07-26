@@ -86,10 +86,7 @@ func (_ Provide) ShowCommandPalette(
 				}
 				candidate.LeftMatchLen = leftMatchLen
 				candidate.RightMatchLen = rightMatchLen
-				candidate.Score = score1
-				if score2 > score1 {
-					candidate.Score = score2
-				}
+				candidate.Score = max(score2, score1)
 				newCandidates = append(newCandidates, candidate)
 			}
 			if len(runes) > 0 && len(newCandidates) == 0 {
@@ -168,17 +165,11 @@ func (_ Provide) ShowCommandPalette(
 				//TODO scrollable
 
 				top := box.Top + marginTop
-				length := paddingLeft + leftLen + 1 + rightLen + paddingRight
-				if length > box.Width()-marginLeft-marginRight {
-					length = box.Width() - marginLeft - marginRight
-				}
+				length := min(paddingLeft+leftLen+1+rightLen+paddingRight, box.Width()-marginLeft-marginRight)
 				left := box.Left
 				right := left + length
 				maxBottom := box.Bottom - marginBottom
-				bottom := top + paddingTop + 1 + len(candidates) + paddingBottom
-				if bottom > maxBottom {
-					bottom = maxBottom
-				}
+				bottom := min(top+paddingTop+1+len(candidates)+paddingBottom, maxBottom)
 				style := darkerOrLighterStyle(defaultStyle, -10)
 				hlStyle := getStyle("Highlight")
 

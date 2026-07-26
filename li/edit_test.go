@@ -209,7 +209,7 @@ func BenchmarkLargeBuf(b *testing.B) {
 	) {
 
 		buf := new(bytes.Buffer)
-		for i := 0; i < 1000000; i++ {
+		for range 1000000 {
 			buf.Write(bytes.Repeat([]byte("a"), 4096))
 			buf.Write([]byte("\n"))
 		}

@@ -32,7 +32,7 @@ func ShowSearchDialog(
 
 		OnSelect: func(_ Scope, id ID) {
 			closeOverlay(id)
-			moveCursor(Move{AbsLine: intP(results[id].LineNumber - 1)})
+			moveCursor(Move{AbsLine: new(results[id].LineNumber - 1)})
 		},
 
 		OnUpdate: func(scope Scope, runes []rune) (ids []ID, maxLen int, initIndex int) {

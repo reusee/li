@@ -2,7 +2,8 @@ package li
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io/fs"
+
 	"os"
 	"strings"
 	"time"
@@ -86,7 +87,7 @@ func (_ Provide) SyncBufferMomentToFile(
 		}
 
 		// save
-		err = ioutil.WriteFile(buffer.Path, []byte(moment.GetContent()), 0644)
+		err = os.WriteFile(buffer.Path, []byte(moment.GetContent()), 0644)
 		if err != nil {
 			return
 		}

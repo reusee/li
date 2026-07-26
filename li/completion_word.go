@@ -30,12 +30,12 @@ func (_ Provide) CollectWords(
 		shard := numCPU
 		var jobs []chan CollectJob
 		var reqs []chan Req
-		for i := 0; i < shard; i++ {
+		for range shard {
 			jobs = append(jobs, make(chan CollectJob, 10000))
 			reqs = append(reqs, make(chan Req))
 		}
 
-		for i := 0; i < shard; i++ {
+		for i := range shard {
 			i := i
 			go func() {
 
@@ -193,7 +193,7 @@ func (_ Provide) CollectWords(
 			var l sync.Mutex
 			wg := new(sync.WaitGroup)
 			wg.Add(shard)
-			for i := 0; i < shard; i++ {
+			for i := range shard {
 				reqs[i] <- Req{
 					Scope:   scope,
 					Pattern: patternRunes,

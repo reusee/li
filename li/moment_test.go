@@ -12,7 +12,7 @@ func TestMomentFromBytes(t *testing.T) {
 		eq(t,
 			view.GetMoment().NumLines(), 1,
 		)
-		move(Move{AbsLine: intP(999)})
+		move(Move{AbsLine: new(999)})
 		eq(t,
 			view.CursorLine, 0,
 		)

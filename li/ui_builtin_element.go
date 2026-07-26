@@ -443,10 +443,7 @@ func (v _VerticalScroll) RenderFunc() any {
 		scope.Fork(
 			&elemBox, &set,
 		).Call(v.element.RenderFunc())
-		fromY := box.Top + v.offset - box.Height()/2
-		if fromY < box.Top {
-			fromY = box.Top
-		}
+		fromY := max(box.Top+v.offset-box.Height()/2, box.Top)
 		numTopCrop := fromY - box.Top
 		for i := 0; i < box.Height(); i++ {
 			y := fromY + i

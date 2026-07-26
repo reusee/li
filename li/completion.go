@@ -1,6 +1,7 @@
 package li
 
 import (
+	"slices"
 	"sort"
 	"sync/atomic"
 	"time"
@@ -257,7 +258,6 @@ func (c *CompletionList) RenderFunc() any {
 		box.Left++
 		var texts []Element
 		for idx, candidate := range c.Candidates {
-			candidate := candidate
 			lineStyle := style
 			if c.index != nil && idx == *c.index {
 				lineStyle = selectedStyle
@@ -266,10 +266,8 @@ func (c *CompletionList) RenderFunc() any {
 				box,
 				candidate.Text,
 				OffsetStyleFunc(func(i int) StyleFunc {
-					for _, offset := range candidate.MatchRuneOffsets {
-						if offset == i {
-							return lineStyle.SetUnderline(true)
-						}
+					if slices.Contains(candidate.MatchRuneOffsets, i) {
+						return lineStyle.SetUnderline(true)
 					}
 					return lineStyle
 				}),
@@ -349,7 +347,7 @@ func (_ Provide) CompletionProcs() (
 ) {
 
 	p = make(chan func(), 512)
-	for i := 0; i < numCPU; i++ {
+	for range numCPU {
 		go func() {
 			for {
 				(<-p)()

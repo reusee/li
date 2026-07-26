@@ -81,10 +81,7 @@ func ViewArea(
 		views := group.GetViews(scope)
 		if len(views) > 0 {
 
-			left := box.Right - config.ViewList.Width
-			if left > config.ViewList.MarginLeft {
-				left = config.ViewList.MarginLeft
-			}
+			left := min(box.Right-config.ViewList.Width, config.ViewList.MarginLeft)
 			frameBox := Box{
 				Top:    box.Top,
 				Bottom: box.Bottom,

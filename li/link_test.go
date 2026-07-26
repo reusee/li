@@ -90,7 +90,7 @@ func TestLinkOrder(t *testing.T) {
 		link(1, 2)
 		link(1, 3)
 		link(1, 4)
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			var i int
 			linked(1, &i)
 			if i != 4 {

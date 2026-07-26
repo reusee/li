@@ -15,18 +15,12 @@ type ZBox struct {
 }
 
 func (b Box) Width() int {
-	w := b.Right - b.Left
-	if w < 0 {
-		w = 0
-	}
+	w := max(b.Right-b.Left, 0)
 	return w
 }
 
 func (b Box) Height() int {
-	h := b.Bottom - b.Top
-	if h < 0 {
-		h = 0
-	}
+	h := max(b.Bottom-b.Top, 0)
 	return h
 }
 

@@ -16,7 +16,7 @@ var NamedLayouts = func() map[string]Layout {
 	m := make(map[string]Layout)
 	var f Layout
 	v := reflect.ValueOf(f)
-	t := reflect.TypeOf(f)
+	t := reflect.TypeFor[Layout]()
 	for i := 0; i < t.NumMethod(); i++ {
 		name := t.Method(i).Name
 		var fn Layout
@@ -31,7 +31,7 @@ func (_ Layout) VerticalSplit(box Box) (int, func(int) []ZBox) {
 	return math.MaxInt32, func(n int) (ret []ZBox) {
 		widths := split(box.Width(), n)
 		left := box.Left
-		for i := 0; i < n; i++ {
+		for i := range n {
 			ret = append(ret, ZBox{
 				Box: Box{
 					Left:   left,
@@ -51,7 +51,7 @@ func (_ Layout) HorizontalSplit(box Box) (int, func(int) []ZBox) {
 	return math.MaxInt32, func(n int) (ret []ZBox) {
 		heights := split(box.Height(), n)
 		top := box.Top
-		for i := 0; i < n; i++ {
+		for i := range n {
 			ret = append(ret, ZBox{
 				Box: Box{
 					Left:   box.Left,
@@ -115,7 +115,7 @@ func (l Layout) BinarySplit(box Box) (int, func(int) []ZBox) {
 
 func (_ Layout) Stacked(box Box) (int, func(int) []ZBox) {
 	return 1, func(n int) (ret []ZBox) {
-		for i := 0; i < n; i++ {
+		for i := range n {
 			ret = append(ret, ZBox{
 				Box: box,
 				Z:   n - i,

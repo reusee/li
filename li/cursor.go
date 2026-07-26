@@ -139,10 +139,7 @@ func (_ Provide) MoveCursor(
 			line = maxLine
 			goto calculate
 		} else {
-			maxCol = moment.GetLine(line).DisplayWidth - 1
-			if maxCol < 0 {
-				maxCol = 0
-			}
+			maxCol = max(moment.GetLine(line).DisplayWidth-1, 0)
 		}
 		if move.RelLine != 0 && view.PreferCursorCol > col {
 			// moving up or down
@@ -339,7 +336,7 @@ func (_ Provide) NextEmptyLine(
 			}
 			n++
 		}
-		moveCursor(Move{AbsLine: &n, AbsCol: intP(0)})
+		moveCursor(Move{AbsLine: &n, AbsCol: new(0)})
 		scrollToCursor()
 	}
 }
@@ -364,7 +361,7 @@ func (_ Provide) PrevEmptyLine(
 			}
 			n--
 		}
-		moveCursor(Move{AbsLine: &n, AbsCol: intP(0)})
+		moveCursor(Move{AbsLine: &n, AbsCol: new(0)})
 		scrollToCursor()
 	}
 }
@@ -564,8 +561,8 @@ func NextLineWithRune() []StrokeSpec {
 						for _, cell := range moment.GetLine(line).Cells {
 							if cell.Rune == toFind {
 								moveCursor(Move{
-									AbsLine: intP(line),
-									AbsCol:  intP(col),
+									AbsLine: new(line),
+									AbsCol:  new(col),
 								})
 								return
 							}
@@ -614,8 +611,8 @@ func PrevLineWithRune() []StrokeSpec {
 						for _, cell := range moment.GetLine(line).Cells {
 							if cell.Rune == toFind {
 								moveCursor(Move{
-									AbsLine: intP(line),
-									AbsCol:  intP(col),
+									AbsLine: new(line),
+									AbsCol:  new(col),
 								})
 								return
 							}
@@ -666,7 +663,7 @@ func (_ Provide) PrevDedentLine(
 		}
 		moveCursor(Move{
 			AbsLine: &n,
-			AbsCol:  intP(col),
+			AbsCol:  new(col),
 		})
 		scrollToCursor()
 	}
@@ -709,7 +706,7 @@ func (_ Provide) NextDedentLine(
 		}
 		moveCursor(Move{
 			AbsLine: &n,
-			AbsCol:  intP(col),
+			AbsCol:  new(col),
 		})
 		scrollToCursor()
 	}

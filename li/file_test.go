@@ -1,7 +1,6 @@
 package li
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -15,7 +14,7 @@ func TestFileSync(t *testing.T) {
 	) {
 
 		// temp file
-		f, err := ioutil.TempFile("", "*")
+		f, err := os.CreateTemp("", "*")
 		ce(err)
 		defer os.Remove(f.Name())
 		path := f.Name()

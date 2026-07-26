@@ -33,7 +33,6 @@ type UIDesc struct {
 func NewUIDesc(specs []any) UIDesc {
 	var initFuncs []any
 	for _, spec := range specs {
-		spec := spec
 		if t := reflect.TypeOf(spec); t.Kind() == reflect.Func && t.Name() == "" {
 			initFuncs = append(initFuncs, spec)
 		} else {

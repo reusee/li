@@ -26,7 +26,7 @@ func (_ Provide) FormatterGo(
 
 		c := make(chan Job, 512)
 
-		for i := 0; i < numCPU; i++ {
+		for range numCPU {
 			go func() {
 				for {
 					job := <-c
@@ -106,7 +106,7 @@ func (_ Provide) FormatterGo(
 
 								job.view.switchMoment(scope, moment)
 								col := moment.GetLine(position.Line).Cells[position.Cell].DisplayOffset
-								moveCursor(Move{AbsLine: intP(position.Line), AbsCol: &col})
+								moveCursor(Move{AbsLine: new(position.Line), AbsCol: &col})
 								moveCursor(Move{RelRune: numRunesInserted})
 
 							}

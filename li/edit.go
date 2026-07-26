@@ -214,7 +214,7 @@ func (_ Provide) InsertAtPositionFunc(
 		view.switchMoment(scope, newMoment)
 
 		col := newMoment.GetLine(position.Line).Cells[position.Cell].DisplayOffset
-		moveCursor(Move{AbsLine: intP(position.Line), AbsCol: &col})
+		moveCursor(Move{AbsLine: new(position.Line), AbsCol: &col})
 		moveCursor(Move{RelRune: nRunesInserted})
 
 	}
@@ -248,7 +248,7 @@ func (_ Provide) DeleteWithinRange(
 		newMoment, _ = apply(moment, change)
 		view.switchMoment(scope, newMoment)
 		col := newMoment.GetLine(r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
-		moveCursor(Move{AbsLine: intP(r.Begin.Line), AbsCol: &col})
+		moveCursor(Move{AbsLine: new(r.Begin.Line), AbsCol: &col})
 	}
 }
 
@@ -327,7 +327,7 @@ func (_ Provide) ReplaceWithinRange(
 		view.switchMoment(scope, moment)
 
 		col := moment.GetLine(r.Begin.Line).Cells[r.Begin.Cell].DisplayOffset
-		moveCursor(Move{AbsLine: intP(r.Begin.Line), AbsCol: &col})
+		moveCursor(Move{AbsLine: new(r.Begin.Line), AbsCol: &col})
 		moveCursor(Move{RelRune: nRunesInserted})
 
 		newMoment = moment

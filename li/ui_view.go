@@ -393,7 +393,7 @@ func (_ Provide) ViewRenderProcs() (
 ) {
 
 	ch = make(chan func(), numCPU*8)
-	for i := 0; i < numCPU; i++ {
+	for range numCPU {
 		go func() {
 			for {
 				(<-ch)()

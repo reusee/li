@@ -87,7 +87,7 @@ type LineInitProcs chan []*Line
 
 func (_ Provide) LineInitProcs() LineInitProcs {
 	c := make(chan []*Line, 512)
-	for i := 0; i < numCPU; i++ {
+	for range numCPU {
 		go func() {
 			for {
 				lines := <-c
