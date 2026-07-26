@@ -144,31 +144,34 @@ func (_ Command) FocusPrevViewInGroup() (spec CommandSpec) {
 	return
 }
 
-func (_ Provide) CurrentViewFilePathStatus(
+type InitCurrentViewFilePathStatus struct{}
+
+func (_ Provide) InitCurrentViewFilePathStatus(
 	on On,
-) OnStartup {
-	return func() {
-		on(func(
-			ev EvCollectStatusSections,
-			cur CurrentView,
-		) {
-			view := cur()
-			if view == nil {
-				return
-			}
-			parts := splitDir(view.Buffer.AbsPath)
-			if len(parts) == 0 {
-				return
-			}
-			var lines [][]any
-			for _, part := range parts {
-				lines = append(lines, []any{
-					part,
-					AlignRight,
-					Padding(0, 2, 0, 0),
-				})
-			}
-			ev.Add("path", lines)
-		})
-	}
+) (_ InitCurrentViewFilePathStatus) {
+
+	on(func(
+		ev EvCollectStatusSections,
+		cur CurrentView,
+	) {
+		view := cur()
+		if view == nil {
+			return
+		}
+		parts := splitDir(view.Buffer.AbsPath)
+		if len(parts) == 0 {
+			return
+		}
+		var lines [][]any
+		for _, part := range parts {
+			lines = append(lines, []any{
+				part,
+				AlignRight,
+				Padding(0, 2, 0, 0),
+			})
+		}
+		ev.Add("path", lines)
+	})
+
+	return
 }

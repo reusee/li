@@ -215,38 +215,39 @@ func (v *View) GetMoment() (m *Moment) {
 	return
 }
 
-func (_ Provide) ViewEvents(
+type InitViewEvents struct{}
+
+func (_ Provide) InitViewEvents(
 	on On,
 	j AppendJournal,
 	config DebugConfig,
-) OnStartup {
-	return func() {
+) (_ InitViewEvents) {
 
-		if config.Verbose {
-			on(func(
-				ev EvMomentSwitched,
-			) {
-				j("view %d switch moment from %d to %d",
-					ev.View.ID, ev.Old.ID, ev.New.ID)
-			})
-		}
-
-		// buffer saving state
+	if config.Verbose {
 		on(func(
-			ev EvCollectStatusSections,
-			v CurrentView,
+			ev EvMomentSwitched,
 		) {
-			view := v()
-			if view == nil {
-				return
-			}
-			if view.Buffer.LastSyncFileInfo == view.GetMoment().FileInfo {
-				return
-			}
-			ev.Add("file", [][]any{
-				{"unsaved", ev.Styles[1], AlignRight, Padding(0, 2, 0, 0)},
-			})
+			j("view %d switch moment from %d to %d",
+				ev.View.ID, ev.Old.ID, ev.New.ID)
 		})
-
 	}
+
+	// buffer saving state
+	on(func(
+		ev EvCollectStatusSections,
+		v CurrentView,
+	) {
+		view := v()
+		if view == nil {
+			return
+		}
+		if view.Buffer.LastSyncFileInfo == view.GetMoment().FileInfo {
+			return
+		}
+		ev.Add("file", [][]any{
+			{"unsaved", ev.Styles[1], AlignRight, Padding(0, 2, 0, 0)},
+		})
+	})
+
+	return
 }

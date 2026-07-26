@@ -238,40 +238,41 @@ func (_ Provide) HandleKeyEvent(
 
 }
 
-func (_ Provide) KeyEventHooks(
+type InitKeyEventHooks struct{}
+
+func (_ Provide) InitKeyEventHooks(
 	on On,
-) OnStartup {
-	return func() {
+) (_ InitKeyEventHooks) {
 
-		on(func(
-			ev EvCollectStatusSections,
-			getKeyEv GetLastKeyEvent,
-		) {
-			if keyEv := getKeyEv(); keyEv != nil {
-				ev.Add("key", [][]any{
-					{keyEv.Name(), AlignRight, Padding(0, 2, 0, 0)},
-				})
-			}
-		})
+	on(func(
+		ev EvCollectStatusSections,
+		getKeyEv GetLastKeyEvent,
+	) {
+		if keyEv := getKeyEv(); keyEv != nil {
+			ev.Add("key", [][]any{
+				{keyEv.Name(), AlignRight, Padding(0, 2, 0, 0)},
+			})
+		}
+	})
 
-		on(func(
-			ev EvCollectLineHints,
-			cur CurrentView,
-			getSpecs GetStrokeSpecs,
-		) {
-			view := cur()
-			if view == nil {
-				return
+	on(func(
+		ev EvCollectLineHints,
+		cur CurrentView,
+		getSpecs GetStrokeSpecs,
+	) {
+		view := cur()
+		if view == nil {
+			return
+		}
+		curLine := view.CursorLine
+		specs, _ := getSpecs()
+		moment := view.GetMoment()
+		for _, spec := range specs {
+			if len(spec.Hints) > 0 {
+				ev.Add(moment, curLine, spec.Hints)
 			}
-			curLine := view.CursorLine
-			specs, _ := getSpecs()
-			moment := view.GetMoment()
-			for _, spec := range specs {
-				if len(spec.Hints) > 0 {
-					ev.Add(moment, curLine, spec.Hints)
-				}
-			}
-		})
+		}
+	})
 
-	}
+	return
 }

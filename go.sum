@@ -22,14 +22,10 @@ github.com/pelletier/go-toml/v2 v2.4.3 h1:GTRvJQutkOSftxIFD5xw9aepkYNuPWmVJpffdD
 github.com/pelletier/go-toml/v2 v2.4.3/go.mod h1:2gIqNv+qfxSVS7cM2xJQKtLSTLUE9V8t9Stt+h56mCY=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/reusee/dscope v0.0.0-20220914012115-8e06fa6bcfe4 h1:JnuBRg+gQCY98TgckQBLFvThdF/TvEt1W3Z1Bu7N/Xw=
-github.com/reusee/dscope v0.0.0-20220914012115-8e06fa6bcfe4/go.mod h1:+G5XgyfYJ/CpQq8UX3o8j13BW+PIKTZxa9b2SRov7ko=
+github.com/reusee/dscope v0.0.0-20260713161331-d38456fd1dc6 h1:+9CQ9Pevg76xNCesDQO517kl7N5oX2QMz9OumHhUmAQ=
+github.com/reusee/dscope v0.0.0-20260713161331-d38456fd1dc6/go.mod h1:JtHKpPh9/rknocu2RAouG90FkXc+nPmvG5matoIrJtw=
 github.com/reusee/e4 v0.0.0-20220624024633-9eab321f05d6 h1:HG863jGFtcMuLte70apB3jC7lvgiTSWUnoHuDa9S0+A=
 github.com/reusee/e4 v0.0.0-20220624024633-9eab321f05d6/go.mod h1:kZmlM15C4htN/zwSQz5HJPQo8BCZY5NnmkyZBDqjwc4=
-github.com/reusee/e5 v0.0.0-20220904082237-2324612c136a h1:DXXWkxl2w6ya/1LC4Lv08HRKSdLQM44G5B4YJT9bM5A=
-github.com/reusee/e5 v0.0.0-20220904082237-2324612c136a/go.mod h1:kfVSDXYZocDqR1uRQfewKHmcLa/QtjGl/Ik0/vqhZ4s=
-github.com/reusee/pr v0.0.0-20220902154654-adb0578fc28b h1:JYUk+EfIMryWfSij3QoBTJd2BGSEDNUQPP4nAgsoT4E=
-github.com/reusee/pr v0.0.0-20220902154654-adb0578fc28b/go.mod h1:ByEquMmqXZQzG7VHsfuwgutPe/utoaaDJS9VJJ46uik=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rivo/uniseg v0.4.2 h1:YwD0ulJSJytLpiaWua0sBDusfsCZohxjxzVTYjwxfV8=
 github.com/rivo/uniseg v0.4.2/go.mod h1:FN3SvrM+Zdj16jyLfmOkMNblXMcoc8DfTHruCPUcx88=

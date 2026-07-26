@@ -99,22 +99,23 @@ func (_ Command) ToggleMacroRecording() (spec CommandSpec) {
 	return
 }
 
-func (_ Provide) KeyMacroStatus(
+type InitKeyMacroStatus struct{}
+
+func (_ Provide) InitKeyMacroStatus(
 	on On,
-) OnStartup {
-	return func() {
+) (_ InitKeyMacroStatus) {
 
-		on(func(
-			ev EvCollectStatusSections,
-			recording MacroRecording,
-			getMacroName GetMacroName,
-		) {
-			if recording {
-				ev.Add("macro", [][]any{
-					{getMacroName(), AlignRight, Padding(0, 2, 0, 0)},
-				})
-			}
-		})
+	on(func(
+		ev EvCollectStatusSections,
+		recording MacroRecording,
+		getMacroName GetMacroName,
+	) {
+		if recording {
+			ev.Add("macro", [][]any{
+				{getMacroName(), AlignRight, Padding(0, 2, 0, 0)},
+			})
+		}
+	})
 
-	}
+	return
 }

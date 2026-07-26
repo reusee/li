@@ -15,11 +15,13 @@ type EvCollectLineHints struct {
 	Add AddLineHint
 }
 
-func (_ Provide) LineHints(
+type InitLineHints struct{}
+
+func (_ Provide) InitLineHints(
 	on On,
 ) (
-	GetLineHints,
-	OnStartup,
+	get GetLineHints,
+	_ InitLineHints,
 ) {
 
 	// sorted
@@ -105,40 +107,39 @@ func (_ Provide) LineHints(
 
 	version := mark
 
-	return func() ([]LineHint, int) {
-			return hints, version
-		}, func() {
-
-			on(func(
-				ev EvLoopBegin,
-				trigger Trigger,
-				scope Scope,
-				cont ContinueMainLoop,
-			) {
-				changed = false
-				mark++
-				trigger(
-					EvCollectLineHints{
-						Add: add,
-					},
-				)
-				// clear unmarked entries
-				hs := hints[:0]
-				for _, hint := range hints {
-					if hint.mark == mark {
-						hs = append(hs, hint)
-					} else {
-						changed = true
-					}
-				}
-				if changed {
-					version = mark
-					hints = hs
-					// mark re-render
-					cont()
-				}
-			})
-
+	on(func(
+		ev EvLoopBegin,
+		trigger Trigger,
+		scope Scope,
+		cont ContinueMainLoop,
+	) {
+		changed = false
+		mark++
+		trigger(
+			EvCollectLineHints{
+				Add: add,
+			},
+		)
+		// clear unmarked entries
+		hs := hints[:0]
+		for _, hint := range hints {
+			if hint.mark == mark {
+				hs = append(hs, hint)
+			} else {
+				changed = true
+			}
 		}
+		if changed {
+			version = mark
+			hints = hs
+			// mark re-render
+			cont()
+		}
+	})
 
+	get = func() ([]LineHint, int) {
+		return hints, version
+	}
+
+	return
 }

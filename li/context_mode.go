@@ -42,47 +42,48 @@ func (c *ContextMode) StrokeSpecs() any {
 	}
 }
 
-func (_ Provide) ContextStatus(
+type InitContextStatus struct{}
+
+func (_ Provide) InitContextStatus(
 	on On,
-) OnStartup {
-	return func() {
+) (_ InitContextStatus) {
 
-		on(func(
-			ev EvCollectStatusSections,
-			getModes CurrentModes,
-		) {
-			for _, mode := range getModes() {
-				m, ok := mode.(*ContextMode)
-				if ok {
-					ev.Add("context", [][]any{
-						{"num: " + strconv.Itoa(m.Number), AlignRight, Padding(0, 2, 0, 0)},
-					})
-					break
-				}
+	on(func(
+		ev EvCollectStatusSections,
+		getModes CurrentModes,
+	) {
+		for _, mode := range getModes() {
+			m, ok := mode.(*ContextMode)
+			if ok {
+				ev.Add("context", [][]any{
+					{"num: " + strconv.Itoa(m.Number), AlignRight, Padding(0, 2, 0, 0)},
+				})
+				break
 			}
-		})
+		}
+	})
 
-		on(func(
-			ev EvCollectLineHints,
-			getModes CurrentModes,
-			curView CurrentView,
-		) {
-			view := curView()
-			if view == nil {
-				return
+	on(func(
+		ev EvCollectLineHints,
+		getModes CurrentModes,
+		curView CurrentView,
+	) {
+		view := curView()
+		if view == nil {
+			return
+		}
+		for _, mode := range getModes() {
+			m, ok := mode.(*ContextMode)
+			if ok && m.Number > 0 {
+				ev.Add(view.GetMoment(), view.CursorLine, []string{
+					fmt.Sprintf("context number: %d", m.Number),
+				})
+				break
 			}
-			for _, mode := range getModes() {
-				m, ok := mode.(*ContextMode)
-				if ok && m.Number > 0 {
-					ev.Add(view.GetMoment(), view.CursorLine, []string{
-						fmt.Sprintf("context number: %d", m.Number),
-					})
-					break
-				}
-			}
-		})
+		}
+	})
 
-	}
+	return
 }
 
 type WithContextNumber func(fn func(int))

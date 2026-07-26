@@ -183,24 +183,25 @@ func (_ Provide) ShouldShowViewListState() (
 	return
 }
 
-func (_ Provide) ShowViewListFlag(
+type InitShowViewListFlag struct{}
+
+func (_ Provide) InitShowViewListFlag(
 	on On,
 	config UIConfig,
 	run RunInMainLoop,
 	p ShouldShowViewListState,
-) OnStartup {
-	return func() {
+) (_ InitShowViewListFlag) {
 
-		on(func(
-			ev EvCurrentViewChanged,
-		) {
-			atomic.AddInt64(p, 1)
-			time.AfterFunc(time.Second*time.Duration(config.ViewList.HideTimeoutSeconds), func() {
-				run(func() {
-					atomic.AddInt64(p, -1)
-				})
+	on(func(
+		ev EvCurrentViewChanged,
+	) {
+		atomic.AddInt64(p, 1)
+		time.AfterFunc(time.Second*time.Duration(config.ViewList.HideTimeoutSeconds), func() {
+			run(func() {
+				atomic.AddInt64(p, -1)
 			})
 		})
+	})
 
-	}
+	return
 }

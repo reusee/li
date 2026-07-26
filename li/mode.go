@@ -74,30 +74,31 @@ type EvModesChanged struct {
 	Modes []Mode
 }
 
-func (_ Provide) ModeStatus(
+type InitModeStatus struct{}
+
+func (_ Provide) InitModeStatus(
 	on On,
-) OnStartup {
-	return func() {
+) (_ InitModeStatus) {
 
-		on(func(
-			ev EvCollectStatusSections,
-			getModes CurrentModes,
-		) {
-			modes := getModes()
-			var lines [][]any
-			for _, mode := range modes {
-				name := reflect.TypeOf(mode).Elem().Name()
-				name = strings.TrimSuffix(name, "Mode")
-				s := ev.Styles[0]
-				if name == "Edit" {
-					s = ev.Styles[1]
-				}
-				lines = append(lines, []any{
-					s, name, AlignRight, Padding(0, 2, 0, 0),
-				})
+	on(func(
+		ev EvCollectStatusSections,
+		getModes CurrentModes,
+	) {
+		modes := getModes()
+		var lines [][]any
+		for _, mode := range modes {
+			name := reflect.TypeOf(mode).Elem().Name()
+			name = strings.TrimSuffix(name, "Mode")
+			s := ev.Styles[0]
+			if name == "Edit" {
+				s = ev.Styles[1]
 			}
-			ev.Add("modes", lines)
-		})
+			lines = append(lines, []any{
+				s, name, AlignRight, Padding(0, 2, 0, 0),
+			})
+		}
+		ev.Add("modes", lines)
+	})
 
-	}
+	return
 }

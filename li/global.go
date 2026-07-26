@@ -8,14 +8,25 @@ type Provide struct{}
 
 type Derive func(inits ...any)
 
-type OnStartup func()
+type OnInit struct{}
 
-var _ dscope.Reducer = OnStartup(nil)
-
-func (_ OnStartup) IsReducer() {}
-
-func (_ Provide) OnStartup() OnStartup {
-	return func() {}
+func (_ Provide) OnInit(
+	InitCompletion,
+	InitCompletionWords,
+	InitContextStatus,
+	InitCursorStatus,
+	InitFormatterGo,
+	InitKeyEventHooks,
+	InitKeyMacroStatus,
+	InitLSP,
+	InitLayoutStatus,
+	InitLineHints,
+	InitModeStatus,
+	InitShowViewListFlag,
+	InitCurrentViewFilePathStatus,
+	InitViewEvents,
+) (_ OnInit) {
+	return
 }
 
 func NewGlobal(fns ...any) Scope {
@@ -23,11 +34,7 @@ func NewGlobal(fns ...any) Scope {
 	inits = append(inits, fns...)
 	scope := dscope.New(inits...)
 
-	scope.Call(func(
-		onStartup OnStartup,
-	) {
-		onStartup()
-	})
+	dscope.Get[OnInit](scope)
 
 	return scope
 }

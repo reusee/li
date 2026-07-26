@@ -4,7 +4,6 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/reusee/dscope"
 	"github.com/reusee/li/treesitter"
 )
 
@@ -32,10 +31,6 @@ var languageParsers = map[Language]func(*Moment) *treesitter.Parser{
 }
 
 type LanguageStainers map[Language]func() Stainer
-
-var _ dscope.Reducer = LanguageStainers{}
-
-func (_ LanguageStainers) IsReducer() {}
 
 func (_ Provide) DefaultLanguageStainers(
 	newGo NewGoLexicalStainer,
