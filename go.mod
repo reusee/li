@@ -5,6 +5,7 @@ go 1.26.5
 require (
 	github.com/gdamore/tcell v1.4.0
 	github.com/junegunn/fzf v0.0.0-20220913004311-b5efc68737e8
+	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/reusee/dscope v0.0.0-20220914012115-8e06fa6bcfe4
 	github.com/reusee/e4 v0.0.0-20220624024633-9eab321f05d6
 	github.com/sergi/go-diff v1.2.0

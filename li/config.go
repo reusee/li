@@ -1,11 +1,10 @@
 package li
 
 import (
-	"encoding/json"
-
 	"os"
 	"path/filepath"
 
+	"github.com/pelletier/go-toml/v2"
 	"github.com/reusee/e4"
 )
 
@@ -33,18 +32,18 @@ func (_ Provide) Config() (
 	configDir := getConfigDir()
 	dir = ConfigDir(configDir)
 
-	userConfig, err := os.ReadFile(filepath.Join(configDir, "config.json"))
+	userConfig, err := os.ReadFile(filepath.Join(configDir, "config.toml"))
 	if err != nil && !os.IsNotExist(err) {
-		ce(err, e4.NewInfo("open config.json"))
+		ce(err, e4.NewInfo("open config.toml"))
 	}
 
 	defaultConfig := []byte(DefaultConfig)
 
 	get = func(target any) error {
-		if err := json.Unmarshal(defaultConfig, target); err != nil {
+		if err := toml.Unmarshal(defaultConfig, target); err != nil {
 			return err
 		}
-		if err := json.Unmarshal(userConfig, target); err != nil {
+		if err := toml.Unmarshal(userConfig, target); err != nil {
 			return err
 		}
 		return nil
